@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de QR Codes e Números Aleatórios</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            grid-gap: 10px;
+            padding: 10px;
+            width: 100%;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid gray;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        .qr-code {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 5px;
+        }
+
+        .numero-aleatorio {
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            .button-container {
+                display: none;
+            }
+
+            .container {
+                grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+                grid-gap: 2mm;
+                padding: 10mm;
+            }
+
+            .item {
+                border: none;
+                padding: 1mm;
+            }
+
+            .qr-code {
+                width: 60mm;
+                height: 60mm;
+            }
+
+            .numero-aleatorio {
+                font-size: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="button-container">
+        <button onclick="gerarQRCode()">Gerar QR Codes</button>
+    </div>
+    <div class="container" id="qrcode-container"></div>
+
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <script>
+        function gerarQRCode() {
+            const container = document.getElementById('qrcode-container');
+            container.innerHTML = '';
+
+            for (let i = 0; i < 108; i++) {
+                const div = document.createElement('div');
+                div.className = 'item';
+                container.appendChild(div);
+
+                const codigoAleatorio = gerarCodigoAleatorio();
+                const urlCompleta = 'https://eqr.one/?c=' + codigoAleatorio;
+                new QRCode(div, {
+                    text: urlCompleta,
+                    width: 80,
+                    height: 80
+                });
+
+                const numeroDiv = document.createElement('div');
+                numeroDiv.className = 'numero-aleatorio';
+                numeroDiv.innerText = codigoAleatorio;
+                div.appendChild(numeroDiv);
+            }
+        }
+
+        function gerarCodigoAleatorio() {
+            return Math.random().toString(36).substring(2, 7).toUpperCase();
+        }
+    </script>
+</body>
+</html>
