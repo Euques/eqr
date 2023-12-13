@@ -38,6 +38,11 @@
 </head>
 <body>
   <div class="container">
+    <div id="data-content" style="display: none;">
+      <h2>Dados</h2>
+      <div id="data" class="resultado"></div>
+      <button onclick="showLoginForm()">Login</button>
+    </div>
     <div id="login-content">
       <h2>Login</h2>
       <input type="email" id="email" class="form-control" placeholder="E-mail">
@@ -51,20 +56,6 @@
       <input type="password" id="register-password" class="form-control" placeholder="Senha">
       <button onclick="register()">Cadastrar</button>
       <p>Já tem uma conta? <a href="#" onclick="showLoginForm()">Login</a></p>
-    </div>
-    <div id="user-content" style="display: none;">
-      <h2>Área de Usuário</h2>
-      <button onclick="logout()">Sair</button>
-      <button onclick="showDataInputForm()">Inserir/Editar Dados</button>
-    </div>
-    <div id="data-input-content" style="display: none;">
-      <h2>Inserir/Editar Dados</h2>
-      <input type="text" id="data-value" class="form-control" placeholder="Digite os dados">
-      <button onclick="saveData()">Salvar Dados</button>
-    </div>
-    <div id="scanner-content" style="display: none;">
-      <h2>Leitor de QR Code</h2>
-      <div id="data" class="resultado"></div>
     </div>
   </div>
   <script>
@@ -83,16 +74,36 @@
     // Função para verificar se o usuário está autenticado
     firebase.auth().onAuthStateChanged(function(user) {
       if (user) {
-        // Se o usuário está autenticado, mostra a área de usuário
-        document.getElementById('user-content').style.display = 'block';
-        document.getElementById('login-content').style.display = 'none';
-        document.getElementById('register-content').style.display = 'none';
+        // Se o usuário está autenticado, verifica se há dados para exibir
+        var cValue = getParameterValue();
+        if (cValue) {
+          var keyRef = firebase.database().ref('codeqr/' + cValue + '/valor');
+          keyRef.once('value').then(function(snapshot) {
+            var value = snapshot.val();
+            if (value !== null && value !== undefined) {
+              // Se a chave 'valor' existir, mostre os dados
+              document.getElementById('data').innerHTML = '<h5>Dados</h5><p>' + value + '</p>';
+              document.getElementById('data-content').style.display = 'block';
+              document.getElementById('login-content').style.display = 'none';
+              document.getElementById('register-content').style.display = 'none';
+            } else {
+              // Se a chave 'valor' não existir, mostre a tela de login
+              document.getElementById('data-content').style.display = 'none';
+              document.getElementById('login-content').style.display = 'block';
+              document.getElementById('register-content').style.display = 'none';
+            }
+          });
+        } else {
+          // Se c não estiver definido, mostre a tela de login
+          document.getElementById('data-content').style.display = 'none';
+          document.getElementById('login-content').style.display = 'block';
+          document.getElementById('register-content').style.display = 'none';
+        }
       } else {
-        // Se o usuário não está autenticado, mostra o login
-        document.getElementById('user-content').style.display = 'none';
-        document.getElementById('data-input-content').style.display = 'none';
-        document.getElementById('scanner-content').style.display = 'none';
+        // Se o usuário não está autenticado, mostre a tela de login
+        document.getElementById('data-content').style.display = 'none';
         document.getElementById('login-content').style.display = 'block';
+        document.getElementById('register-content').style.display = 'none';
       }
     });
 
@@ -118,33 +129,6 @@
       });
     }
 
-    function logout() {
-      firebase.auth().signOut().then(() => {
-        // Redirecionar para a página de login após sair
-      }).catch(function(error) {
-        alert("Erro ao sair: " + error.message);
-      });
-    }
-
-    function showDataInputForm() {
-      document.getElementById('data-input-content').style.display = 'block';
-    }
-
-    function saveData() {
-      // Salvar os dados no banco de dados (substitua esta parte com a lógica do Firebase)
-      var dataValue = document.getElementById('data-value').value;
-
-      // Exemplo de como salvar dados no Realtime Database
-      // var user = firebase.auth().currentUser;
-      // if (user) {
-      //   firebase.database().ref('user_data/' + user.uid).set({
-      //     data: dataValue
-      //   });
-      // }
-
-      alert("Dados salvos com sucesso!");
-    }
-
     function showRegisterForm() {
       document.getElementById('login-content').style.display = 'none';
       document.getElementById('register-content').style.display = 'block';
@@ -153,6 +137,11 @@
     function showLoginForm() {
       document.getElementById('register-content').style.display = 'none';
       document.getElementById('login-content').style.display = 'block';
+    }
+
+    function getParameterValue() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('c');
     }
   </script>
 </body>
