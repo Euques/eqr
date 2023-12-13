@@ -40,8 +40,8 @@
       <div id="data" class="resultado"></div>
       <button class="btn btn-primary" onclick="showEditForm()">Editar</button>
       <button class="btn btn-danger" onclick="logout()">Sair</button>
-      <p>Email: <span id="user-email"></span></p>
-      <p>ID do Usuário: <span id="user-id"></span></p>
+      <p id="user-email"></p>
+      <p id="user-id"></p>
     </div>
     <div id="edit-content" style="display: none;">
       <h2>Editar Dados</h2>
@@ -81,15 +81,15 @@
     firebase.auth().onAuthStateChanged(function(user) {
       if (user) {
         userId = user.uid; // Armazena o ID do usuário logado
-        document.getElementById('user-email').textContent = user.email;
-        document.getElementById('user-id').textContent = user.uid; // Exibe o ID do usuário
+        document.getElementById('user-email').textContent = 'Logado como: ' + user.email;
+        document.getElementById('user-id').textContent = 'ID do Usuário: ' + userId;
         document.getElementById('data-content').style.display = 'block';
         document.getElementById('login-content').style.display = 'none';
         checkAndDisplayData();
       } else {
-        userId = '';
+        userId = ''; // Define como vazio se o usuário não estiver logado
         document.getElementById('user-email').textContent = '';
-        document.getElementById('user-id').textContent = ''; // Limpa o ID do usuário
+        document.getElementById('user-id').textContent = '';
         document.getElementById('data-content').style.display = 'none';
         document.getElementById('login-content').style.display = 'block';
       }
@@ -101,9 +101,9 @@
       
       if (cValue) {
         var keyRef = firebase.database().ref('eqr/' + cValue);
-        keyRef.once('value').then(function(snapshot) {
+        keyRef.on('value', function(snapshot) {
           var data = snapshot.val();
-          if (data) {
+          if (data !== null && data !== undefined) {
             document.getElementById('data').innerHTML = '<h5>Dados</h5><p>' + data.valor + '</p>';
           } else {
             document.getElementById('data').innerHTML = '<p>Nenhum dado encontrado.</p>';
@@ -127,7 +127,8 @@
       if (cValue) {
         var keyRef = firebase.database().ref('eqr/' + cValue);
         keyRef.update({
-          valor: editedValue
+          valor: editedValue,
+          user: userId
         }).then(function() {
           alert("Dados editados com sucesso!");
           checkAndDisplayData();
