@@ -96,7 +96,7 @@
           keyRef.once('value').then(function(snapshot) {
             var creatorUserId = snapshot.val();
             
-            if (creatorUserId === userId) {
+            if (creatorUserId === userId || creatorUserId == null) {
               document.getElementById('edit-button').style.display = 'block';
             } else {
               document.getElementById('edit-button').style.display = 'none';
