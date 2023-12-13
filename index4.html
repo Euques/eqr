@@ -42,7 +42,7 @@
       <h2>Login</h2>
       <input type="email" id="email" class="form-control" placeholder="E-mail">
       <input type="password" id="password" class="form-control" placeholder="Senha">
-      <button onclick="login()" class="btn btn-success">Login</button>
+      <button onclick="login()">Login</button>
     </div>
     <div id="scanner-content" style="display: none;">
       <h2>Leitor de QR Code</h2>
@@ -86,6 +86,8 @@
     if (firebase.auth().currentUser) {
       var idUsuario = firebase.auth().currentUser.uid;
 
+      // Exibe o valor do código QR
+
       var keyRef = firebase.database().ref('codeqr/' + idUsuario + '/' + content);
       keyRef.child('valor').once('value', function (snapshot) {
         var value = snapshot.val();
@@ -93,68 +95,84 @@
           document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5><p id="code">' + content + '</p>';
           document.getElementById('data').innerHTML += '<h5>Valor:</h5><p id="value">' + value + '</p>';
 
-          // Exibir o botão de edição e permitir cópia do valor
-          if (firebase.auth().currentUser) {
-            document.getElementById('data').innerHTML += '<input type="text" id="edit-value" class="form-control" placeholder="Insira o novo valor">';
-            document.getElementById('data').innerHTML += '<button onclick="edit()" class="btn btn-success">Salvar</button>';
-            document.getElementById('data').innerHTML += '<button onclick="copyValue()">Copiar valor</button>';
-          }
+          // Exibir botões de edição e cópia para usuários logados
+          document.getElementById('data').innerHTML += '<input type="text" id="edit-value" class="form-control" placeholder="Insira o novo valor">';
+          document.getElementById('data').innerHTML += '<button onclick="edit()" class="btn btn-success">Salvar</button>';
+          document.getElementById('data').innerHTML += '<button onclick="copyValue()">Copiar valor</button>';
         } else {
-          // Exibe mensagem informativa sobre código sem valor
           document.getElementById('data').innerHTML = '<p>Este código QR não possui um valor associado. Tente outro código.</p>';
         }
       });
     } else {
-      // Exibe mensagem informativa para usuários não logados
-      // Exibe mensagem informativa para usuários não logados
-document.getElementById('data').innerHTML = '<p>Você precisa estar logado para visualizar o conteúdo do código QR.</p>';
+      // Exibe o valor do código QR mesmo para usuários não logados
+      keyRef = firebase.database().ref('codeqr/' + content);
+      keyRef.child('valor').once('value', function (snapshot) {
+        var value = snapshot.val();
+        if (value !== null) {
+          document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5><p id="code">' + content + '</p>';
+          document.getElementById('data').innerHTML += '<h5>Valor:</h5><p id="value">' + value + '</p>';
+          // Avisar que recursos de edição e cópia exigem login
+          document.getElementById('data').innerHTML += '<p>Observação: Para editar ou copiar o valor, você precisa estar logado.</p>';
+        } else {
+          document.getElementById('data').innerHTML = '<p>Este código QR não possui um valor associado. Tente outro código.</p>';
+        }
+      });
     }
   } else {
     alert('Nenhum código QR detectado na URL.');
   }
 
   function createKeyAndReload() {
-    var keyValue = document.getElementById('key-value').value;
-    var keyRef = firebase.database().ref('codeqr/' + idUsuario + '/' + keyValue);
-    var value = document.getElementById('textbox-value').value;
-    keyRef.child('valor').set(value).then(() => {
-      alert('Chave criada com sucesso com o valor: ' + keyValue);
-      window.location.reload();
-    }, (error) => {
-      alert(error.message);
+    // Cria um novo nó na base de dados
+    var keyRef = firebase.database().ref('codeqr');
+    keyRef.push({
+      valor: 'Novo valor'
     });
+
+    // Recarrega a página
+    window.location.reload();
   }
 
   function edit() {
-    // Verifica se o usuário está logado para editar o valor
+    // Verifica se o usuário está logado
     if (!firebase.auth().currentUser) {
-      alert('Você precisa estar autenticado para editar informações.');
+      alert('Você precisa estar logado para editar o valor deste código QR.');
       return;
     }
 
-    var code = document.getElementById('code').textContent;
+    // Obtém o valor do código QR
     var value = document.getElementById('edit-value').value;
 
-    if (!value) {
-      alert('O valor não pode ser vazio.');
-      return;
-    }
+    // Atualiza o valor no banco de dados
+    var keyRef = firebase.database().ref('codeqr/' + firebase.auth().currentUser.uid + '/' + content);
+    keyRef.child('valor').set(value);
 
-    firebase.database().ref('codeqr/' + idUsuario + '/' + code).child('valor').set(value).then(() => {
-      alert('Valor editado com sucesso.');
-      window.location.reload();
-    }, (error) => {
-      alert(error.message);
-    });
+    // Exibe uma mensagem de sucesso
+    alert('O valor foi atualizado com sucesso.');
   }
 
   function copyValue() {
-    const copyText = document.getElementById('value').innerText;
-    navigator.clipboard.writeText(copyText).then(() => {
-      alert('Valor copiado com sucesso!');
-    }, () => {
-      alert('Falha ao copiar o valor.');
-    });
+    // Verifica se o usuário está logado
+    if (!firebase.auth().currentUser) {
+      alert('Você precisa estar logado para copiar o valor deste código QR.');
+      return;
+    }
+
+    // Obtém o valor do código QR
+    var value = document.getElementById('value').textContent;
+
+    // Cria um elemento de entrada
+    var input = document.createElement('input');
+    input.value = value;
+    input.type = 'text';
+    input.focus();
+    input.select();
+    document.body.appendChild(input);
+    document.execCommand('copy');
+    document.body.removeChild(input);
+
+    // Exibe uma mensagem de sucesso
+    alert('O valor foi copiado para a área de transferência.');
   }
 
   </script>
