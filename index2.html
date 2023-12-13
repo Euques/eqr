@@ -122,9 +122,14 @@
   });
  }
 
- function edit() {
+function edit() {
   var code = document.getElementById('code').textContent;
   var value = document.getElementById('edit-value').value;
+
+  if (!firebase.auth().currentUser) {
+    alert('Você precisa estar autenticado para editar informações.');
+    return;
+  }
 
   if (!value) {
     alert('O valor não pode ser vazio.');
@@ -137,7 +142,7 @@
   }, (error) => {
     alert(error.message);
   });
- }
+}
 
  </script>
 </body>
