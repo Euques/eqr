@@ -97,15 +97,15 @@
       const cValue = params.get('c');
       
       if (cValue) {
-        var keyRef = firebase.database().ref('codeqr/' + cValue + '/valor/user/' + userId);
+        var keyRef = firebase.database().ref('codeqr/' + cValue + '/valor');
         keyRef.once('value').then(function(snapshot) {
-          var value = snapshot.val();
-          if (value !== null && value !== undefined) {
-            // Se o campo 'valor' existir, exibe os dados
-            document.getElementById('data').innerHTML = '<h5>Dados</h5><p>' + value + '</p>';
+          var data = snapshot.val();
+          if (data && data.user === userId) {
+            // Se o usuário atual corresponder ao usuário da chave, exibe os dados
+            document.getElementById('data').innerHTML = '<h5>Dados</h5><p>' + data.valor + '</p>';
           } else {
-            // Se o campo 'valor' não existir, mostra uma mensagem
-            document.getElementById('data').innerHTML = '<p>Nenhum dado encontrado.</p>';
+            // Se o usuário não corresponder, mostra uma mensagem
+            document.getElementById('data').innerHTML = '<p>Este QR Code pertence a outro usuário.</p>';
           }
         });
       } else {
@@ -125,14 +125,23 @@
       var cValue = params.get('c');
       
       if (cValue) {
-        var keyRef = firebase.database().ref('codeqr/' + cValue + '/valor/user/' + userId);
-        keyRef.set(editedValue).then(function() {
-          alert("Dados editados com sucesso!");
-          checkAndDisplayData(userId); // Chama a função com o ID do usuário
-          document.getElementById('data-content').style.display = 'block';
-          document.getElementById('edit-content').style.display = 'none';
-        }).catch(function(error) {
-          alert("Erro ao salvar os dados: " + error.message);
+        var keyRef = firebase.database().ref('codeqr/' + cValue + '/valor');
+        keyRef.once('value').then(function(snapshot) {
+          var data = snapshot.val();
+          if (data && data.user === userId) {
+            // Verifica se o usuário atual corresponde ao usuário da chave
+            data.valor = editedValue; // Atualiza o valor
+            keyRef.set(data).then(function() {
+              alert("Dados editados com sucesso!");
+              checkAndDisplayData(userId); // Chama a função com o ID do usuário
+              document.getElementById('data-content').style.display = 'block';
+              document.getElementById('edit-content').style.display = 'none';
+            }).catch(function(error) {
+              alert("Erro ao salvar os dados: " + error.message);
+            });
+          } else {
+            alert("Este QR Code pertence a outro usuário.");
+          }
         });
       }
     }
