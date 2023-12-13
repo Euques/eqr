@@ -86,7 +86,7 @@
         document.getElementById('user-email').textContent = 'Logado como: ' + user.email;
         document.getElementById('data-content').style.display = 'block';
         document.getElementById('login-content').style.display = 'none';
-        checkAndDisplayData(userId); // Chama a função com o ID do usuário
+        checkAndDisplayData(); // Chama a função
       } else {
         userId = ''; // Define como vazio se o usuário não estiver logado
         document.getElementById('user-email').textContent = '';
@@ -95,7 +95,7 @@
       }
     });
 
-    function checkAndDisplayData(userId) { // Recebe o ID do usuário como argumento
+    function checkAndDisplayData() {
       const params = new URLSearchParams(window.location.search);
       const cValue = params.get('c');
       
@@ -106,14 +106,21 @@
           if (data && data.user === userId) {
             // Se o usuário atual corresponder ao usuário da chave, exibe os dados
             document.getElementById('data').innerHTML = '<h5>Dados</h5><p>' + data.valor + '</p>';
-          } else {
+            document.getElementById('edit-content').style.display = 'block';
+          } else if (data && data.user !== userId) {
             // Se o usuário não corresponder, mostra uma mensagem
             document.getElementById('data').innerHTML = '<p>Este QR Code pertence a outro usuário.</p>';
+            document.getElementById('edit-content').style.display = 'none';
+          } else {
+            // Se não houver dados, mostra uma mensagem
+            document.getElementById('data').innerHTML = '<p>Nenhum dado encontrado.</p>';
+            document.getElementById('edit-content').style.display = 'none';
           }
         });
       } else {
         // Se 'c' não estiver definido, mostra uma mensagem
         document.getElementById('data').innerHTML = '<p>Nenhum dado encontrado.</p>';
+        document.getElementById('edit-content').style.display = 'none';
       }
     }
 
@@ -136,7 +143,7 @@
             data.valor = editedValue; // Atualiza o valor
             keyRef.set(data).then(function() {
               alert("Dados editados com sucesso!");
-              checkAndDisplayData(userId); // Chama a função com o ID do usuário
+              checkAndDisplayData(); // Chama a função
               document.getElementById('data-content').style.display = 'block';
               document.getElementById('edit-content').style.display = 'none';
             }).catch(function(error) {
