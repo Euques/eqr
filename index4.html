@@ -38,7 +38,7 @@
     <div id="data-content">
       <h2>Dados</h2>
       <div id="data" class="resultado"></div>
-      <button class="btn btn-primary" onclick="showEditForm()">Editar</button>
+      <button class="btn btn-primary" id="edit-button" style="display: none;" onclick="showEditForm()">Editar</button>
       <button class="btn btn-danger" onclick="logout()">Sair</button>
       <p id="user-email"></p>
       <p id="user-id"></p>
@@ -86,6 +86,24 @@
         document.getElementById('data-content').style.display = 'block';
         document.getElementById('login-content').style.display = 'none';
         checkAndDisplayData();
+        
+        // Adicione o código para verificar se o usuário é o criador dos dados
+        var params = new URLSearchParams(window.location.search);
+        var cValue = params.get('c');
+        
+        if (cValue) {
+          var keyRef = firebase.database().ref('eqr/' + cValue + '/user');
+          keyRef.once('value').then(function(snapshot) {
+            var creatorUserId = snapshot.val();
+            
+            if (creatorUserId === userId) {
+              document.getElementById('edit-button').style.display = 'block';
+            } else {
+              document.getElementById('edit-button').style.display = 'none';
+            }
+          });
+        }
+        
       } else {
         userId = ''; // Define como vazio se o usuário não estiver logado
         document.getElementById('user-email').textContent = '';
@@ -100,16 +118,19 @@
       const cValue = params.get('c');
       
       if (cValue) {
-        var keyRef = firebase.database().ref('eqr/' + cValue);
-        keyRef.on('value', function(snapshot) {
-          var data = snapshot.val();
-          if (data !== null && data !== undefined) {
-            document.getElementById('data').innerHTML = '<h5>Dados</h5><p>' + data.valor + '</p>';
+        var keyRef = firebase.database().ref('eqr/' + cValue + '/valor');
+        keyRef.once('value').then(function(snapshot) {
+          var value = snapshot.val();
+          if (value !== null && value !== undefined) {
+            // Se o campo 'valor' existir, exibe os dados
+            document.getElementById('data').innerHTML = '<h5>Dados</h5><p>' + value + '</p>';
           } else {
+            // Se o campo 'valor' não existir, mostra uma mensagem
             document.getElementById('data').innerHTML = '<p>Nenhum dado encontrado.</p>';
           }
         });
       } else {
+        // Se 'c' não estiver definido, mostra uma mensagem
         document.getElementById('data').innerHTML = '<p>Nenhum dado encontrado.</p>';
       }
     }
@@ -121,15 +142,12 @@
 
     function saveEditedData() {
       var editedValue = document.getElementById('edit-value').value;
-      const params = new URLSearchParams(window.location.search);
-      const cValue = params.get('c');
+      var params = new URLSearchParams(window.location.search);
+      var cValue = params.get('c');
       
       if (cValue) {
-        var keyRef = firebase.database().ref('eqr/' + cValue);
-        keyRef.update({
-          valor: editedValue,
-          user: userId
-        }).then(function() {
+        var keyRef = firebase.database().ref('eqr/' + cValue + '/valor');
+        keyRef.set(editedValue).then(function() {
           alert("Dados editados com sucesso!");
           checkAndDisplayData();
           document.getElementById('data-content').style.display = 'block';
