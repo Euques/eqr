@@ -40,8 +40,8 @@
   <div class="container">
     <div id="login-content">
       <h2>Login</h2>
-      <input type="email" id="login-email" class="form-control" placeholder="E-mail">
-      <input type="password" id="login-password" class="form-control" placeholder="Senha">
+      <input type="email" id="email" class="form-control" placeholder="E-mail">
+      <input type="password" id="password" class="form-control" placeholder="Senha">
       <button onclick="login()">Login</button>
       <p>Não tem uma conta? <a href="#" onclick="showRegisterForm()">Cadastre-se</a></p>
     </div>
@@ -71,8 +71,8 @@
     firebase.initializeApp(firebaseConfig);
 
     function login() {
-      var email = document.getElementById('login-email').value;
-      var password = document.getElementById('login-password').value;
+      var email = document.getElementById('email').value;
+      var password = document.getElementById('password').value;
 
       firebase.auth().signInWithEmailAndPassword(email, password).then(() => {
         // Redirecionar para a página de scanner após o login bem-sucedido
@@ -106,6 +106,20 @@
       document.getElementById('register-content').style.display = 'none';
       document.getElementById('login-content').style.display = 'block';
     }
+
+    // Verifique se a chave no Realtime Database possui um valor
+    var keyRef = firebase.database().ref('codeqr');
+    keyRef.once('value').then(function(snapshot) {
+      var value = snapshot.val();
+      if (value) {
+        // Se a chave tiver um valor, mostre-o na tela de scanner
+        document.getElementById('data').innerHTML = '<h5>Valor da Chave</h5><p>' + value + '</p>';
+        document.getElementById('scanner-content').style.display = 'block';
+      } else {
+        // Se a chave estiver vazia, mostre a tela de login
+        document.getElementById('login-content').style.display = 'block';
+      }
+    });
   </script>
 </body>
 </html>
