@@ -42,6 +42,7 @@
       <h2>Dados</h2>
       <div id="data" class="resultado"></div>
       <button onclick="showEditForm()">Editar</button>
+      <button onclick="logout()">Sair</button>
     </div>
     <div id="edit-content" style="display: none;">
       <h2>Editar Dados</h2>
@@ -80,9 +81,10 @@
     function checkAndDisplayData() {
       const params = new URLSearchParams(window.location.search);
       const cValue = params.get('c');
+      const userId = firebase.auth().currentUser ? firebase.auth().currentUser.uid : '';
 
       if (cValue) {
-        var keyRef = firebase.database().ref('codeqr/' + cValue + '/valor');
+        var keyRef = firebase.database().ref('codeqr/' + userId + '/' + cValue + '/valor');
         keyRef.once('value').then(function(snapshot) {
           var value = snapshot.val();
           if (value !== null && value !== undefined) {
@@ -108,10 +110,11 @@
       var editedValue = document.getElementById('edit-value').value;
       var params = new URLSearchParams(window.location.search);
       var cValue = params.get('c');
+      const userId = firebase.auth().currentUser ? firebase.auth().currentUser.uid : '';
 
       if (cValue) {
         // Atualize o valor no Realtime Database
-        firebase.database().ref('codeqr/' + cValue + '/valor').set(editedValue).then(function() {
+        firebase.database().ref('codeqr/' + userId + '/' + cValue + '/valor').set(editedValue).then(function() {
           alert("Dados editados com sucesso!");
           // Após editar, volte para a exibição dos dados
           checkAndDisplayData();
@@ -121,6 +124,14 @@
           alert("Erro ao salvar os dados: " + error.message);
         });
       }
+    }
+
+    function logout() {
+      firebase.auth().signOut().then(function() {
+        // Redirecionar ou realizar ações após o logout
+      }).catch(function(error) {
+        console.error("Erro ao fazer logout: " + error);
+      });
     }
 
     // Verifique e exiba os dados quando a página é carregada
