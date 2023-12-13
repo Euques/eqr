@@ -31,9 +31,6 @@
       margin-top: 5px;
       color: #333;
     }
-    .btn-success {
-      margin-top: 10px;
-    }
   </style>
 </head>
 <body>
@@ -41,27 +38,27 @@
     <div id="data-content">
       <h2>Dados</h2>
       <div id="data" class="resultado"></div>
-      <button onclick="showEditForm()">Editar</button>
-      <button onclick="logout()">Sair</button>
+      <button class="btn btn-primary" onclick="showEditForm()">Editar</button>
+      <button class="btn btn-danger" onclick="logout()">Sair</button>
       <p id="user-email"></p>
     </div>
     <div id="edit-content" style="display: none;">
       <h2>Editar Dados</h2>
       <input type="text" id="edit-value" class="form-control" placeholder="Digite os dados">
-      <button onclick="saveEditedData()">Salvar</button>
+      <button class="btn btn-success" onclick="saveEditedData()">Salvar</button>
     </div>
     <div id="login-content" style="display: none;">
       <h2>Login</h2>
       <input type="email" id="email" class="form-control" placeholder="E-mail">
       <input type="password" id="password" class="form-control" placeholder="Senha">
-      <button onclick="login()">Login</button>
+      <button class="btn btn-primary" onclick="login()">Login</button>
       <p>Não tem uma conta? <a href="#" onclick="showRegisterForm()">Cadastre-se</a></p>
     </div>
     <div id="register-content" style="display: none;">
       <h2>Cadastro</h2>
       <input type="email" id="register-email" class="form-control" placeholder="E-mail">
       <input type="password" id="register-password" class="form-control" placeholder="Senha">
-      <button onclick="register()">Cadastrar</button>
+      <button class="btn btn-success" onclick="register()">Cadastrar</button>
       <p>Já tem uma conta? <a href="#" onclick="showLoginForm()">Login</a></p>
     </div>
   </div>
@@ -129,22 +126,13 @@
       
       if (cValue) {
         var keyRef = firebase.database().ref('codeqr/' + userId + '/' + cValue + '/valor');
-        keyRef.once('value').then(function(snapshot) {
-          var value = snapshot.val();
-          if (value !== null && value !== undefined) {
-            // Se o campo 'valor' já existe, mostra um alerta
-            alert("Esse QR pertence a outro usuário. Você não pode editá-lo.");
-          } else {
-            // Se o campo 'valor' não existe, permite a edição
-            keyRef.set(editedValue).then(function() {
-              alert("Dados editados com sucesso!");
-              checkAndDisplayData(userId); // Chama a função com o ID do usuário
-              document.getElementById('data-content').style.display = 'block';
-              document.getElementById('edit-content').style.display = 'none';
-            }).catch(function(error) {
-              alert("Erro ao salvar os dados: " + error.message);
-            });
-          }
+        keyRef.set(editedValue).then(function() {
+          alert("Dados editados com sucesso!");
+          checkAndDisplayData(userId); // Chama a função com o ID do usuário
+          document.getElementById('data-content').style.display = 'block';
+          document.getElementById('edit-content').style.display = 'none';
+        }).catch(function(error) {
+          alert("Erro ao salvar os dados: " + error.message);
         });
       }
     }
