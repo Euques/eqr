@@ -45,7 +45,7 @@
     </div>
     <div id="edit-content" style="display: none;">
       <h2>Editar Dados</h2>
-      <input type="text" id="edit-value" class="form-control" placeholder="Digite os dados">
+      <input type="text" id="edit-value" class="form-control mb-2" placeholder="Digite os dados">
       <button class="btn btn-success" onclick="saveEditedData()">Salvar</button>
       <button class="btn btn-danger" onclick="logout()">Sair</button>
     </div>
@@ -115,11 +115,13 @@
           } else {
             // Se não houver dados, mostra uma mensagem de nenhum dado encontrado
             document.getElementById('data').innerHTML = '<p>Nenhum dado encontrado.</p>';
+            document.getElementById('edit-content').style.display = 'none'; // Oculta o formulário de edição
           }
         });
       } else {
         // Se 'c' não estiver definido, mostra uma mensagem de nenhum dado encontrado
         document.getElementById('data').innerHTML = '<p>Nenhum dado encontrado.</p>';
+        document.getElementById('edit-content').style.display = 'none'; // Oculta o formulário de edição
       }
     }
 
@@ -133,15 +135,15 @@
         keyRef.once('value').then(function(snapshot) {
           var data = snapshot.val();
           if (data && data.user === userId) {
-            // Verifica se o usuário atual corresponde ao usuário da chave
-            data.valor = editedValue; // Atualiza o valor
-            keyRef.set(data).then(function() {
+            // Se houver dados e o usuário atual corresponder ao usuário da chave, permite a edição
+            keyRef.set({ valor: editedValue, user: userId }).then(function() {
               alert("Dados editados com sucesso!");
               checkAndDisplayData(); // Chama a função
             }).catch(function(error) {
               alert("Erro ao salvar os dados: " + error.message);
             });
           } else {
+            // Se o usuário atual não corresponder ao usuário da chave, exibe uma mensagem de erro
             alert("Este QR Code pertence a outro usuário.");
           }
         });
