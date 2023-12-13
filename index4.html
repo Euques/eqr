@@ -38,7 +38,7 @@
 </head>
 <body>
   <div class="container">
-    <div id="data-content" style="display: none;">
+    <div id="data-content">
       <h2>Dados</h2>
       <div id="data" class="resultado"></div>
       <button onclick="showEditForm()">Editar</button>
@@ -50,7 +50,7 @@
       <input type="text" id="edit-value" class="form-control" placeholder="Digite os dados">
       <button onclick="saveEditedData()">Salvar</button>
     </div>
-    <div id="login-content">
+    <div id="login-content" style="display: none;">
       <h2>Login</h2>
       <input type="email" id="email" class="form-control" placeholder="E-mail">
       <input type="password" id="password" class="form-control" placeholder="Senha">
@@ -85,10 +85,12 @@
         userId = user.uid; // Armazena o ID do usuário logado
         document.getElementById('user-email').textContent = 'Logado como: ' + user.email;
         document.getElementById('data-content').style.display = 'block';
+        document.getElementById('login-content').style.display = 'none';
       } else {
         userId = ''; // Define como vazio se o usuário não estiver logado
         document.getElementById('user-email').textContent = '';
         document.getElementById('data-content').style.display = 'none';
+        document.getElementById('login-content').style.display = 'block';
       }
     });
 
