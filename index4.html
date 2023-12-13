@@ -38,11 +38,12 @@
 </head>
 <body>
   <div class="container">
-    <div id="data-content">
+    <div id="data-content" style="display: none;">
       <h2>Dados</h2>
       <div id="data" class="resultado"></div>
       <button onclick="showEditForm()">Editar</button>
       <button onclick="logout()">Sair</button>
+      <p id="user-email"></p>
     </div>
     <div id="edit-content" style="display: none;">
       <h2>Editar Dados</h2>
@@ -82,8 +83,12 @@
     firebase.auth().onAuthStateChanged(function(user) {
       if (user) {
         userId = user.uid; // Armazena o ID do usuário logado
+        document.getElementById('user-email').textContent = 'Logado como: ' + user.email;
+        document.getElementById('data-content').style.display = 'block';
       } else {
         userId = ''; // Define como vazio se o usuário não estiver logado
+        document.getElementById('user-email').textContent = '';
+        document.getElementById('data-content').style.display = 'none';
       }
     });
 
