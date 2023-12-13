@@ -97,7 +97,7 @@
       const cValue = params.get('c');
       
       if (cValue) {
-        var keyRef = firebase.database().ref('codeqr/' + userId + '/' + cValue + '/valor');
+        var keyRef = firebase.database().ref('codeqr/' + cValue + '/valor/user/' + userId);
         keyRef.once('value').then(function(snapshot) {
           var value = snapshot.val();
           if (value !== null && value !== undefined) {
@@ -125,7 +125,7 @@
       var cValue = params.get('c');
       
       if (cValue) {
-        var keyRef = firebase.database().ref('codeqr/' + userId + '/' + cValue + '/valor');
+        var keyRef = firebase.database().ref('codeqr/' + cValue + '/valor/user/' + userId);
         keyRef.set(editedValue).then(function() {
           alert("Dados editados com sucesso!");
           checkAndDisplayData(userId); // Chama a função com o ID do usuário
