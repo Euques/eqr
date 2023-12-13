@@ -86,6 +86,7 @@
         document.getElementById('user-email').textContent = 'Logado como: ' + user.email;
         document.getElementById('data-content').style.display = 'block';
         document.getElementById('login-content').style.display = 'none';
+        checkAndDisplayData(userId); // Chama a função com o ID do usuário
       } else {
         userId = ''; // Define como vazio se o usuário não estiver logado
         document.getElementById('user-email').textContent = '';
@@ -94,7 +95,7 @@
       }
     });
 
-    function checkAndDisplayData() {
+    function checkAndDisplayData(userId) { // Recebe o ID do usuário como argumento
       const params = new URLSearchParams(window.location.search);
       const cValue = params.get('c');
       
@@ -130,7 +131,7 @@
         var keyRef = firebase.database().ref('codeqr/' + userId + '/' + cValue + '/valor');
         keyRef.set(editedValue).then(function() {
           alert("Dados editados com sucesso!");
-          checkAndDisplayData();
+          checkAndDisplayData(userId); // Chama a função com o ID do usuário
           document.getElementById('data-content').style.display = 'block';
           document.getElementById('edit-content').style.display = 'none';
         }).catch(function(error) {
