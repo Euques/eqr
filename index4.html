@@ -83,7 +83,7 @@
         document.getElementById('user-email').textContent = 'Logado como: ' + user.email;
         document.getElementById('data-content').style.display = 'block';
         document.getElementById('login-content').style.display = 'none';
-        checkAndDisplayData(userId); // Chama a função com o ID do usuário
+        checkAndDisplayData(); // Chama a função
       } else {
         userId = ''; // Define como vazio se o usuário não estiver logado
         document.getElementById('user-email').textContent = '';
@@ -92,19 +92,23 @@
       }
     });
 
-    function checkAndDisplayData(userId) { // Recebe o ID do usuário como argumento
+    function checkAndDisplayData() {
       const params = new URLSearchParams(window.location.search);
       const cValue = params.get('c');
       
       if (cValue) {
-        var keyRef = firebase.database().ref('codeqr/' + userId + '/' + cValue + '/valor');
+        var keyRef = firebase.database().ref('eqr/' + cValue);
         keyRef.once('value').then(function(snapshot) {
-          var value = snapshot.val();
-          if (value !== null && value !== undefined) {
-            // Se o campo 'valor' existir, exibe os dados
-            document.getElementById('data').innerHTML = '<h5>Dados</h5><p>' + value + '</p>';
+          var data = snapshot.val();
+          if (data) {
+            // Se houver dados
+            document.getElementById('data').innerHTML = '<h5>Dados</h5><p>' + data.valor + '</p>';
+            if (userId && data.user === userId) {
+              // Se o usuário estiver logado e for o proprietário dos dados, permite a edição
+              document.getElementById('edit-content').style.display = 'block';
+            }
           } else {
-            // Se o campo 'valor' não existir, mostra uma mensagem
+            // Se não houver dados, mostra uma mensagem
             document.getElementById('data').innerHTML = '<p>Nenhum dado encontrado.</p>';
           }
         });
@@ -121,14 +125,16 @@
 
     function saveEditedData() {
       var editedValue = document.getElementById('edit-value').value;
-      var params = new URLSearchParams(window.location.search);
-      var cValue = params.get('c');
+      const params = new URLSearchParams(window.location.search);
+      const cValue = params.get('c');
       
       if (cValue) {
-        var keyRef = firebase.database().ref('codeqr/' + userId + '/' + cValue + '/valor');
-        keyRef.set(editedValue).then(function() {
+        var keyRef = firebase.database().ref('eqr/' + cValue);
+        keyRef.update({
+          valor: editedValue
+        }).then(function() {
           alert("Dados editados com sucesso!");
-          checkAndDisplayData(userId); // Chama a função com o ID do usuário
+          checkAndDisplayData(); // Chama a função
           document.getElementById('data-content').style.display = 'block';
           document.getElementById('edit-content').style.display = 'none';
         }).catch(function(error) {
