@@ -106,8 +106,8 @@
       });
     } else {
       // Exibe mensagem informativa para usuários não logados
-      document.getElementById('data').innerHTML = '<p>Você precisa estar logado para visualizar o conteúdo do código QR.</p>';
-      return;
+      // Exibe mensagem informativa para usuários não logados
+document.getElementById('data').innerHTML = '<p>Você precisa estar logado para visualizar o conteúdo do código QR.</p>';
     }
   } else {
     alert('Nenhum código QR detectado na URL.');
