@@ -81,10 +81,9 @@
     function checkAndDisplayData() {
       const params = new URLSearchParams(window.location.search);
       const cValue = params.get('c');
-      const userId = firebase.auth().currentUser ? firebase.auth().currentUser.uid : '';
 
       if (cValue) {
-        var keyRef = firebase.database().ref('codeqr/' + userId + '/' + cValue + '/valor');
+        var keyRef = firebase.database().ref('codeqr/' + cValue + '/valor');
         keyRef.once('value').then(function(snapshot) {
           var value = snapshot.val();
           if (value !== null && value !== undefined) {
@@ -110,11 +109,10 @@
       var editedValue = document.getElementById('edit-value').value;
       var params = new URLSearchParams(window.location.search);
       var cValue = params.get('c');
-      const userId = firebase.auth().currentUser ? firebase.auth().currentUser.uid : '';
 
       if (cValue) {
         // Atualize o valor no Realtime Database
-        firebase.database().ref('codeqr/' + userId + '/' + cValue + '/valor').set(editedValue).then(function() {
+        firebase.database().ref('codeqr/' + cValue + '/valor').set(editedValue).then(function() {
           alert("Dados editados com sucesso!");
           // Após editar, volte para a exibição dos dados
           checkAndDisplayData();
