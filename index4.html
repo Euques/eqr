@@ -67,7 +67,14 @@
   </div>
   <script>
     var firebaseConfig = {
-      // Configurações do Firebase
+      apiKey: "AIzaSyD9w-BMC-4WrQppa6VnOCrszo4QMIyROXU",
+      authDomain: "euques-teste.firebaseapp.com",
+      databaseURL: "https://euques-teste-default-rtdb.firebaseio.com",
+      projectId: "euques-teste",
+      storageBucket: "euques-teste.appspot.com",
+      messagingSenderId: "48182046778",
+      appId: "1:48182046778:web:4cd6f3b08cae7f6588c503",
+      measurementId: "G-KQXMBG1EXG"
     };
     firebase.initializeApp(firebaseConfig);
 
@@ -93,7 +100,7 @@
       const cValue = params.get('c');
       
       if (cValue) {
-        var keyRef = firebase.database().ref('codeqr/' + cValue + '/valor'); // Remova o userId
+        var keyRef = firebase.database().ref('codeqr/' + userId + '/' + cValue + '/valor');
         keyRef.once('value').then(function(snapshot) {
           var value = snapshot.val();
           if (value !== null && value !== undefined) {
@@ -121,7 +128,7 @@
       var cValue = params.get('c');
       
       if (cValue) {
-        var keyRef = firebase.database().ref('codeqr/' + cValue + '/valor');
+        var keyRef = firebase.database().ref('codeqr/' + userId + '/' + cValue + '/valor');
         keyRef.set(editedValue).then(function() {
           alert("Dados editados com sucesso!");
           checkAndDisplayData(userId); // Chama a função com o ID do usuário
