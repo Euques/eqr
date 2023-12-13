@@ -41,14 +41,13 @@
     <div id="data-content">
       <h2>Dados</h2>
       <div id="data" class="resultado"></div>
-      <button class="btn btn-primary mr-2" onclick="showEditForm()">Editar</button>
-<button class="btn btn-danger" onclick="logout()">Sair</button>
       <p id="user-email"></p>
     </div>
     <div id="edit-content" style="display: none;">
       <h2>Editar Dados</h2>
       <input type="text" id="edit-value" class="form-control" placeholder="Digite os dados">
       <button class="btn btn-success" onclick="saveEditedData()">Salvar</button>
+      <button class="btn btn-danger" onclick="logout()">Sair</button>
     </div>
     <div id="login-content" style="display: none;">
       <h2>Login</h2>
@@ -105,13 +104,13 @@
           var data = snapshot.val();
           if (data) {
             // Se houver dados
+            document.getElementById('data').innerHTML = '<h5>Dados</h5><p>' + data.valor + '</p>';
             if (data.user === userId) {
-              // Se o usuário atual corresponder ao usuário da chave, exibe os dados e permite a edição
-              document.getElementById('data').innerHTML = '<h5>Dados</h5><p>' + data.valor + '</p>';
+              // Se o usuário atual corresponder ao usuário da chave, permite a edição
               document.getElementById('edit-content').style.display = 'block';
             } else {
-              // Se não corresponder, mostra uma mensagem de propriedade de outro usuário
-              document.getElementById('data').innerHTML = '<p>Este QR Code pertence a outro usuário.</p>';
+              // Se não corresponder, oculta a edição
+              document.getElementById('edit-content').style.display = 'none';
             }
           } else {
             // Se não houver dados, mostra uma mensagem de nenhum dado encontrado
@@ -122,11 +121,6 @@
         // Se 'c' não estiver definido, mostra uma mensagem de nenhum dado encontrado
         document.getElementById('data').innerHTML = '<p>Nenhum dado encontrado.</p>';
       }
-    }
-
-    function showEditForm() {
-      document.getElementById('data-content').style.display = 'none';
-      document.getElementById('edit-content').style.display = 'block';
     }
 
     function saveEditedData() {
@@ -144,8 +138,6 @@
             keyRef.set(data).then(function() {
               alert("Dados editados com sucesso!");
               checkAndDisplayData(); // Chama a função
-              document.getElementById('data-content').style.display = 'block';
-              document.getElementById('edit-content').style.display = 'none';
             }).catch(function(error) {
               alert("Erro ao salvar os dados: " + error.message);
             });
