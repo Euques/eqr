@@ -79,101 +79,78 @@
   }
 
   const content = getParameterValue();
-  if (content) {
-    document.getElementById('scanner-content').style.display = 'block';
 
-    // Verifica se o usuário está logado
-    if (firebase.auth().currentUser) {
-      var idUsuario = firebase.auth().currentUser.uid;
-
-      // Exibe o valor do código QR
-
-      var keyRef = firebase.database().ref('codeqr/' + idUsuario + '/' + content);
-      keyRef.child('valor').once('value', function (snapshot) {
-        var value = snapshot.val();
-        if (value !== null) {
-          document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5><p id="code">' + content + '</p>';
-          document.getElementById('data').innerHTML += '<h5>Valor:</h5><p id="value">' + value + '</p>';
-
-          // Exibir botões de edição e cópia para usuários logados
-          document.getElementById('data').innerHTML += '<input type="text" id="edit-value" class="form-control" placeholder="Insira o novo valor">';
-          document.getElementById('data').innerHTML += '<button onclick="edit()" class="btn btn-success">Salvar</button>';
-          document.getElementById('data').innerHTML += '<button onclick="copyValue()">Copiar valor</button>';
-        } else {
-          document.getElementById('data').innerHTML = '<p>Este código QR não possui um valor associado. Tente outro código.</p>';
-        }
-      });
-    } else {
-      // Exibe o valor do código QR mesmo para usuários não logados
-      keyRef = firebase.database().ref('codeqr/' + content);
-      keyRef.child('valor').once('value', function (snapshot) {
-        var value = snapshot.val();
-        if (value !== null) {
-          document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5><p id="code">' + content + '</p>';
-          document.getElementById('data').innerHTML += '<h5>Valor:</h5><p id="value">' + value + '</p>';
-          // Avisar que recursos de edição e cópia exigem login
-          document.getElementById('data').innerHTML += '<p>Observação: Para editar ou copiar o valor, você precisa estar logado.</p>';
-        } else {
-          document.getElementById('data').innerHTML = '<p>Este código QR não possui um valor associado. Tente outro código.</p>';
-        }
-      });
-    }
+  // Verifica se o código QR está presente
+  if (!content) {
+    // Exibe o formulário de login
+    document.getElementById('login-content').style.display = 'block';
   } else {
-    alert('Nenhum código QR detectado na URL.');
+  // Verifica se o usuário está logado
+  if (firebase.auth().currentUser) {
+    // Exibe o campo de edição
+    document.getElementById('edit-value').style.display = 'block';
+  } else {
+    // Exibe o formulário de login
+    document.getElementById('login-content').style.display = 'block';
+  }
+}
+
+// Funções
+
+function createKeyAndReload() {
+  // Cria um novo nó na base de dados
+  var keyRef = firebase.database().ref('codeqr');
+  keyRef.push({
+    valor: 'Novo valor'
+  });
+
+  // Recarrega a página
+  window.location.reload();
+}
+
+function edit() {
+  // Verifica se o usuário está logado
+  if (!firebase.auth().currentUser) {
+    alert('Você precisa estar logado para editar o valor deste código QR.');
+    return;
   }
 
-  function createKeyAndReload() {
-    // Cria um novo nó na base de dados
-    var keyRef = firebase.database().ref('codeqr');
-    keyRef.push({
-      valor: 'Novo valor'
-    });
+  // Obtém o valor do código QR
+  var value = document.getElementById('edit-value').value;
 
-    // Recarrega a página
-    window.location.reload();
+  // Atualiza o valor no banco de dados
+  var keyRef = firebase.database().ref('codeqr/' + firebase.auth().currentUser.uid + '/' + content);
+  keyRef.child('valor').set(value);
+
+  // Exibe uma mensagem de sucesso
+  alert('O valor foi atualizado com sucesso.');
+}
+
+function copyValue() {
+  // Verifica se o usuário está logado
+  if (!firebase.auth().currentUser) {
+    alert('Você precisa estar logado para copiar o valor deste código QR.');
+    return;
   }
 
-  function edit() {
-    // Verifica se o usuário está logado
-    if (!firebase.auth().currentUser) {
-      alert('Você precisa estar logado para editar o valor deste código QR.');
-      return;
-    }
+  // Obtém o valor do código QR
+  var value = document.getElementById('value').textContent;
 
-    // Obtém o valor do código QR
-    var value = document.getElementById('edit-value').value;
+  // Cria um elemento de entrada
+  var input = document.createElement('input');
+  input.value = value;
+  input.type = 'text';
+  input.focus();
+  input.select();
+  document.body.appendChild(input);
+  document.execCommand('copy');
+  document.body.removeChild(input);
 
-    // Atualiza o valor no banco de dados
-    var keyRef = firebase.database().ref('codeqr/' + firebase.auth().currentUser.uid + '/' + content);
-    keyRef.child('valor').set(value);
+  // Exibe uma mensagem de sucesso
+  alert('O valor foi copiado para a área de transferência.');
+}
 
-    // Exibe uma mensagem de sucesso
-    alert('O valor foi atualizado com sucesso.');
-  }
 
-  function copyValue() {
-    // Verifica se o usuário está logado
-    if (!firebase.auth().currentUser) {
-      alert('Você precisa estar logado para copiar o valor deste código QR.');
-      return;
-    }
-
-    // Obtém o valor do código QR
-    var value = document.getElementById('value').textContent;
-
-    // Cria um elemento de entrada
-    var input = document.createElement('input');
-    input.value = value;
-    input.type = 'text';
-    input.focus();
-    input.select();
-    document.body.appendChild(input);
-    document.execCommand('copy');
-    document.body.removeChild(input);
-
-    // Exibe uma mensagem de sucesso
-    alert('O valor foi copiado para a área de transferência.');
-  }
 
   </script>
 </body>
