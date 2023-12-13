@@ -134,7 +134,7 @@
           valor: editedValue
         }).then(function() {
           alert("Dados editados com sucesso!");
-          checkAndDisplayData(); // Chama a função
+          checkAndDisplayData(); // Atualiza os dados exibidos após a edição
           document.getElementById('data-content').style.display = 'block';
           document.getElementById('edit-content').style.display = 'none';
         }).catch(function(error) {
