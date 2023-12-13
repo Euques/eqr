@@ -105,19 +105,22 @@
     }
 
     function saveEditedData() {
-      // Salvar os dados editados no banco de dados (substitua esta parte com a lógica do Firebase)
       var editedValue = document.getElementById('edit-value').value;
+      var params = new URLSearchParams(window.location.search);
+      var cValue = params.get('c');
 
-      // Exemplo de como salvar dados no Realtime Database
-      // var params = new URLSearchParams(window.location.search);
-      // var cValue = params.get('c');
-      // firebase.database().ref('codeqr/' + cValue + '/valor').set(editedValue);
-
-      alert("Dados editados com sucesso!");
-      // Após editar, volte para a exibição dos dados
-      checkAndDisplayData();
-      document.getElementById('data-content').style.display = 'block';
-      document.getElementById('edit-content').style.display = 'none';
+      if (cValue) {
+        // Atualize o valor no Realtime Database
+        firebase.database().ref('codeqr/' + cValue + '/valor').set(editedValue).then(function() {
+          alert("Dados editados com sucesso!");
+          // Após editar, volte para a exibição dos dados
+          checkAndDisplayData();
+          document.getElementById('data-content').style.display = 'block';
+          document.getElementById('edit-content').style.display = 'none';
+        }).catch(function(error) {
+          alert("Erro ao salvar os dados: " + error.message);
+        });
+      }
     }
 
     // Verifique e exiba os dados quando a página é carregada
