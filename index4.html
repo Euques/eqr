@@ -38,10 +38,15 @@
 </head>
 <body>
   <div class="container">
-    <div id="data-content" style="display: none;">
+    <div id="data-content">
       <h2>Dados</h2>
       <div id="data" class="resultado"></div>
-      <button onclick="showLoginForm()">Login</button>
+      <button onclick="showEditForm()">Editar</button>
+    </div>
+    <div id="edit-content" style="display: none;">
+      <h2>Editar Dados</h2>
+      <input type="text" id="edit-value" class="form-control" placeholder="Digite os dados">
+      <button onclick="saveEditedData()">Salvar</button>
     </div>
     <div id="login-content">
       <h2>Login</h2>
@@ -71,39 +76,65 @@
     };
     firebase.initializeApp(firebaseConfig);
 
+    // Função para verificar se o campo 'valor' existe e exibir os dados
+    function checkAndDisplayData() {
+      const params = new URLSearchParams(window.location.search);
+      const cValue = params.get('c');
+
+      if (cValue) {
+        var keyRef = firebase.database().ref('codeqr/' + cValue + '/valor');
+        keyRef.once('value').then(function(snapshot) {
+          var value = snapshot.val();
+          if (value !== null && value !== undefined) {
+            // Se o campo 'valor' existir, exibe os dados
+            document.getElementById('data').innerHTML = '<h5>Dados</h5><p>' + value + '</p>';
+          } else {
+            // Se o campo 'valor' não existir, mostra uma mensagem
+            document.getElementById('data').innerHTML = '<p>Nenhum dado encontrado.</p>';
+          }
+        });
+      } else {
+        // Se 'c' não estiver definido, mostra uma mensagem
+        document.getElementById('data').innerHTML = '<p>Nenhum dado encontrado.</p>';
+      }
+    }
+
+    function showEditForm() {
+      document.getElementById('data-content').style.display = 'none';
+      document.getElementById('edit-content').style.display = 'block';
+    }
+
+    function saveEditedData() {
+      // Salvar os dados editados no banco de dados (substitua esta parte com a lógica do Firebase)
+      var editedValue = document.getElementById('edit-value').value;
+
+      // Exemplo de como salvar dados no Realtime Database
+      // var params = new URLSearchParams(window.location.search);
+      // var cValue = params.get('c');
+      // firebase.database().ref('codeqr/' + cValue + '/valor').set(editedValue);
+
+      alert("Dados editados com sucesso!");
+      // Após editar, volte para a exibição dos dados
+      checkAndDisplayData();
+      document.getElementById('data-content').style.display = 'block';
+      document.getElementById('edit-content').style.display = 'none';
+    }
+
+    // Verifique e exiba os dados quando a página é carregada
+    window.onload = checkAndDisplayData;
+
     // Função para verificar se o usuário está autenticado
     firebase.auth().onAuthStateChanged(function(user) {
       if (user) {
-        // Se o usuário está autenticado, verifica se há dados para exibir
-        var cValue = getParameterValue();
-        if (cValue) {
-          var keyRef = firebase.database().ref('codeqr/' + cValue + '/valor');
-          keyRef.once('value').then(function(snapshot) {
-            var value = snapshot.val();
-            if (value !== null && value !== undefined) {
-              // Se a chave 'valor' existir, mostre os dados
-              document.getElementById('data').innerHTML = '<h5>Dados</h5><p>' + value + '</p>';
-              document.getElementById('data-content').style.display = 'block';
-              document.getElementById('login-content').style.display = 'none';
-              document.getElementById('register-content').style.display = 'none';
-            } else {
-              // Se a chave 'valor' não existir, mostre a tela de login
-              document.getElementById('data-content').style.display = 'none';
-              document.getElementById('login-content').style.display = 'block';
-              document.getElementById('register-content').style.display = 'none';
-            }
-          });
-        } else {
-          // Se c não estiver definido, mostre a tela de login
-          document.getElementById('data-content').style.display = 'none';
-          document.getElementById('login-content').style.display = 'block';
-          document.getElementById('register-content').style.display = 'none';
-        }
+        // Se o usuário está autenticado, mostra a área de usuário
+        document.getElementById('login-content').style.display = 'none';
+        document.getElementById('register-content').style.display = 'none';
+        document.getElementById('data-content').style.display = 'block';
       } else {
-        // Se o usuário não está autenticado, mostre a tela de login
-        document.getElementById('data-content').style.display = 'none';
+        // Se o usuário não está autenticado, mostra o login
         document.getElementById('login-content').style.display = 'block';
         document.getElementById('register-content').style.display = 'none';
+        document.getElementById('data-content').style.display = 'none';
       }
     });
 
@@ -137,11 +168,6 @@
     function showLoginForm() {
       document.getElementById('register-content').style.display = 'none';
       document.getElementById('login-content').style.display = 'block';
-    }
-
-    function getParameterValue() {
-      const params = new URLSearchParams(window.location.search);
-      return params.get('c');
     }
   </script>
 </body>
