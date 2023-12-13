@@ -1,153 +1,162 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>Leitor de QR Code</title>
- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
- <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-app.js"></script>
- <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-database.js"></script>
- <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-auth.js"></script>
- <style>
- body {
-  padding-top: 20px;
- }
- .container {
-  max-width: 600px;
-  margin: auto;
- }
- .resultado {
-  border: 1px solid #007bff;
-  padding: 15px;
-  border-radius: 5px;
-  margin-top: 15px;
-  background-color: #f1f1f1;
- }
- .resultado h5 {
-  color: #007bff;
-  margin-bottom: 0;
- }
- .resultado p {
-  margin-top: 5px;
-  color: #333;
- }
- .btn-success {
-  margin-top: 10px;
- }
- </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leitor de QR Code</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-auth.js"></script>
+  <style>
+  body {
+    padding-top: 20px;
+  }
+  .container {
+    max-width: 600px;
+    margin: auto;
+  }
+  .resultado {
+    border: 1px solid #007bff;
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 15px;
+    background-color: #f1f1f1;
+  }
+  .resultado h5 {
+    color: #007bff;
+    margin-bottom: 0;
+  }
+  .resultado p {
+    margin-top: 5px;
+    color: #333;
+  }
+  .btn-success {
+    margin-top: 10px;
+  }
+  </style>
 </head>
 <body>
- <div class="container">
-  <div id="login-content" style="display: none;">
-   <h2>Login</h2>
-   <input type="email" id="email" class="form-control" placeholder="E-mail">
-   <input type="password" id="password" class="form-control" placeholder="Senha">
-   <button onclick="login()" class="btn btn-success">Login</button>
+  <div class="container">
+    <div id="login-content" style="display: none;">
+      <h2>Login</h2>
+      <input type="email" id="email" class="form-control" placeholder="E-mail">
+      <input type="password" id="password" class="form-control" placeholder="Senha">
+      <button onclick="login()" class="btn btn-success">Login</button>
+    </div>
+    <div id="scanner-content" style="display: none;">
+      <h2>Leitor de QR Code</h2>
+      <div id="data" class="resultado"></div>
+    </div>
   </div>
-  <div id="scanner-content" style="display: none;">
-   <h2>Leitor de QR Code</h2>
-   <div id="data" class="resultado"></div>
-  </div>
- </div>
- <script>
- var firebaseConfig = {
-  apiKey: "AIzaSyD9w-BMC-4WrQppa6VnOCrszo4QMIyROXU",
-  authDomain: "euques-teste.firebaseapp.com",
-  databaseURL: "https://euques-teste-default-rtdb.firebaseio.com",
-  projectId: "euques-teste",
-  storageBucket: "euques-teste.appspot.com",
-  messagingSenderId: "48182046778",
-  appId: "1:48182046778:web:4cd6f3b08cae7f6588c503",
-  measurementId: "G-KQXMBG1EXG"
- };
- firebase.initializeApp(firebaseConfig);
+  <script>
+  var firebaseConfig = {
+    apiKey: "AIzaSyD9w-BMC-4WrQppa6VnOCrszo4QMIyROXU",
+    authDomain: "euques-teste.firebaseapp.com",
+    databaseURL: "https://euques-teste-default-rtdb.firebaseio.com",
+    projectId: "euques-teste",
+    storageBucket: "euques-teste.appspot.com",
+    messagingSenderId: "48182046778",
+    appId: "1:48182046778:web:4cd6f3b08cae7f6588c503",
+    measurementId: "G-KQXMBG1EXG"
+  };
+  firebase.initializeApp(firebaseConfig);
 
- function login() {
-  var email = document.getElementById('email').value;
-  var password = document.getElementById('password').value;
+  function login() {
+    var email = document.getElementById('email').value;
+    var password = document.getElementById('password').value;
 
-  firebase.auth().signInWithEmailAndPassword(email, password).then(() => {
-    window.location.href = '/';
-  }, (error) => {
-    alert(error.message);
-  });
- }
-
- function getParameterValue() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get('c');
- }
-
-const content = getParameterValue();
-if (content) {
-  document.getElementById('scanner-content').style.display = 'block';
-
-  // Verifica se o usuário está logado
-  if (firebase.auth().currentUser) {
-    var idUsuario = firebase.auth().currentUser.uid;
-    var keyRef = firebase.database().ref('codeqr/' + idUsuario + '/' + content);
-  } else {
-    // Exibe mensagem informativa para usuários não logados
-    document.getElementById('data').innerHTML = '<p>Você precisa estar logado para visualizar o conteúdo do código QR.</p>';
-    return;
+    firebase.auth().signInWithEmailAndPassword(email, password).then(() => {
+      window.location.href = '/';
+    }, (error) => {
+      alert(error.message);
+    });
   }
 
-  keyRef.child('valor').once('value', function (snapshot) {
-    var value = snapshot.val();
-    if (value !== null) {
-      document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5><p id="code">' + content + '</p>';
-      document.getElementById('data').innerHTML += '<h5>Valor:</h5><p id="value">' + value + '</p>';
-      // Exibir o botão de edição e permitir cópia do valor
-      if (firebase.auth().currentUser) {
-        document.getElementById('data').innerHTML += '<input type="text" id="edit-value" class="form-control" placeholder="Insira o novo valor">';
-        document.getElementById('data').innerHTML += '<button onclick="edit()" class="btn btn-success">Salvar</button>';
-        document.getElementById('data').innerHTML += '<button onclick="copyValue()">Copiar valor</button>';
-      }
+  function getParameterValue() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('c');
+  }
+
+  const content = getParameterValue();
+  if (content) {
+    document.getElementById('scanner-content').style.display = 'block';
+
+    // Verifica se o usuário está logado
+    if (firebase.auth().currentUser) {
+      var idUsuario = firebase.auth().currentUser.uid;
+
+      var keyRef = firebase.database().ref('codeqr/' + idUsuario + '/' + content);
+      keyRef.child('valor').once('value', function (snapshot) {
+        var value = snapshot.val();
+        if (value !== null) {
+          document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5><p id="code">' + content + '</p>';
+          document.getElementById('data').innerHTML += '<h5>Valor:</h5><p id="value">' + value + '</p>';
+
+          // Exibir o botão de edição e permitir cópia do valor
+          if (firebase.auth().currentUser) {
+            document.getElementById('data').innerHTML += '<input type="text" id="edit-value" class="form-control" placeholder="Insira o novo valor">';
+            document.getElementById('data').innerHTML += '<button onclick="edit()" class="btn btn-success">Salvar</button>';
+            document.getElementById('data').innerHTML += '<button onclick="copyValue()">Copiar valor</button>';
+          }
+        } else {
+          // Exibe mensagem informativa sobre código sem valor
+          document.getElementById('data').innerHTML = '<p>Este código QR não possui um valor associado. Tente outro código.</p>';
+        }
+      });
     } else {
-      // Exibe mensagem informativa sobre código sem valor
-      document.getElementById('data').innerHTML = '<p>Este código QR não possui um valor associado. Tente outro código.</p>';
+      // Exibe mensagem informativa para usuários não logados
+      document.getElementById('data').innerHTML = '<p>Você precisa estar logado para visualizar o conteúdo do código QR.</p>';
+      return;
     }
-  });
-} else {
-  alert('Nenhum código QR detectado na URL.');
-}
-
-
- function createKeyAndReload() {
-  var keyValue = document.getElementById('key-value').value;
-  var keyRef = firebase.database().ref('codeqr/' + idUsuario + '/' + keyValue);
-  var value = document.getElementById('textbox-value').value;
-  keyRef.child('valor').set(value).then(() => {
-   alert('Chave criada com sucesso com o valor: ' + keyValue);
-   window.location.reload();
-  }, (error) => {
-   alert(error.message);
-  });
- }
-
- function edit() {
-  // Verifica se o usuário está logado para editar o valor
-  if (!firebase.auth().currentUser) {
-    alert('Você precisa estar autenticado para editar informações.');
-    return;
+  } else {
+    alert('Nenhum código QR detectado na URL.');
   }
 
-  var code = document.getElementById('code').textContent;
-  var value = document.getElementById('edit-value').value;
-
-  if (!value) {
-    alert('O valor não pode ser vazio.');
-    return;
+  function createKeyAndReload() {
+    var keyValue = document.getElementById('key-value').value;
+    var keyRef = firebase.database().ref('codeqr/' + idUsuario + '/' + keyValue);
+    var value = document.getElementById('textbox-value').value;
+    keyRef.child('valor').set(value).then(() => {
+      alert('Chave criada com sucesso com o valor: ' + keyValue);
+      window.location.reload();
+    }, (error) => {
+      alert(error.message);
+    });
   }
 
-  firebase.database().ref('codeqr/' + idUsuario + '/' + code).child('valor').set(value).then(() => {
-    alert('Valor editado com sucesso.');
-    window.location.reload();
-  }, (error) => {
-    alert(error.message);
-  });
- }
+  function edit() {
+    // Verifica se o usuário está logado para editar o valor
+    if (!firebase.auth().currentUser) {
+      alert('Você precisa estar autenticado para editar informações.');
+      return;
+    }
 
- </script>
+    var code = document.getElementById('code').textContent;
+    var value = document.getElementById('edit-value').value;
+
+    if (!value) {
+      alert('O valor não pode ser vazio.');
+      return;
+    }
+
+    firebase.database().ref('codeqr/' + idUsuario + '/' + code).child('valor').set(value).then(() => {
+      alert('Valor editado com sucesso.');
+      window.location.reload();
+    }, (error) => {
+      alert(error.message);
+    });
+  }
+
+  function copyValue() {
+    const copyText = document.getElementById('value').innerText;
+    navigator.clipboard.writeText(copyText).then(() => {
+      alert('Valor copiado com sucesso!');
+    }, () => {
+      alert('Falha ao copiar o valor.');
+    });
+  }
+
+  </script>
 </body>
 </html>
