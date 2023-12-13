@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Leitor de QR Code</title>
+ <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+ <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-app.js"></script>
+ <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-database.js"></script>
+ <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-auth.js"></script>
+ <style>
+ body {
+  padding-top: 20px;
+ }
+ .container {
+  max-width: 600px;
+  margin: auto;
+ }
+ .resultado {
+  border: 1px solid #007bff;
+  padding: 15px;
+  border-radius: 5px;
+  margin-top: 15px;
+  background-color: #f1f1f1;
+ }
+ .resultado h5 {
+  color: #007bff;
+  margin-bottom: 0;
+ }
+ .resultado p {
+  margin-top: 5px;
+  color: #333;
+ }
+ .btn-success {
+  margin-top: 10px;
+ }
+ </style>
+</head>
+<body>
+ <div class="container">
+  <div id="login-content" style="display: none;">
+   <h2>Login</h2>
+   <input type="email" id="email" class="form-control" placeholder="E-mail">
+   <input type="password" id="password" class="form-control" placeholder="Senha">
+   <button onclick="login()" class="btn btn-success">Login</button>
+  </div>
+  <div id="scanner-content" style="display: none;">
+   <h2>Leitor de QR Code</h2>
+   <div id="data" class="resultado"></div>
+  </div>
+  <div id="create-key-content" style="display: none;">
+   <h2>Criar Chave</h2>
+   <input type="text" id="key-value" class="form-control" placeholder="Insira um valor para a chave">
+   <input type="text" id="textbox-value" class="form-control" placeholder="Insira um valor para o campo de texto">
+   <button onclick="createKeyAndReload()" class="btn btn-success">Criar Chave</button>
+  </div>
+ </div>
+ <script>
+ var firebaseConfig = {
+  apiKey: "AIzaSyD9w-BMC-4WrQppa6VnOCrszo4QMIyROXU",
+  authDomain: "euques-teste.firebaseapp.com",
+  databaseURL: "https://euques-teste-default-rtdb.firebaseio.com",
+  projectId: "euques-teste",
+  storageBucket: "euques-teste.appspot.com",
+  messagingSenderId: "48182046778",
+  appId: "1:48182046778:web:4cd6f3b08cae7f6588c503",
+  measurementId: "G-KQXMBG1EXG"
+ };
+ firebase.initializeApp(firebaseConfig);
+
+function login() {
+  var email = document.getElementById('email').value;
+  var password = document.getElementById('password').value;
+
+  firebase.auth().signInWithEmailAndPassword(email, password).then(() => {
+    // Armazenar a página de redirecionamento na URL (opcional)
+    var redirectUrl = window.location.search.substring(1).split('=')[1];
+
+    // Redirecionar para a página original ou para a página inicial
+    if (redirectUrl) {
+      window.location.href = redirectUrl;
+    } else {
+      window.location.href = '/';
+    }
+  }, (error) => {
+    switch (error.code) {
+      case 'invalid-email':
+        alert('O email informado é inválido.');
+        break;
+      case 'wrong-password':
+        alert('A senha está incorreta.');
+        break;
+      default:
+        alert('Ocorreu um erro ao tentar entrar. Tente novamente mais tarde.');
+        break;
+    }
+  });
+}
+
+ function getParameterValue() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('c');
+ }
+
+ const content = getParameterValue();
+ if (content) {
+  document.getElementById('scanner-content').style.display = 'block';
+  document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5><p id="code">' + content + '</p>';
+  var keyRef = firebase.database().ref('codeqr/' + content);
+  keyRef.child('valor').once('value', function (snapshot) {
+   var value = snapshot.val();
+   if (value !== null) {
+    document.getElementById('data').innerHTML += '<h5>Valor:</h5><p id="value">' + value + '</p>';
+    // **Verifica se o usuário está logado antes de exibir o campo de edição e salvar o valor**
+    if (firebase.auth().currentUser) {
+      document.getElementById('data').innerHTML += '<input type="text" id="edit-value" class="form-control" placeholder="Insira o novo valor">';
+      document.getElementById('data').innerHTML += '<button onclick="edit()" class="btn btn-success">Salvar</button>';
+    } else {
+      alert('Apenas usuários autenticados podem editar o valor.');
+    }
+   } else {
+    alert('Este código QR não possui um valor associado. Você pode criar um novo valor a seguir.');
+    document.getElementById('scanner-content').style.display = 'none';
+    document.getElementById('create-key-content').style.display = 'block';
+    document.getElementById('key-value').value = content;
+   }
+  });
+ } else {
+  alert('Nenhum código QR detectado na URL.');
+ }
+
+ function createKeyAndReload() {
+  var keyValue = document.getElementById('key-value').value;
+  var keyRef = firebase.database().ref('codeqr/' + keyValue);
+  var value = document.getElementById('textbox-value').value;
+  keyRef.child('valor').set(value).then(() => {
+   alert('Chave criada com sucesso com o valor: ' + keyValue);
+   window.location.reload();
+  }, (error) => {
+   alert(error.message);
+  });
+ }
+
+ function edit() {
+  // **Verifica se o usuário está logado antes de salvar o novo valor**
+  if (!firebase.auth().currentUser) {
+    alert('Você precisa estar autenticado para editar informações.');
+    return;
+  }
+
+  var code = document.getElementById('code').textContent;
+  var value = document.getElementById('edit-value').value;
+
+  if (!value) {
+    alert('O valor não pode ser vazio.');
+    return;
+  }
+
+  firebase.database().ref('codeqr/' + code).child('valor').set(value).then(() => {
+    alert('Valor editado com sucesso.');
+    window.location.reload();
+  }, (error) => {
+    alert(error.message);
+  });
+ }
+
+ </script>
+</body>
+</html>
