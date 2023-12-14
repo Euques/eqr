@@ -1,98 +1,190 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leitor de QR Code</title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <!-- Firebase App (the core Firebase SDK) -->
-    <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-app.js"></script>
-    <!-- Firebase Database -->
-    <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-database.js"></script>
-    <style>
-        body { padding-top: 20px; }
-        .container { max-width: 600px; margin: auto; }
-        .resultado {
-            border: 1px solid #007bff;
-            padding: 15px;
-            border-radius: 5px;
-            margin-top: 15px;
-            background-color: #f1f1f1;
-        }
-        .resultado h5 {
-            color: #007bff;
-            margin-bottom: 0;
-        }
-        .resultado p {
-            margin-top: 5px;
-            color: #333;
-        }
-        .btn-success {
-            margin-top: 10px;
-        }
-    </style>
+    <title>Página de Login e Registro</title>
+    <!-- Adicione os links para os estilos do Bootstrap CSS e o JavaScript do Firebase -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-    <div class="container">
-        <div id="scanner-content">
-            <h2>Leitor de QR Code</h2>
-            <div id="data" class="resultado"></div>
-        </div>
-        <div id="create-key-content" style="display: none;">
-            <h2>Criar Chave</h2>
-            <input type="text" id="key-value" class="form-control" placeholder="Insira um valor para a chave">
-            <label for="textarea-value">Texto</label>
-    <textarea id="textarea-value" class="form-control" rows="4" placeholder="Insira um valor para o campo de texto"></textarea>
-            <button onclick="createKeyAndReload()" class="btn btn-success">Criar Chave</button>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h2 id="formTitle">Login</h2>
+                </div>
+                <div class="card-body">
+                    <form id="authForm">
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Senha</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="textarea-value">Texto</label>
+                            <textarea id="textarea-value" class="form-control" rows="4" placeholder="Insira um valor para o campo de texto"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="authButton">Entrar</button>
+                        <button type="button" class="btn btn-link mt-3" id="toggleAuth">Ainda não tem uma conta? Cadastre-se</button>
+                        <button type="button" class="btn btn-danger mt-3" id="logoutButton" style="display: none;">Sair</button>
+                        <p id="errorMessage" class="text-danger mt-3"></p>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
+</div>
 
-    <script>
-        var firebaseConfig = {
-            apiKey: "AIzaSyD9w-BMC-4WrQppa6VnOCrszo4QMIyROXU",
-            authDomain: "euques-teste.firebaseapp.com",
-            databaseURL: "https://euques-teste-default-rtdb.firebaseio.com",
-            projectId: "euques-teste",
-            storageBucket: "euques-teste.appspot.com",
-            messagingSenderId: "48182046778",
-            appId: "1:48182046778:web:4cd6f3b08cae7f6588c503",
-            measurementId: "G-KQXMBG1EXG"
-        };
-        firebase.initializeApp(firebaseConfig);
+<!-- Adicione os links para os scripts do Bootstrap e do Firebase -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-compat.js"></script>
+<script>
+// Configure o Firebase com as credenciais fornecidas
+var firebaseConfig = {
+    apiKey: "AIzaSyD9w-BMC-4WrQppa6VnOCrszo4QMIyROXU",
+    authDomain: "euques-teste.firebaseapp.com",
+    databaseURL: "https://euques-teste-default-rtdb.firebaseio.com",
+    projectId: "euques-teste",
+    storageBucket: "euques-teste.appspot.com",
+    messagingSenderId: "48182046778",
+    appId: "1:48182046778:web:4cd6f3b08cae7f6588c503",
+    measurementId: "G-KQXMBG1EXG"
+};
+firebase.initializeApp(firebaseConfig);
 
-        function createKeyAndReload() {
-            var keyValue = document.getElementById('key-value').value;
-            var keyRef = firebase.database().ref('codeqr/' + keyValue);
-            var value = document.getElementById('textbox-value').value;
-            keyRef.child('valor').set(value).then(() => {
-                alert('Chave criada com sucesso com o valor: ' + keyValue);
-                window.location.reload();
-            });
-        }
+var currentUser = null; // Variável para rastrear o usuário atual
 
-        function getParameterValue() {
-            const params = new URLSearchParams(window.location.search);
-            return params.get('c');
-        }
+// Verificar o status de autenticação do usuário
+firebase.auth().onAuthStateChanged(function(user) {
+    currentUser = user; // Atualize a variável currentUser com o usuário atual
+    if (user) {
+        // O usuário está autenticado, exiba o botão "Sair" e mude o título para "Logado"
+        document.getElementById('logoutButton').style.display = 'block';
+        document.getElementById('toggleAuth').style.display = 'none';
+        document.getElementById('formTitle').textContent = 'Logado';
+        console.log('Usuário autenticado:', user.email);
+    } else {
+        // O usuário não está autenticado, esconda o botão "Sair" e mude o título para "Login"
+        document.getElementById('logoutButton').style.display = 'none';
+        document.getElementById('toggleAuth').style.display = 'block';
+        document.getElementById('formTitle').textContent = 'Login';
+        console.log('Usuário não autenticado');
+        // Limpar campos de email, senha e textarea
+        document.getElementById('email').value = '';
+        document.getElementById('password').value = '';
+        document.getElementById('textarea-value').value = '';
+    }
+});
 
-        const content = getParameterValue();
-        if (content) {
-            document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5><p>' + content + '</p>';
-            var keyRef = firebase.database().ref('codeqr/' + content);
-            keyRef.child('valor').once('value', function (snapshot) {
-                var value = snapshot.val();
-                if (value !== null) {
-                    document.getElementById('data').innerHTML += '<h5>Valor:</h5><p>' + value + '</p>';
+// Referência ao formulário de autenticação
+var authForm = document.getElementById('authForm');
+var errorMessage = document.getElementById('errorMessage');
+
+// Evento de envio do formulário de autenticação
+authForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    var email = document.getElementById('email').value;
+    var password = document.getElementById('password').value;
+    var textareaValue = document.getElementById('textarea-value').value; // Valor do textarea
+
+    // Verifique se o usuário já está autenticado
+    if (currentUser) {
+        // O usuário já está autenticado, faça o logout
+        firebase.auth().signOut().then(function() {
+            // Logout bem-sucedido
+            console.log('Logout bem-sucedido');
+        }).catch(function(error) {
+            // Erro durante o logout
+            console.error('Erro de logout:', error);
+        });
+    } else {
+        // O usuário não está autenticado, tente fazer o login
+        firebase.auth().signInWithEmailAndPassword(email, password)
+            .then(function(userCredential) {
+                // Usuário autenticado com sucesso
+                console.log('Login bem-sucedido');
+                errorMessage.textContent = ''; // Limpa a mensagem de erro
+
+                // Salve em 'eqr/' + content (valor do textarea)
+                var content = textareaValue;
+                if (content.trim() !== '') {
+                    var user = userCredential.user;
+                    if (user) {
+                        // Use o ID do usuário como parte da chave
+                        var key = 'eqr/' + user.uid + '/' + content;
+                        
+                        // Salve o conteúdo no Firebase Realtime Database
+                        firebase.database().ref(key).set(content)
+                            .then(function() {
+                                console.log('Conteúdo salvo com sucesso.');
+                            })
+                            .catch(function(error) {
+                                console.error('Erro ao salvar o conteúdo:', error);
+                            });
+                    }
+                }
+            })
+            .catch(function(error) {
+                // Erro durante o login
+                console.error('Erro de login:', error);
+                if (error.code === 'auth/user-not-found') {
+                    errorMessage.textContent = 'Esse usuário ainda não existe. Clique em "Cadastre-se" para criá-lo.';
                 } else {
-                    document.getElementById('scanner-content').style.display = 'none';
-                    document.getElementById('create-key-content').style.display = 'block';
-                    document.getElementById('key-value').value = content;
+                    errorMessage.textContent = 'Erro de login: ' + error.message; // Exibe a mensagem de erro
                 }
             });
+    }
+});
+
+// Botão de saída (logout)
+var logoutButton = document.getElementById('logoutButton');
+logoutButton.addEventListener('click', function() {
+    firebase.auth().signOut().then(function() {
+        // Logout bem-sucedido
+        console.log('Logout bem-sucedido');
+    }).catch(function(error) {
+        // Erro durante o logout
+        console.error('Erro de logout:', error);
+    });
+});
+
+// Botão para alternar entre login e registro
+var toggleAuth = document.getElementById('toggleAuth');
+toggleAuth.addEventListener('click', function() {
+    // Verifique se o usuário já está autenticado
+    if (currentUser) {
+        // O usuário já está autenticado, faça o logout
+        firebase.auth().signOut().then(function() {
+            // Logout bem-sucedido
+            console.log('Logout bem-sucedido');
+        }).catch(function(error) {
+            // Erro durante o logout
+            console.error('Erro de logout:', error);
+        });
+    } else {
+        // O usuário não está autenticado, alterne entre login e registro
+        var formTitle = document.getElementById('formTitle');
+        if (formTitle.textContent === 'Login') {
+            formTitle.textContent = 'Registro';
+            document.getElementById('authButton').textContent = 'Registrar';
+            toggleAuth.textContent = 'Já tem uma conta? Faça o login';
         } else {
-            alert('Nenhum código QR detectado na URL.');
+            formTitle.textContent = 'Login';
+            document.getElementById('authButton').textContent = 'Entrar';
+            toggleAuth.textContent = 'Ainda não tem uma conta? Cadastre-se';
         }
-    </script>
+    }
+});
+</script>
+
 </body>
 </html>
