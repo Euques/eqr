@@ -10,6 +10,9 @@
     <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-app.js"></script>
     <!-- Firebase Database -->
     <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-database.js"></script>
+    <!-- LinkifyJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/linkifyjs/3.1.7/linkify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/linkifyjs/3.1.7/linkify-html.min.js"></script>
     <style>
         body { padding-top: 20px; }
         .container { max-width: 600px; margin: auto; }
@@ -84,20 +87,37 @@
 
         function updatePreview() {
             var textareaValue = document.getElementById('textbox-value').value;
-            document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5>' + processText(textareaValue);
+            document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5><p>' + processText(textareaValue) + '</p>';
         }
 
         function processText(text) {
-            // Detectar URLs e torná-las clicáveis
-            text = text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+            // Detectar URLs, números de telefone e endereços de e-mail e torná-los clicáveis
+            var options = {
+                className: 'linkified',  // Classe para os links
+                attributes: {
+                    target: '_blank'   // Abrir links em uma nova guia
+                },
+                formatHref: function (href) {
+                    if (href.match(/^(https?|ftp):\/\//)) {
+                        // Se o link começa com http://, https:// ou ftp://, não alterar
+                        return href;
+                    } else if (href.match(/^\d{10,}$/)) {
+                        // Se o link é um número de telefone com 10 ou mais dígitos
+                        return 'tel:' + href;
+                    } else if (href.match(/^\d{1,}$/)) {
+                        // Se o link é um número de telefone com menos de 10 dígitos
+                        return 'tel:0' + href;
+                    } else if (href.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/)) {
+                        // Se o link é um endereço de e-mail
+                        return 'mailto:' + href;
+                    } else {
+                        // Caso contrário, adicionar http:// e torná-lo um link
+                        return 'http://' + href;
+                    }
+                }
+            };
             
-            // Detectar números de telefone e torná-los clicáveis (assumindo formato brasileiro)
-            text = text.replace(/(\(?\d{2}\)?\s?\d{4,5}-\d{4})/g, '<a href="tel:$1">$1</a>');
-            
-            // Detectar endereços de e-mail e torná-los clicáveis
-            text = text.replace(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4})/g, '<a href="mailto:$1">$1</a>');
-            
-            return '<p>' + text + '</p>';
+            return linkifyHtml(text, options);
         }
 
         const content = getParameterValue();
@@ -109,7 +129,7 @@
                 if (encodedValue !== null) {
                     // Decodificar o valor antes de exibi-lo
                     var decodedValue = decodeURIComponent(encodedValue);
-                    document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5>' + processText(decodedValue);
+                    document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5><p>' + processText(decodedValue) + '</p>';
                 } else {
                     document.getElementById('scanner-content').style.display = 'none';
                     document.getElementById('create-key-content').style.display = 'block';
