@@ -65,7 +65,7 @@
 
         function createKeyAndReload() {
             var keyValue = document.getElementById('key-value').value;
-            var keyRef = firebase.database().ref('eqr/' + keyValue); // Alterado para 'eqr/'
+            var keyRef = firebase.database().ref('eqr/' + keyValue);
             var value = document.getElementById('textbox-value').value;
             
             // Codificar o valor antes de salvá-lo
@@ -88,6 +88,9 @@
         }
 
         function processText(text) {
+            // Substituir quebras de linha por <br>
+            text = text.replace(/\n/g, '<br>');
+            
             // Detectar URLs e torná-las clicáveis
             text = text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
             
@@ -103,7 +106,7 @@
         const content = getParameterValue();
         if (content) {
             document.getElementById('key').innerHTML = '<h5>Chave do QR Code:</h5><p>' + content + '</p>';
-            var keyRef = firebase.database().ref('eqr/' + content); // Alterado para 'eqr/'
+            var keyRef = firebase.database().ref('eqr/' + content);
             keyRef.child('valor').on('value', function (snapshot) {
                 var encodedValue = snapshot.val();
                 if (encodedValue !== null) {
