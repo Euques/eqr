@@ -94,8 +94,8 @@
             // Detectar URLs e torná-las clicáveis
             text = text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
             
-            // Detectar números de telefone e torná-los clicáveis (assumindo formato brasileiro)
-            text = text.replace(/(\(?\d{2}\)?\s?\d{4,5}-\d{4})/g, '<a href="tel:$1">$1</a>');
+            // Detectar números de telefone com mais de 7 caracteres e torná-los clicáveis
+            text = text.replace(/(\d{8,})/g, '<a href="tel:$1">$1</a>');
             
             // Detectar endereços de e-mail e torná-los clicáveis
             text = text.replace(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4})/g, '<a href="mailto:$1">$1</a>');
