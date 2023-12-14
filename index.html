@@ -80,14 +80,9 @@
             });
         }
 
-        function getParameterValue() {
-            const params = new URLSearchParams(window.location.search);
-            return params.get('c');
-        }
-
         function updatePreview() {
             var textareaValue = document.getElementById('textbox-value').value;
-            document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5><p>' + processText(textareaValue) + '</p>';
+            document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5>' + processText(textareaValue);
         }
 
         function processText(text) {
@@ -120,25 +115,30 @@
             return linkifyHtml(text, options);
         }
 
-        const content = getParameterValue();
-        if (content) {
-            document.getElementById('key').innerHTML = '<h5>Chave do QR Code:</h5><p>' + content + '</p>';
-            var keyRef = firebase.database().ref('eqr/' + content); // Alterado para 'eqr/'
-            keyRef.child('valor').on('value', function (snapshot) {
-                var encodedValue = snapshot.val();
-                if (encodedValue !== null) {
-                    // Decodificar o valor antes de exibi-lo
-                    var decodedValue = decodeURIComponent(encodedValue);
-                    document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5><p>' + processText(decodedValue) + '</p>';
-                } else {
-                    document.getElementById('scanner-content').style.display = 'none';
-                    document.getElementById('create-key-content').style.display = 'block';
-                    document.getElementById('key-value').value = content;
-                }
-            });
-        } else {
-            alert('Nenhum código QR detectado na URL.');
+        function loadQRContent() {
+            var content = getParameterValue();
+            if (content) {
+                document.getElementById('key').innerHTML = '<h5>Chave do QR Code:</h5><p>' + content + '</p>';
+                var keyRef = firebase.database().ref('eqr/' + content); // Alterado para 'eqr/'
+                keyRef.child('valor').on('value', function (snapshot) {
+                    var encodedValue = snapshot.val();
+                    if (encodedValue !== null) {
+                        // Decodificar o valor antes de exibi-lo
+                        var decodedValue = decodeURIComponent(encodedValue);
+                        document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5>' + processText(decodedValue);
+                    } else {
+                        document.getElementById('scanner-content').style.display = 'none';
+                        document.getElementById('create-key-content').style.display = 'block';
+                        document.getElementById('key-value').value = content;
+                    }
+                });
+            } else {
+                alert('Nenhum código QR detectado na URL.');
+            }
         }
+
+        // Chame a função para carregar o conteúdo do QR Code quando a página for carregada
+        loadQRContent();
     </script>
 </body>
 </html>
