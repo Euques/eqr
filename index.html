@@ -43,7 +43,7 @@
             <h2>Criar Chave</h2>
             <input type="text" id="key-value" class="form-control" placeholder="Insira um valor para a chave">
             <label for="textbox-value">Texto</label>
-            <textarea id="textbox-value" class="form-control" rows="4" placeholder="Insira um valor para o campo de texto"></textarea>
+            <textarea id="textbox-value" class="form-control" rows="4" placeholder="Insira um valor para o campo de texto" onkeyup="updatePreview()"></textarea>
             <button onclick="createKeyAndReload()" class="btn btn-success">Criar Chave</button>
         </div>
     </div>
@@ -65,7 +65,11 @@
             var keyValue = document.getElementById('key-value').value;
             var keyRef = firebase.database().ref('eqr/' + keyValue); // Alterado para 'eqr/'
             var value = document.getElementById('textbox-value').value;
-            keyRef.child('valor').set(value).then(() => {
+            
+            // Codificar o valor antes de salvá-lo
+            var encodedValue = encodeURIComponent(value);
+            
+            keyRef.child('valor').set(encodedValue).then(() => {
                 alert('Chave criada com sucesso com o valor: ' + keyValue);
                 window.location.reload();
             });
@@ -76,14 +80,20 @@
             return params.get('c');
         }
 
+        function updatePreview() {
+            var textareaValue = document.getElementById('textbox-value').value;
+            document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5><p>' + textareaValue + '</p>';
+        }
+
         const content = getParameterValue();
         if (content) {
-            document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5><p>' + content + '</p>';
             var keyRef = firebase.database().ref('eqr/' + content); // Alterado para 'eqr/'
-            keyRef.child('valor').once('value', function (snapshot) {
-                var value = snapshot.val();
-                if (value !== null) {
-                    document.getElementById('data').innerHTML += '<h5>Valor:</h5><p>' + value + '</p>';
+            keyRef.child('valor').on('value', function (snapshot) {
+                var encodedValue = snapshot.val();
+                if (encodedValue !== null) {
+                    // Decodificar o valor antes de exibi-lo
+                    var decodedValue = decodeURIComponent(encodedValue);
+                    document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5><p>' + decodedValue + '</p>';
                 } else {
                     document.getElementById('scanner-content').style.display = 'none';
                     document.getElementById('create-key-content').style.display = 'block';
