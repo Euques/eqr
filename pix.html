@@ -143,11 +143,8 @@
             // Monta a chave PIX
             var chavePix = tipoChave.toUpperCase() + ":" + valorChave;
 
-            // Monta o código de pagamento PIX
-            var codigoPix = montaCodigoPix(chavePix, nomeBeneficiario, cidadeBeneficiario, valorTransferencia, identificadorTransacao);
-
             // Salva no Firebase e exibe o QR Code
-            salvarDadosFirebase(codigoPix);
+            salvarDadosFirebase(chavePix, nomeBeneficiario, cidadeBeneficiario, valorTransferencia, identificadorTransacao);
         }
 
         // Função para montar o código de pagamento PIX
@@ -161,7 +158,7 @@
         }
 
         // Função para salvar os dados no Firebase
-        function salvarDadosFirebase(codigoPix) {
+        function salvarDadosFirebase(codigoPix, nomeBeneficiario, cidadeBeneficiario, valorTransferencia, identificadorTransacao) {
             // Obtém a variável 'c' da URL
             var urlParams = new URLSearchParams(window.location.search);
             var variavelC = urlParams.get('c');
@@ -170,6 +167,9 @@
                 alert("A variável 'c' não foi especificada na URL.");
                 return;
             }
+
+            // Verifica se já existe um valor no Firebase
+            verificarChaveExistente(variavelC);
 
             // Implementação para salvar os dados no Firebase
             var database = firebase.database();
