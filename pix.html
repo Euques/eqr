@@ -5,85 +5,120 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pagamento PIX</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background-color: #1e1e1e;
+            color: white;
+            padding: 20px;
+        }
+        .container {
+            background-color: #333;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        .input-form {
+            background-color: #444;
+            border: none;
+            color: white;
+        }
+        .input-form::placeholder {
+            color: #888;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-outline-primary {
+            color: #007bff;
+            border: 1px solid #007bff;
+        }
+        .btn-outline-primary:hover {
+            background-color: #007bff;
+        }
+    </style>
     <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-database.js"></script>
 </head>
 <body>
     <div class="container">
-        <div id="qrCodeContent" style="display:none;">
-            <div id="qrcode"></div>
-            <input type="text" id="qrCodeText" class="form-control" readonly>
-            <button onclick="copiarCodigo()" class="btn btn-primary mt-2">Copiar Código</button>
-        </div>
         <div id="formContent" style="display:block;">
-            <h2>Pagamento PIX</h2>
-            <div class="divOpcao d-none url-option d-block">
-                <div class="box-pix input-group flex-column" id="tipo-chave-container">
-                    <label class="pix-label" for="tipo-chave">Tipo de chave:<span class="ml-1" style="color:red">*</span></label>
-                    <div class="form-group input-group-prepend">
-                        <select class="input-form" id="tipo-chave" name="tipo-chave" data-required="true" required="">
-                            <option value="cpf">CPF</option>
-                            <option value="cnpj">CNPJ</option>
-                            <option value="email">E-mail</option>
-                            <option value="telefone">Telefone</option>
-                            <option value="aleatoria">Chave aleatória</option>
-                        </select>
-                        <input id="valor-chave" name="valor-chave" class="input-form" aria-label="Text input with dropdown button" data-required="true" required="" autocomplete="off" placeholder="(11) 99999-9999" maxlength="15">
+            <h2 class="text-center">Pagamento PIX</h2>
+            <div class="form-group">
+                <label for="tipo-chave">Tipo de chave:<span style="color:red">*</span></label>
+                <select class="form-control input-form" id="tipo-chave" name="tipo-chave" data-required="true" required="">
+                    <option value="cpf">CPF</option>
+                    <option value="cnpj">CNPJ</option>
+                    <option value="email">E-mail</option>
+                    <option value="telefone">Telefone</option>
+                    <option value="aleatoria">Chave aleatória</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="valor-chave">Valor da chave:<span style="color:red">*</span></label>
+                <input id="valor-chave" name="valor-chave" class="form-control input-form" aria-label="Text input" data-required="true" required="" autocomplete="off" placeholder="(11) 99999-9999" maxlength="15">
+            </div>
+            <div class="form-group">
+                <label for="nome-beneficiario">Nome do beneficiário:<span style="color:red">*</span></label>
+                <input id="nome-beneficiario" name="nome-beneficiario" class="form-control input-form" data-required="true" required="" maxlength="25">
+            </div>
+            <div class="form-group">
+                <label for="cidade-beneficiario">Cidade do beneficiário:<span style="color:red">*</span></label>
+                <input id="cidade-beneficiario" name="cidade-beneficiario" class="form-control input-form" data-required="true" required="" maxlength="15">
+            </div>
+            <div class="form-group">
+                <label for="valor-transferencia">Valor da transferência:<span style="color:red">*</span></label>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">R$</span>
                     </div>
+                    <input id="valor-transferencia" name="valor-transferencia" class="form-control input-form valores" placeholder="0,00" aria-label="transferencia" aria-describedby="basic-addon1" data-required="true" required="">
                 </div>
-                <div class="form-group pix-container mt-3">
-                    <div>
-                        <div class="box-pix">
-                            <div class="form-group">
-                                <label class="pix-label" for="nome-beneficiario">Nome do beneficiário:<span class="ml-1" style="color:red">*</span></label>
-                                <input id="nome-beneficiario" name="nome-beneficiario" class="input-form" data-required="true" required="" maxlength="25">
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="box-pix">
-                            <div class="form-group">
-                                <label class="pix-label" for="cidade-beneficiario">Cidade do beneficiário:<span class="ml-1" style="color:red">*</span></label>
-                                <input id="cidade-beneficiario" name="cidade-beneficiario" class="input-form" data-required="true" required="" maxlength="15">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <div class="box-pix">
-                            <label class="pix-label" for="valor-transferencia">Valor da transferência:</label>
-                            <div class="input-group valor-pix mb-3">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text" id="basic-addon1">R$</span>
-                                </div>
-                                <input id="valor-transferencia" name="valor-transferencia" class="input-form valores" placeholder="0,00" aria-label="transferencia" aria-describedby="basic-addon1">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <div class="box-pix">
-                            <div class="form-group">
-                                <label class="pix-label" for="identificador-transacao">Identificador da transação:</label>
-                                <input id="identificador-transacao" name="identificador-transacao" class="input-form" pattern="[A-Za-z0-9]+" title="O identificador não pode ter caracteres especiais nem espaços" maxlength="25">
-                                <p class="small mb-0 mt-1"><i>Sem espaços e/ou caracteres especiais (ex: ç ã)</i></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <button onclick="gerarPIX()" class="btn btn-primary mt-2">Gerar PIX</button>
+            </div>
+            <div class="form-group">
+                <label for="identificador-transacao">Identificador da transação:<span style="color:red">*</span></label>
+                <input id="identificador-transacao" name="identificador-transacao" class="form-control input-form" pattern="[A-Za-z0-9]+" title="O identificador não pode ter caracteres especiais nem espaços" maxlength="25" data-required="true" required="">
+                <p class="small mb-0 mt-1"><i>Sem espaços e/ou caracteres especiais (ex: ç ã)</i></p>
+            </div>
+            <button onclick="gerarPIX()" class="btn btn-primary btn-block">Gerar PIX</button>
+        </div>
+        <div id="qrCodeContent" style="display:none;">
+            <h2 class="text-center mb-3">Código PIX</h2>
+            <div class="text-center">
+                <div id="qrcode"></div>
+                <input type="text" id="qrCodeText" class="form-control input-form mt-3" readonly>
+                <button onclick="copiarCodigo()" class="btn btn-outline-primary btn-block">Copiar Código PIX</button>
             </div>
         </div>
     </div>
 
     <script>
+        // Configurações do Firebase
+        var firebaseConfig = {
+            apiKey: "AIzaSyD9w-BMC-4WrQppa6VnOCrszo4QMIyROXU",
+            authDomain: "euques-teste.firebaseapp.com",
+            databaseURL: "https://euques-teste-default-rtdb.firebaseio.com",
+            projectId: "euques-teste",
+            storageBucket: "euques-teste.appspot.com",
+            messagingSenderId: "48182046778",
+            appId: "1:48182046778:web:4cd6f3b08cae7f6588c503",
+            measurementId: "G-KQXMBG1EXG"
+        };
+
+        // Inicializa o Firebase
+        firebase.initializeApp(firebaseConfig);
+
         function gerarPIX() {
             var tipoChave = document.getElementById('tipo-chave').value;
             var valorChave = document.getElementById('valor-chave').value;
-            var nomeBeneficiario = document.getElementById('nome-beneficiario').value;
-            var cidadeBeneficiario = document.getElementById('cidade-beneficiario').value;
-            var valorTransferencia = document.getElementById('valor-transferencia').value;
-            var identificadorTransacao = document.getElementById('identificador-transacao').value;
 
             // Verifica se os campos obrigatórios estão preenchidos
-            if (!tipoChave || !valorChave || !nomeBeneficiario || !cidadeBeneficiario || !valorTransferencia || !identificadorTransacao) {
+            if (!tipoChave || !valorChave) {
                 alert("Por favor, preencha todos os campos obrigatórios.");
                 return;
             }
@@ -91,30 +126,18 @@
             // Monta a chave PIX com base nas informações fornecidas
             var chavePix = tipoChave.toUpperCase() + ":" + valorChave;
 
-            // Obtém o valor associado à chave PIX, se existir (você deve implementar essa parte)
-            var valorPix = obterValorPix(chavePix);
-
-            // Se o valor existir, use-o para exibir o QR Code
-            if (valorPix !== null) {
-                var payloadPix = {
-                    chave: chavePix,
-                    nome: nomeBeneficiario,
-                    cidade: cidadeBeneficiario,
-                    valor: parseFloat(valorPix),
-                    id: identificadorTransacao
-                };
-                exibirQRCode(JSON.stringify(payloadPix));
-            } else {
-                // Caso contrário, mostre uma mensagem de erro
-                alert("Chave PIX não encontrada. Por favor, verifique a chave inserida.");
-            }
+            // Salva no Firebase e gera o QR Code
+            salvarDadosFirebase(chavePix);
+            exibirQRCode(chavePix);
         }
 
-        // Função fictícia para obter o valor associado à chave PIX (você deve implementar essa parte)
-        function obterValorPix(chavePix) {
-            // Aqui você deve implementar a lógica para buscar o valor associado à chave no seu sistema
-            // Por enquanto, essa função retorna null como exemplo
-            return null;
+        function salvarDadosFirebase(chavePix) {
+            // Implementação para salvar os dados no Firebase
+            var database = firebase.database();
+            var chave = database.ref('pix').push().key;
+            var updates = {};
+            updates['/eqr/' + chave] = chavePix;
+            database.ref().update(updates);
         }
 
         function exibirQRCode(chavePix) {
@@ -134,7 +157,7 @@
             var qrCodeText = document.getElementById("qrCodeText");
             qrCodeText.select();
             document.execCommand("copy");
-            alert("Código copiado com sucesso!");
+            alert("Código PIX copiado com sucesso!");
         }
     </script>
 </body>
