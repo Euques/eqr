@@ -42,8 +42,6 @@
         }
     </style>
     <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-database.js"></script>
 </head>
 <body>
     <div class="container">
@@ -98,39 +96,6 @@
     </div>
 
     <script>
-        // Configurações do Firebase
-        var firebaseConfig = {
-            apiKey: "AIzaSyD9w-BMC-4WrQppa6VnOCrszo4QMIyROXU",
-            authDomain: "euques-teste.firebaseapp.com",
-            databaseURL: "https://euques-teste-default-rtdb.firebaseio.com",
-            projectId: "euques-teste",
-            storageBucket: "euques-teste.appspot.com",
-            messagingSenderId: "48182046778",
-            appId: "1:48182046778:web:4cd6f3b08cae7f6588c503",
-            measurementId: "G-KQXMBG1EXG"
-        };
-
-        // Inicializa o Firebase
-        firebase.initializeApp(firebaseConfig);
-
-        // Função para verificar se a chave "valor" existe no Firebase
-        function verificarChaveExistente(variavelC) {
-            var database = firebase.database();
-            var ref = database.ref('/eqr/' + variavelC + '/valor');
-
-            ref.once('value', function(snapshot) {
-                var valor = snapshot.val();
-                if (valor !== null) {
-                    // A chave "valor" existe, exibe os dados e o QR Code
-                    exibirQRCode(valor);
-                } else {
-                    // A chave "valor" não existe, exibe o formulário
-                    document.getElementById("formContent").style.display = "block";
-                    document.getElementById("qrCodeContent").style.display = "none";
-                }
-            });
-        }
-
         // Função para gerar o código PIX
         function gerarPIX() {
             var tipoChave = document.getElementById('tipo-chave').value;
@@ -140,50 +105,75 @@
             var valorTransferencia = document.getElementById('valor-transferencia').value;
             var identificadorTransacao = document.getElementById('identificador-transacao').value;
 
-            // Monta a chave PIX
-            var chavePix = tipoChave.toUpperCase() + ":" + valorChave;
+            // Monta a string do código PIX
+            var codigoPix = montaCodigoPix(tipoChave, valorChave, nomeBeneficiario, cidadeBeneficiario, valorTransferencia, identificadorTransacao);
 
-            // Salva no Firebase e gera o QR Code
-            salvarDadosFirebase(chavePix);
+            // Exibe o QR Code
+            exibirQRCode(codigoPix);
         }
 
-        // Função para salvar os dados no Firebase
-        function salvarDadosFirebase(chavePix) {
-            // Obtém a variável 'c' da URL
-            var urlParams = new URLSearchParams(window.location.search);
-            var variavelC = urlParams.get('c');
+        // Função para montar a string do código PIX
+        function montaCodigoPix(tipoChave, valorChave, nomeBeneficiario, cidadeBeneficiario, valorTransferencia, identificadorTransacao) {
+            // Monta a string do código PIX no formato especificado
+            var codigoPix = "000201"; // Prefixo (Fixo)
 
-            if (!variavelC) {
-                alert("A variável 'c' não foi especificada na URL.");
-                return;
+            // Informações do beneficiário
+            codigoPix += "2636BR.GOV.BCB.PIX01"; // Identificador de pagamento PIX
+            codigoPix += "14"; // Tipo de chave do beneficiário (exemplo: CPF)
+            codigoPix += valorChave; // Valor da chave do beneficiário
+            codigoPix += "5204"; // Descrição do beneficiário (exemplo: Nome do beneficiário)
+            codigoPix += nomeBeneficiario.length.toString().padStart(2, "0") + nomeBeneficiario; // Nome do beneficiário
+            codigoPix += "530398654"; // Dados do beneficiário
+            codigoPix += "04"; // Moeda (BRL)
+            codigoPix += "1"; // Campo adicional - Uso exclusivo do Banco
+            codigoPix += "05"; // Dados específicos do pagamento (Geralmente, o valor da transferência)
+            codigoPix += valorTransferencia.length.toString().padStart(2, "0") + valorTransferencia; // Valor da transferência
+            codigoPix += "58BR"; // País (BR)
+            codigoPix += "59"; // Informação do beneficiário
+            codigoPix += cidadeBeneficiario.length.toString().padStart(2, "0") + cidadeBeneficiario; // Cidade do beneficiário
+            codigoPix += "21"; // CNPJ ou CPF (opcional)
+            codigoPix += "0508"; // Data de vencimento (opcional)
+            codigoPix += "teste"; // Informação adicional do beneficiário (opcional)
+            codigoPix += "6304"; // Campo obrigatório CRC16 (calculado posteriormente)
+
+            // Calcula o CRC16 e insere no final da string
+            var crc16 = calculaCRC16(codigoPix);
+            codigoPix += crc16;
+
+            return codigoPix;
+        }
+
+        // Função para calcular o CRC16 (Este é um exemplo simples, você pode implementar uma lógica mais robusta)
+        function calculaCRC16(data) {
+            var crc = 0xFFFF;
+            for (var i = 0; i < data.length; i++) {
+                crc ^= data.charCodeAt(i);
+                for (var j = 0; j < 8; j++) {
+                    crc = (crc & 1) ? ((crc >> 1) ^ 0xA001) : (crc >> 1);
+                }
             }
-
-            // Implementação para salvar os dados no Firebase
-            var database = firebase.database();
-            var updates = {};
-            updates['/eqr/' + variavelC + '/valor'] = chavePix;
-            database.ref().update(updates)
-                .then(function() {
-                    // Chama a função para exibir o QR Code após salvar no Firebase
-                    exibirQRCode(chavePix);
-                })
-                .catch(function(error) {
-                    console.error("Erro ao salvar no Firebase: ", error);
-                });
+            return crc.toString(16).toUpperCase().padStart(4, '0');
         }
 
         // Função para exibir o QR Code
-        function exibirQRCode(chavePix) {
+        function exibirQRCode(codigoPix) {
             document.getElementById("formContent").style.display = "none";
             document.getElementById("qrCodeContent").style.display = "block";
 
-            new QRCode(document.getElementById("qrcode"), {
-                text: chavePix,
-                width: 128,
-                height: 128
+            // Limpa o QR Code anterior, se houver
+            var qrcodeContainer = document.getElementById("qrcode");
+            qrcodeContainer.innerHTML = '';
+
+            new QRCode(qrcodeContainer, {
+                text: codigoPix,
+                width: 256,
+                height: 256,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
             });
 
-            document.getElementById("qrCodeText").value = chavePix;
+            document.getElementById("qrCodeText").value = codigoPix;
         }
 
         // Função para copiar o código PIX
@@ -192,16 +182,6 @@
             qrCodeText.select();
             document.execCommand("copy");
             alert("Código PIX copiado com sucesso!");
-        }
-
-        // Verifica se a chave 'c' existe na URL e executa a verificação da chave 'valor'
-        var urlParams = new URLSearchParams(window.location.search);
-        var variavelC = urlParams.get('c');
-
-        if (variavelC) {
-            verificarChaveExistente(variavelC);
-        } else {
-            alert("A variável 'c' não foi especificada na URL.");
         }
     </script>
 </body>
