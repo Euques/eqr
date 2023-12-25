@@ -18,17 +18,56 @@
             <h2>Gerar PIX</h2>
             <div class="divOpcao d-none url-option d-block">
                 <div class="box-pix input-group flex-column" id="tipo-chave-container">
-                    <label class="pix-label" for="tipo-chave">Tipo de chave:</label>
-                    <select class="input-form" id="tipo-chave" name="tipo-chave">
-                        <option value="cpf">CPF</option>
-                        <option value="cnpj">CNPJ</option>
-                        <option value="email">E-mail</option>
-                        <option value="telefone">Telefone</option>
-                        <option value="aleatoria">Chave aleatória</option>
-                    </select>
-                    <input id="valor-chave" name="valor-chave" class="input-form" placeholder="(11) 99999-9999" maxlength="15">
+                    <label class="pix-label" for="tipo-chave">Tipo de chave:<span class="ml-1" style="color:red">*</span></label>
+                    <div class="form-group input-group-prepend">
+                        <select class="input-form" id="tipo-chave" name="tipo-chave" data-required="true" required="">
+                            <option value="cpf" selected="">CPF</option>
+                            <option value="cnpj">CNPJ</option>
+                            <option value="email">E-mail</option>
+                            <option value="telefone">Telefone</option>
+                            <option value="aleatoria">Chave aleatória</option>
+                        </select>
+                        <input id="valor-chave" name="valor-chave" class="input-form" aria-label="Text input with dropdown button" data-required="true" required="" autocomplete="off" placeholder="(11) 99999-9999" maxlength="15">
+                    </div>
                 </div>
-                <!-- Outros campos do seu formulário aqui -->
+                <div class="form-group pix-container mt-3">
+                    <div>
+                        <div class="box-pix">
+                            <div class="form-group">
+                                <label class="pix-label" for="nome-beneficiario">Nome do beneficiário:<span class="ml-1" style="color:red">*</span></label>
+                                <input id="nome-beneficiario" name="nome-beneficiario" class="input-form" data-required="true" required="" maxlength="25">
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="box-pix">
+                            <div class="form-group">
+                                <label class="pix-label" for="cidade-beneficiario">Cidade do beneficiário:<span class="ml-1" style="color:red">*</span></label>
+                                <input id="cidade-beneficiario" name="cidade-beneficiario" class="input-form" data-required="true" required="" maxlength="15">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="box-pix">
+                            <label class="pix-label" for="valor-transferencia">Valor da transferência:</label>
+                            <div class="input-group valor-pix mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="basic-addon1">R$</span>
+                                </div>
+                                <input id="valor-transferencia" name="valor-transferencia" class="input-form valores" placeholder="0,00" aria-label="transferencia" aria-describedby="basic-addon1">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="box-pix">
+                            <div class="form-group">
+                                <label class="pix-label" for="identificador-transacao">Identificador da transação:</label>
+                                <input id="identificador-transacao" name="identificador-transacao" class="input-form" pattern="[A-Za-z0-9]+" title="O identificador não pode ter caracteres especiais nem espaços" maxlength="25">
+                                <p class="small mb-0 mt-1"><i>Sem espaços e/ou caracteres especiais (ex: ç ã)</i></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <button onclick="gerarPIX()" class="btn btn-primary mt-2">Gerar PIX</button>
             </div>
         </div>
@@ -40,14 +79,14 @@
     <script>
         // Insira as configurações do Firebase aqui
         var firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            databaseURL: "YOUR_DATABASE_URL",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID",
-            measurementId: "YOUR_MEASUREMENT_ID"
+            apiKey: "AIzaSyD9w-BMC-4WrQppa6VnOCrszo4QMIyROXU",
+            authDomain: "euques-teste.firebaseapp.com",
+            databaseURL: "https://euques-teste-default-rtdb.firebaseio.com",
+            projectId: "euques-teste",
+            storageBucket: "euques-teste.appspot.com",
+            messagingSenderId: "48182046778",
+            appId: "1:48182046778:web:4cd6f3b08cae7f6588c503",
+            measurementId: "G-KQXMBG1EXG"
         };
         // Inicializa o Firebase
         firebase.initializeApp(firebaseConfig);
@@ -55,9 +94,13 @@
         function gerarPIX() {
             var tipoChave = document.getElementById('tipo-chave').value;
             var valorChave = document.getElementById('valor-chave').value;
+            var nomeBeneficiario = document.getElementById('nome-beneficiario').value;
+            var cidadeBeneficiario = document.getElementById('cidade-beneficiario').value;
+            var valorTransferencia = document.getElementById('valor-transferencia').value;
+            var identificadorTransacao = document.getElementById('identificador-transacao').value;
 
             // Verifica se os campos obrigatórios estão preenchidos
-            if (!tipoChave || !valorChave) {
+            if (!tipoChave || !valorChave || !nomeBeneficiario || !cidadeBeneficiario || !valorTransferencia) {
                 alert("Por favor, preencha todos os campos obrigatórios.");
                 return;
             }
@@ -92,6 +135,7 @@
             document.getElementById("qrCodeText").value = chavePix;
         }
 
+        // Função para copiar o código para a área de transferência
         function copiarCodigo() {
             var qrCodeText = document.getElementById("qrCodeText");
             qrCodeText.select();
