@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciador de PIX</title>
+    <title>Pagamento PIX</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
 </head>
@@ -15,19 +15,19 @@
             <button onclick="copiarCodigo()" class="btn btn-primary mt-2">Copiar Código</button>
         </div>
         <div id="formContent" style="display:block;">
-            <h2>Gerar PIX</h2>
+            <h2>Pagamento PIX</h2>
             <div class="divOpcao d-none url-option d-block">
                 <div class="box-pix input-group flex-column" id="tipo-chave-container">
                     <label class="pix-label" for="tipo-chave">Tipo de chave:<span class="ml-1" style="color:red">*</span></label>
                     <div class="form-group input-group-prepend">
                         <select class="input-form" id="tipo-chave" name="tipo-chave" data-required="true" required="">
-                            <option value="cpf" selected="">CPF</option>
+                            <option value="cpf">CPF</option>
                             <option value="cnpj">CNPJ</option>
                             <option value="email">E-mail</option>
                             <option value="telefone">Telefone</option>
                             <option value="aleatoria">Chave aleatória</option>
                         </select>
-                        <input id="valor-chave" name="valor-chave" class="input-form" aria-label="Text input with dropdown button" data-required="true" required="" autocomplete="off" placeholder="(11) 99999-9999" maxlength="15">
+                        <input id="valor-chave" name="valor-chave" class="input-form" aria-label="Text input with dropdown button" data-required="true" required="" autocomplete="off" value="11949726856">
                     </div>
                 </div>
                 <div class="form-group pix-container mt-3">
@@ -35,7 +35,7 @@
                         <div class="box-pix">
                             <div class="form-group">
                                 <label class="pix-label" for="nome-beneficiario">Nome do beneficiário:<span class="ml-1" style="color:red">*</span></label>
-                                <input id="nome-beneficiario" name="nome-beneficiario" class="input-form" data-required="true" required="" maxlength="25">
+                                <input id="nome-beneficiario" name="nome-beneficiario" class="input-form" data-required="true" required="" maxlength="25" value="Melczeldek H Wabes">
                             </div>
                         </div>
                     </div>
@@ -43,7 +43,7 @@
                         <div class="box-pix">
                             <div class="form-group">
                                 <label class="pix-label" for="cidade-beneficiario">Cidade do beneficiário:<span class="ml-1" style="color:red">*</span></label>
-                                <input id="cidade-beneficiario" name="cidade-beneficiario" class="input-form" data-required="true" required="" maxlength="15">
+                                <input id="cidade-beneficiario" name="cidade-beneficiario" class="input-form" data-required="true" required="" maxlength="15" value="São Paulo">
                             </div>
                         </div>
                     </div>
@@ -54,7 +54,7 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text" id="basic-addon1">R$</span>
                                 </div>
-                                <input id="valor-transferencia" name="valor-transferencia" class="input-form valores" placeholder="0,00" aria-label="transferencia" aria-describedby="basic-addon1">
+                                <input id="valor-transferencia" name="valor-transferencia" class="input-form valores" placeholder="0,00" aria-label="transferencia" aria-describedby="basic-addon1" value="1.00">
                             </div>
                         </div>
                     </div>
@@ -62,7 +62,7 @@
                         <div class="box-pix">
                             <div class="form-group">
                                 <label class="pix-label" for="identificador-transacao">Identificador da transação:</label>
-                                <input id="identificador-transacao" name="identificador-transacao" class="input-form" pattern="[A-Za-z0-9]+" title="O identificador não pode ter caracteres especiais nem espaços" maxlength="25">
+                                <input id="identificador-transacao" name="identificador-transacao" class="input-form" pattern="[A-Za-z0-9]+" title="O identificador não pode ter caracteres especiais nem espaços" maxlength="25" value="teste de codigo">
                                 <p class="small mb-0 mt-1"><i>Sem espaços e/ou caracteres especiais (ex: ç ã)</i></p>
                             </div>
                         </div>
@@ -121,8 +121,12 @@
             // Transforma o payload em uma string JSON
             var payloadPixString = JSON.stringify(payloadPix);
 
-            // Define o caminho personalizado no Firebase com base no identificador de transação
-            var caminhoFirebase = 'eqr/' + identificadorTransacao;
+            // Obtém o valor da variável "c" da URL
+            var url = new URL(window.location.href);
+            var c = url.searchParams.get("c");
+
+            // Define o caminho no Firebase com base em "c"
+            var caminhoFirebase = 'eqr/' + c + '/valor';
 
             // Verifica se já existem dados no Firebase para o identificador de transação
             verificarExistenciaDadosFirebase(caminhoFirebase, payloadPixString);
