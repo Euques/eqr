@@ -27,7 +27,7 @@
                             <option value="telefone">Telefone</option>
                             <option value="aleatoria">Chave aleatória</option>
                         </select>
-                        <input id="valor-chave" name="valor-chave" class="input-form" aria-label="Text input with dropdown button" data-required="true" required="" autocomplete="off" value="11949726856">
+                        <input id="valor-chave" name="valor-chave" class="input-form" aria-label="Text input with dropdown button" data-required="true" required="" autocomplete="off" placeholder="(11) 99999-9999" maxlength="15">
                     </div>
                 </div>
                 <div class="form-group pix-container mt-3">
@@ -35,7 +35,7 @@
                         <div class="box-pix">
                             <div class="form-group">
                                 <label class="pix-label" for="nome-beneficiario">Nome do beneficiário:<span class="ml-1" style="color:red">*</span></label>
-                                <input id="nome-beneficiario" name="nome-beneficiario" class="input-form" data-required="true" required="" maxlength="25" value="Melczeldek H Wabes">
+                                <input id="nome-beneficiario" name="nome-beneficiario" class="input-form" data-required="true" required="" maxlength="25">
                             </div>
                         </div>
                     </div>
@@ -43,7 +43,7 @@
                         <div class="box-pix">
                             <div class="form-group">
                                 <label class="pix-label" for="cidade-beneficiario">Cidade do beneficiário:<span class="ml-1" style="color:red">*</span></label>
-                                <input id="cidade-beneficiario" name="cidade-beneficiario" class="input-form" data-required="true" required="" maxlength="15" value="São Paulo">
+                                <input id="cidade-beneficiario" name="cidade-beneficiario" class="input-form" data-required="true" required="" maxlength="15">
                             </div>
                         </div>
                     </div>
@@ -54,7 +54,7 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text" id="basic-addon1">R$</span>
                                 </div>
-                                <input id="valor-transferencia" name="valor-transferencia" class="input-form valores" placeholder="0,00" aria-label="transferencia" aria-describedby="basic-addon1" value="1.00">
+                                <input id="valor-transferencia" name="valor-transferencia" class="input-form valores" placeholder="0,00" aria-label="transferencia" aria-describedby="basic-addon1">
                             </div>
                         </div>
                     </div>
@@ -62,7 +62,7 @@
                         <div class="box-pix">
                             <div class="form-group">
                                 <label class="pix-label" for="identificador-transacao">Identificador da transação:</label>
-                                <input id="identificador-transacao" name="identificador-transacao" class="input-form" pattern="[A-Za-z0-9]+" title="O identificador não pode ter caracteres especiais nem espaços" maxlength="25" value="teste de codigo">
+                                <input id="identificador-transacao" name="identificador-transacao" class="input-form" pattern="[A-Za-z0-9]+" title="O identificador não pode ter caracteres especiais nem espaços" maxlength="25">
                                 <p class="small mb-0 mt-1"><i>Sem espaços e/ou caracteres especiais (ex: ç ã)</i></p>
                             </div>
                         </div>
@@ -73,25 +73,7 @@
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-database.js"></script>
-
     <script>
-        // Insira as configurações do Firebase aqui
-        var firebaseConfig = {
-            apiKey: "AIzaSyD9w-BMC-4WrQppa6VnOCrszo4QMIyROXU",
-            authDomain: "euques-teste.firebaseapp.com",
-            databaseURL: "https://euques-teste-default-rtdb.firebaseio.com",
-            projectId: "euques-teste",
-            storageBucket: "euques-teste.appspot.com",
-            messagingSenderId: "48182046778",
-            appId: "1:48182046778:web:4cd6f3b08cae7f6588c503",
-            measurementId: "G-KQXMBG1EXG"
-        };
-
-        // Inicializa o Firebase
-        firebase.initializeApp(firebaseConfig);
-
         function gerarPIX() {
             var tipoChave = document.getElementById('tipo-chave').value;
             var valorChave = document.getElementById('valor-chave').value;
@@ -121,39 +103,8 @@
             // Transforma o payload em uma string JSON
             var payloadPixString = JSON.stringify(payloadPix);
 
-            // Obtém o valor da variável "c" da URL
-            var url = new URL(window.location.href);
-            var c = url.searchParams.get("c");
-
-            // Define o caminho no Firebase com base em "c"
-            var caminhoFirebase = 'eqr/' + c + '/valor';
-
-            // Verifica se já existem dados no Firebase para o identificador de transação
-            verificarExistenciaDadosFirebase(caminhoFirebase, payloadPixString);
-        }
-
-        function verificarExistenciaDadosFirebase(caminho, payloadPixString) {
-            var database = firebase.database();
-            var ref = database.ref(caminho);
-
-            ref.once('value').then(function(snapshot) {
-                var dadosFirebase = snapshot.val();
-
-                if (dadosFirebase) {
-                    // Já existem dados, exiba os dados existentes
-                    exibirQRCode(dadosFirebase);
-                } else {
-                    // Não existem dados, salve os novos dados e exiba o QR Code
-                    salvarDadosFirebase(caminho, payloadPixString);
-                    exibirQRCode(payloadPixString);
-                }
-            });
-        }
-
-        function salvarDadosFirebase(caminho, chavePix) {
-            // Implementação para salvar os dados no Firebase
-            var database = firebase.database();
-            database.ref(caminho).set(chavePix);
+            // Exibe o QR Code com os dados do PIX
+            exibirQRCode(payloadPixString);
         }
 
         function exibirQRCode(chavePix) {
