@@ -91,20 +91,30 @@
             // Monta a chave PIX com base nas informações fornecidas
             var chavePix = tipoChave.toUpperCase() + ":" + valorChave;
 
-            // Monta o payload do PIX
-            var payloadPix = {
-                chave: chavePix,
-                nome: nomeBeneficiario,
-                cidade: cidadeBeneficiario,
-                valor: parseFloat(valorTransferencia),
-                id: identificadorTransacao
-            };
+            // Obtém o valor associado à chave PIX, se existir (você deve implementar essa parte)
+            var valorPix = obterValorPix(chavePix);
 
-            // Transforma o payload em uma string JSON
-            var payloadPixString = JSON.stringify(payloadPix);
+            // Se o valor existir, use-o para exibir o QR Code
+            if (valorPix !== null) {
+                var payloadPix = {
+                    chave: chavePix,
+                    nome: nomeBeneficiario,
+                    cidade: cidadeBeneficiario,
+                    valor: parseFloat(valorPix),
+                    id: identificadorTransacao
+                };
+                exibirQRCode(JSON.stringify(payloadPix));
+            } else {
+                // Caso contrário, mostre uma mensagem de erro
+                alert("Chave PIX não encontrada. Por favor, verifique a chave inserida.");
+            }
+        }
 
-            // Exibe o QR Code com os dados do PIX
-            exibirQRCode(payloadPixString);
+        // Função fictícia para obter o valor associado à chave PIX (você deve implementar essa parte)
+        function obterValorPix(chavePix) {
+            // Aqui você deve implementar a lógica para buscar o valor associado à chave no seu sistema
+            // Por enquanto, essa função retorna null como exemplo
+            return null;
         }
 
         function exibirQRCode(chavePix) {
