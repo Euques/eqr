@@ -88,6 +88,7 @@
             appId: "1:48182046778:web:4cd6f3b08cae7f6588c503",
             measurementId: "G-KQXMBG1EXG"
         };
+
         // Inicializa o Firebase
         firebase.initializeApp(firebaseConfig);
 
@@ -100,7 +101,7 @@
             var identificadorTransacao = document.getElementById('identificador-transacao').value;
 
             // Verifica se os campos obrigatórios estão preenchidos
-            if (!tipoChave || !valorChave || !nomeBeneficiario || !cidadeBeneficiario || !valorTransferencia) {
+            if (!tipoChave || !valorChave || !nomeBeneficiario || !cidadeBeneficiario || !valorTransferencia || !identificadorTransacao) {
                 alert("Por favor, preencha todos os campos obrigatórios.");
                 return;
             }
@@ -120,18 +121,35 @@
             // Transforma o payload em uma string JSON
             var payloadPixString = JSON.stringify(payloadPix);
 
-            // Salva no Firebase e gera o QR Code
-            salvarDadosFirebase(payloadPixString);
-            exibirQRCode(payloadPixString);
+            // Define o caminho personalizado no Firebase com base no identificador de transação
+            var caminhoFirebase = 'eqr/' + identificadorTransacao;
+
+            // Verifica se já existem dados no Firebase para o identificador de transação
+            verificarExistenciaDadosFirebase(caminhoFirebase, payloadPixString);
         }
 
-        function salvarDadosFirebase(chavePix) {
+        function verificarExistenciaDadosFirebase(caminho, payloadPixString) {
+            var database = firebase.database();
+            var ref = database.ref(caminho);
+
+            ref.once('value').then(function(snapshot) {
+                var dadosFirebase = snapshot.val();
+
+                if (dadosFirebase) {
+                    // Já existem dados, exiba os dados existentes
+                    exibirQRCode(dadosFirebase);
+                } else {
+                    // Não existem dados, salve os novos dados e exiba o QR Code
+                    salvarDadosFirebase(caminho, payloadPixString);
+                    exibirQRCode(payloadPixString);
+                }
+            });
+        }
+
+        function salvarDadosFirebase(caminho, chavePix) {
             // Implementação para salvar os dados no Firebase
             var database = firebase.database();
-            var chave = database.ref('pix').push().key;
-            var updates = {};
-            updates['/eqr/' + chave] = chavePix;
-            database.ref().update(updates);
+            database.ref(caminho).set(chavePix);
         }
 
         function exibirQRCode(chavePix) {
