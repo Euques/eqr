@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciador de QR Code</title>
+    <title>Gerenciador de PIX</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-database.js"></script>
@@ -17,25 +17,77 @@
             <input type="text" id="qrCodeText" class="form-control" readonly>
             <button onclick="copiarCodigo()" class="btn btn-primary mt-2">Copiar Código</button>
         </div>
-        <div id="formContent" style="display:none;">
-            <h2>Inserir Dados</h2>
+        <div id="formContent" style="display:block;">
+            <h2>Gerar PIX</h2>
             <!-- Formulário para inserção de dados -->
-            <div class="form-group">
-                <label for="tipoChave">Tipo de Chave PIX:</label>
-                <select class="form-control" id="tipoChave">
-                    <option value="cpf">CPF</option>
-                    <option value="cnpj">CNPJ</option>
-                    <option value="email">E-mail</option>
-                    <option value="telefone">Telefone</option>
-                    <option value="aleatoria">Chave Aleatória</option>
-                </select>
+            <div class="divOpcao d-none url-option d-block">
+                <div class="box-pix input-group flex-column" id="tipo-chave-container">
+                    <label class="pix-label" for="tipo-chave">Tipo de chave:<span class="ml-1" style="color:red">*</span></label>
+                    <div class="form-group input-group-prepend">
+                        <select class="input-form" id="tipo-chave" name="tipo-chave" data-required="true" required="" data-selected="cpf">
+                            <option value="cpf" selected="">CPF</option>
+                            <option value="cnpj">CNPJ</option>
+                            <option value="email">E-mail</option>
+                            <option value="telefone">Telefone</option>
+                            <option value="aleatoria">Chave aleatória</option>
+                        </select>
+                        <input id="valor-chave" name="valor-chave" class="input-form" aria-label="Text input with dropdown button" data-required="true" required="" autocomplete="off" placeholder="(11) 99999-9999" maxlength="15">
+                    </div>
+                </div>
+                <div class="form-group pix-container mt-3">
+                    <div>
+                        <div class="box-pix">
+                            <div class="form-group">
+                                <label class="pix-label" for="nome-beneficiario">Nome do beneficiário:<span class="ml-1" style="color:red">*</span></label>
+                                <input id="nome-beneficiario" name="nome-beneficiario" class="input-form" data-required="true" required="" maxlength="25">
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="box-pix">
+                            <div class="form-group">
+                                <label class="pix-label" for="cidade-beneficiario">Cidade do beneficiário:<span class="ml-1" style="color:red">*</span></label>
+                                <input id="cidade-beneficiario" name="cidade-beneficiario" class="input-form" data-required="true" required="" maxlength="15">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="box-pix">
+                            <label class="pix-label" for="valor-transferencia">Valor da transferência:</label>
+                            <div class="input-group valor-pix mb-3">
+                                <div class="input-group-prepend"><span class="input-group-text" id="basic-addon1">R$</span></div>
+                                <input id="valor-transferencia" name="valor-transferencia" class="input-form valores" placeholder="0,00" aria-label="transferencia" aria-describedby="basic-addon1">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="box-pix">
+                            <div class="form-group">
+                                <label class="pix-label" for="identificador-transacao">Identificador da transação:</label>
+                                <input id="identificador-transacao" name="identificador-transacao" class="input-form" pattern="[A-Za-z0-9]+" title="O identificador não pode ter caracteres especiais nem espaços" maxlength="25">
+                                <p class="small mb-0 mt-1"><i>Sem espaços e/ou caracteres especiais (ex: ç ã)</i></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="grid-position imprimir-pix" id="imprimir-pix" style="display:none">
+                        <div class="box-pix">
+                            <div class="form-group">
+                                <button id="PixGerarPDFButton" class="btn btn-block btn-outline-primary"><i class="bi bi-printer mr-2"></i>Imprimir plaquinha pix</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3 grid-position comprar-plaquinha-pix" id="comprar-plaquinha-pix" style="display:none">
+                        <div class="box-pix">
+                            <div class="form-group text-center">
+                                <a class="btn btn-block btn-outline-secondary" target="_blank" href="https://www.amazon.com.br/gp/search?ie=UTF8&amp;tag=qrplus-20&amp;linkCode=ur2&amp;linkId=507abfa01c9bba8b6eb06a86c92593bb&amp;camp=1789&amp;creative=9325&amp;index=aps&amp;keywords=display%20acr%C3%ADlico%20a5"><i class="bi bi-cart-check mr-2"></i><span>Comprar placa de acrílico na Amazon</span></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="valorChave">Valor da Chave:</label>
-                <input type="text" class="form-control" id="valorChave">
-            </div>
-            <!-- Adicione mais campos conforme necessário -->
-            <button onclick="salvarDados()" class="btn btn-primary mt-2">Salvar Dados</button>
+            <button onclick="gerarPIX()" class="btn btn-primary mt-2">Gerar PIX</button>
         </div>
     </div>
 
@@ -52,6 +104,59 @@
         };
         firebase.initializeApp(firebaseConfig);
 
+        function gerarPIX() {
+            var tipoChave = document.getElementById('tipo-chave').value;
+            var valorChave = document.getElementById('valor-chave').value;
+            var nomeBeneficiario = document.getElementById('nome-beneficiario').value;
+            var cidadeBeneficiario = document.getElementById('cidade-beneficiario').value;
+            var valorTransferencia = document.getElementById('valor-transferencia').value;
+            var identificadorTransacao = document.getElementById('identificador-transacao').value;
+
+            // Adicione a lógica para gerar o PIX com os dados acima
+            var chavePix = gerarChavePix(tipoChave, valorChave);
+            var pixData = {
+                tipoChave: tipoChave,
+                valorChave: valorChave,
+                nomeBeneficiario: nomeBeneficiario,
+                cidadeBeneficiario: cidadeBeneficiario,
+                valorTransferencia: valorTransferencia,
+                identificadorTransacao: identificadorTransacao,
+                chavePix: chavePix
+            };
+
+            // Salvar dados do PIX no Firebase (substitua pela lógica de sua preferência)
+            var database = firebase.database();
+            var chave = database.ref('pix').push().key;
+            var updates = {};
+            updates['/pix/' + chave] = pixData;
+            database.ref().update(updates);
+
+            // Gerar e exibir o QR Code com base na chave PIX
+            exibirQRCode(chavePix);
+        }
+
+        function exibirQRCode(chavePix) {
+            document.getElementById("formContent").style.display = "none";
+            document.getElementById("qrCodeContent").style.display = "block";
+
+            // Gerar o QR Code a partir do valor da chave PIX
+            var qrcode = new QRCode(document.getElementById("qrcode"), {
+                text: chavePix,
+                width: 128,
+                height: 128
+            });
+
+            document.getElementById("qrCodeText").value = chavePix;
+        }
+
+        function copiarCodigo() {
+            var qrCodeText = document.getElementById("qrCodeText");
+            qrCodeText.select();
+            document.execCommand("copy");
+            alert("Código copiado com sucesso!");
+        }
+
+        // Função para gerar a chave PIX com base no tipo e valor da chave
         function gerarChavePix(tipoChave, valorChave) {
             if (tipoChave === "cpf") {
                 return "CPF:" + valorChave;
@@ -68,57 +173,9 @@
             }
         }
 
-        function salvarDados() {
-            var tipoChave = document.getElementById('tipoChave').value;
-            var valorChave = document.getElementById('valorChave').value;
-
-            var chave = new URLSearchParams(window.location.search).get('c');
-            var chavePix = gerarChavePix(tipoChave, valorChave);
-
-            if (chavePix) {
-                firebase.database().ref('eqr/' + chave + '/valor').set(chavePix).then(() => {
-                    alert('Dados salvos com sucesso!');
-                    window.location.reload();
-                });
-            } else {
-                alert('Tipo de chave não suportado ou valor inválido.');
-            }
-        }
-
-        function copiarCodigo() {
-            var qrCodeText = document.getElementById("qrCodeText");
-            qrCodeText.select();
-            document.execCommand("copy");
-            alert("Código copiado com sucesso!");
-        }
-
-        function verificarChave() {
-            const chave = new URLSearchParams(window.location.search).get('c');
-            if (chave) {
-                var ref = firebase.database().ref('eqr/' + chave + '/valor');
-                ref.once('value', snapshot => {
-                    var chavePix = snapshot.val();
-                    if (chavePix) {
-                        document.getElementById("qrCodeContent").style.display = "block";
-                        var qrCodeText = document.getElementById("qrCodeText");
-                        qrCodeText.value = chavePix;
-
-                        // Gerar o QR Code a partir do valor
-                        var qrcode = new QRCode(document.getElementById("qrcode"), {
-                            text: chavePix,
-                            width: 128,
-                            height: 128
-                        });
-                    } else {
-                        document.getElementById("formContent").style.display = "block";
-                    }
-                });
-            } else {
-                alert("Nenhum código QR detectado na URL.");
-            }
-        }
-
-        window.onload = verificarChave;
+        window.onload = function () {
+            // Adicione qualquer inicialização adicional que você possa precisar aqui
+        };
     </script>
 </body>
 </html>
