@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de QR Code</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-database.js"></script>
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div id="qrCodeContent" style="display:none;">
+            <!-- Exibição do QR Code -->
+            <div id="qrcode"></div>
+            <input type="text" id="qrCodeText" class="form-control" readonly>
+            <button onclick="copiarCodigo()" class="btn btn-primary mt-2">Copiar Código</button>
+        </div>
+        <div id="formContent" style="display:none;">
+            <h2>Inserir Dados</h2>
+            <!-- Formulário para inserção de dados -->
+            <div class="form-group">
+                <label for="tipoChave">Tipo de Chave PIX:</label>
+                <select class="form-control" id="tipoChave">
+                    <option value="cpf">CPF</option>
+                    <option value="cnpj">CNPJ</option>
+                    <option value="email">E-mail</option>
+                    <option value="telefone">Telefone</option>
+                    <option value="aleatoria">Chave Aleatória</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="valorChave">Valor da Chave:</label>
+                <input type="text" class="form-control" id="valorChave">
+            </div>
+            <!-- Adicione mais campos conforme necessário -->
+            <button onclick="salvarDados()" class="btn btn-primary mt-2">Salvar Dados</button>
+        </div>
+    </div>
+
+    <script>
+        var firebaseConfig = {
+            apiKey: "AIzaSyD9w-BMC-4WrQppa6VnOCrszo4QMIyROXU",
+            authDomain: "euques-teste.firebaseapp.com",
+            databaseURL: "https://euques-teste-default-rtdb.firebaseio.com",
+            projectId: "euques-teste",
+            storageBucket: "euques-teste.appspot.com",
+            messagingSenderId: "48182046778",
+            appId: "1:48182046778:web:4cd6f3b08cae7f6588c503",
+            measurementId: "G-KQXMBG1EXG"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        function gerarChavePix(tipoChave, valorChave) {
+            if (tipoChave === "cpf") {
+                return "CPF:" + valorChave;
+            } else if (tipoChave === "cnpj") {
+                return "CNPJ:" + valorChave;
+            } else if (tipoChave === "email") {
+                return valorChave;
+            } else if (tipoChave === "telefone") {
+                return "TEL:" + valorChave;
+            } else if (tipoChave === "aleatoria") {
+                return Math.random().toString(36).substring(2, 12);
+            } else {
+                return "";
+            }
+        }
+
+        function salvarDados() {
+            var tipoChave = document.getElementById('tipoChave').value;
+            var valorChave = document.getElementById('valorChave').value;
+
+            var chave = new URLSearchParams(window.location.search).get('c');
+            var chavePix = gerarChavePix(tipoChave, valorChave);
+
+            if (chavePix) {
+                firebase.database().ref('eqr/' + chave + '/valor').set(chavePix).then(() => {
+                    alert('Dados salvos com sucesso!');
+                    window.location.reload();
+                });
+            } else {
+                alert('Tipo de chave não suportado ou valor inválido.');
+            }
+        }
+
+        function copiarCodigo() {
+            var qrCodeText = document.getElementById("qrCodeText");
+            qrCodeText.select();
+            document.execCommand("copy");
+            alert("Código copiado com sucesso!");
+        }
+
+        function verificarChave() {
+            const chave = new URLSearchParams(window.location.search).get('c');
+            if (chave) {
+                var ref = firebase.database().ref('eqr/' + chave + '/valor');
+                ref.once('value', snapshot => {
+                    var chavePix = snapshot.val();
+                    if (chavePix) {
+                        document.getElementById("qrCodeContent").style.display = "block";
+                        var qrCodeText = document.getElementById("qrCodeText");
+                        qrCodeText.value = chavePix;
+
+                        // Gerar o QR Code a partir do valor
+                        var qrcode = new QRCode(document.getElementById("qrcode"), {
+                            text: chavePix,
+                            width: 128,
+                            height: 128
+                        });
+                    } else {
+                        document.getElementById("formContent").style.display = "block";
+                    }
+                });
+            } else {
+                alert("Nenhum código QR detectado na URL.");
+            }
+        }
+
+        window.onload = verificarChave;
+    </script>
+</body>
+</html>
