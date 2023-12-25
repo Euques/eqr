@@ -145,9 +145,6 @@
 
             // Salva no Firebase e gera o QR Code
             salvarDadosFirebase(chavePix);
-
-            // Atualiza a página para exibir o QR Code
-            window.location.reload();
         }
 
         // Função para salvar os dados no Firebase
@@ -165,7 +162,14 @@
             var database = firebase.database();
             var updates = {};
             updates['/eqr/' + variavelC + '/valor'] = chavePix;
-            database.ref().update(updates);
+            database.ref().update(updates)
+                .then(function() {
+                    // Chama a função para exibir o QR Code após salvar no Firebase
+                    exibirQRCode(chavePix);
+                })
+                .catch(function(error) {
+                    console.error("Erro ao salvar no Firebase: ", error);
+                });
         }
 
         // Função para exibir o QR Code
