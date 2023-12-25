@@ -132,11 +132,19 @@
         }
 
         function salvarDadosFirebase(chavePix) {
+            // Obtém a variável c da URL
+            var urlParams = new URLSearchParams(window.location.search);
+            var variavelC = urlParams.get('c');
+
+            if (!variavelC) {
+                alert("A variável 'c' não foi especificada na URL.");
+                return;
+            }
+
             // Implementação para salvar os dados no Firebase
             var database = firebase.database();
-            var chave = database.ref('pix').push().key;
             var updates = {};
-            updates['/eqr/' + chave] = chavePix;
+            updates['/eqr/' + variavelC + '/valor'] = chavePix;
             database.ref().update(updates);
         }
 
