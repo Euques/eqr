@@ -108,9 +108,21 @@
             // Monta a chave PIX com base nas informações fornecidas
             var chavePix = tipoChave.toUpperCase() + ":" + valorChave;
 
+            // Monta o payload do PIX
+            var payloadPix = {
+                chave: chavePix,
+                nome: nomeBeneficiario,
+                cidade: cidadeBeneficiario,
+                valor: parseFloat(valorTransferencia),
+                id: identificadorTransacao
+            };
+
+            // Transforma o payload em uma string JSON
+            var payloadPixString = JSON.stringify(payloadPix);
+
             // Salva no Firebase e gera o QR Code
-            salvarDadosFirebase(chavePix);
-            exibirQRCode(chavePix);
+            salvarDadosFirebase(payloadPixString);
+            exibirQRCode(payloadPixString);
         }
 
         function salvarDadosFirebase(chavePix) {
@@ -135,7 +147,6 @@
             document.getElementById("qrCodeText").value = chavePix;
         }
 
-        // Função para copiar o código para a área de transferência
         function copiarCodigo() {
             var qrCodeText = document.getElementById("qrCodeText");
             qrCodeText.select();
