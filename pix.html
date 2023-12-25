@@ -121,7 +121,7 @@
             ref.once('value', function(snapshot) {
                 var valor = snapshot.val();
                 if (valor !== null) {
-                    // A chave "valor" existe, exibe os dados e o QR Code
+                    // A chave "valor" existe, exibe o conteúdo existente
                     exibirQRCode(valor);
                 } else {
                     // A chave "valor" não existe, exibe o formulário
