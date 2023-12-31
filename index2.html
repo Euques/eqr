@@ -94,26 +94,36 @@
             var provider = new firebase.auth.GoogleAuthProvider();
             firebase.auth().signInWithPopup(provider).then(function(result) {
                 var user = result.user;
-                showAuthenticatedContent();
+                showAuthenticatedContent(user);
             }).catch(function(error) {
                 console.error(error);
             });
         }
 
         // Se o usuário estiver autenticado, exibe o botão de editar
-        function showEditableContent() {
+        function showAuthenticatedContent(user) {
             document.getElementById('create-key-content').style.display = 'none';
             document.getElementById('edit-key-content').style.display = 'block';
-            var content = getParameterValue();
-            var keyRef = firebase.database().ref('eqr/' + content);
-            keyRef.child('valor').once('value', function (snapshot) {
-                var encodedValue = snapshot.val();
-                if (encodedValue !== null) {
+
+            // Exibe o botão de editar se o usuário estiver autenticado
+            document.getElementById('edit-button').style.display = 'block';
+
+            if (user) {
+                document.getElementById('user-info').innerHTML = 'Email: ' + user.email + ' | User ID: ' + user.uid;
+            }
+
+            // Obtém o valor da chave 'c' na URL
+            const content = getParameterValue();
+            if (content) {
+                var keyRef = firebase.database().ref('eqr/' + content);
+                var keySnapshot = await keyRef.once('value');
+                var keyData = keySnapshot.val();
+                if (keyData) {
                     // Decodificar o valor antes de exibi-lo
-                    var decodedValue = decodeURIComponent(encodedValue);
-                    document.getElementById('edit-textbox-value').value = decodedValue;
+                    var decodedValue = decodeURIComponent(keyData.valor);
+                    document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5>' + processText(decodedValue);
                 }
-            });
+            }
         }
 
         // Função para criar uma chave
@@ -142,37 +152,6 @@
         function getParameterValue() {
             const params = new URLSearchParams(window.location.search);
             return params.get('c');
-        }
-
-        // Função para mostrar informações do usuário no rodapé
-        async function showUserInfo() {
-            var user = await new Promise(resolve => {
-                firebase.auth().onAuthStateChanged(user => resolve(user));
-            });
-
-            if (user) {
-                document.getElementById('user-info').innerHTML = 'Email: ' + user.email + ' | User ID: ' + user.uid;
-                // Exibe o botão de editar se o usuário estiver autenticado
-                document.getElementById('edit-button').style.display = 'block';
-
-                // Obtém o valor da chave 'c' na URL
-                const content = getParameterValue();
-                if (content) {
-                    var keyRef = firebase.database().ref('eqr/' + content);
-                    var keySnapshot = await keyRef.once('value');
-                    var keyData = keySnapshot.val();
-                    if (keyData && keyData.user === user.uid) {
-                        // Se o ID do usuário na chave 'c' coincidir com o ID do usuário autenticado
-                        document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5>' + processText(decodeURIComponent(keyData.valor));
-                    } else {
-                        // Se o ID do usuário não coincidir, mostra uma mensagem ou faz o que for necessário
-                        document.getElementById('data').innerHTML = '<p>Você não tem permissão para visualizar este conteúdo.</p>';
-                    }
-                }
-            } else {
-                // Se não estiver autenticado, redirecione para a página de login
-                window.location.href = 'login.html';
-            }
         }
 
         // Função para processar o texto (adapte conforme necessário)
@@ -212,7 +191,9 @@
         }
 
         // Verificar a autenticação do usuário e mostrar conteúdo correspondente
-        showUserInfo();
+        firebase.auth().onAuthStateChanged(function(user) {
+            showAuthenticatedContent(user);
+        });
     </script>
 </body>
 </html>
