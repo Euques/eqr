@@ -101,10 +101,8 @@
             document.getElementById('create-key-content').style.display = 'none';
             document.getElementById('edit-key-content').style.display = 'block';
 
-            // Exibe o botão de editar se o usuário estiver autenticado
-            document.getElementById('edit-button').style.display = 'block';
-
             if (user) {
+                document.getElementById('edit-button').style.display = 'block';
                 document.getElementById('user-info').innerHTML = 'Email: ' + user.email + ' | User ID: ' + user.uid;
             }
 
