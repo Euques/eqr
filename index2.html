@@ -1,149 +1,156 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>Leitor de QR Code</title>
- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
- <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-app.js"></script>
- <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-database.js"></script>
- <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-auth.js"></script>
- <style>
- body {
-  padding-top: 20px;
- }
- .container {
-  max-width: 600px;
-  margin: auto;
- }
- .resultado {
-  border: 1px solid #007bff;
-  padding: 15px;
-  border-radius: 5px;
-  margin-top: 15px;
-  background-color: #f1f1f1;
- }
- .resultado h5 {
-  color: #007bff;
-  margin-bottom: 0;
- }
- .resultado p {
-  margin-top: 5px;
-  color: #333;
- }
- .btn-success {
-  margin-top: 10px;
- }
- </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leitor de QR Code</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-app.js"></script>
+    <!-- Firebase Authentication -->
+    <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-auth.js"></script>
+    <!-- Firebase Database -->
+    <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-database.js"></script>
+    <style>
+        body { padding-top: 20px; }
+        .container { max-width: 600px; margin: auto; }
+        .resultado {
+            border: 1px solid #007bff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            background-color: #f1f1f1;
+        }
+        .resultado h5 {
+            color: #007bff;
+            margin-bottom: 0;
+        }
+        .resultado p {
+            margin-top: 5px;
+            color: #333;
+        }
+        .btn-success {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
- <div class="container">
-  <div id="login-content" style="display: none;">
-   <h2>Login</h2>
-   <input type="email" id="email" class="form-control" placeholder="E-mail">
-   <input type="password" id="password" class="form-control" placeholder="Senha">
-   <button onclick="login()" class="btn btn-success">Login</button>
-  </div>
-  <div id="scanner-content" style="display: none;">
-   <h2>Leitor de QR Code</h2>
-   <div id="data" class="resultado"></div>
-  </div>
-  <div id="create-key-content" style="display: none;">
-   <h2>Criar Chave</h2>
-   <input type="text" id="key-value" class="form-control" placeholder="Insira um valor para a chave">
-   <input type="text" id="textbox-value" class="form-control" placeholder="Insira um valor para o campo de texto">
-   <button onclick="createKeyAndReload()" class="btn btn-success">Criar Chave</button>
-  </div>
- </div>
- <script>
- var firebaseConfig = {
-  apiKey: "AIzaSyD9w-BMC-4WrQppa6VnOCrszo4QMIyROXU",
-  authDomain: "euques-teste.firebaseapp.com",
-  databaseURL: "https://euques-teste-default-rtdb.firebaseio.com",
-  projectId: "euques-teste",
-  storageBucket: "euques-teste.appspot.com",
-  messagingSenderId: "48182046778",
-  appId: "1:48182046778:web:4cd6f3b08cae7f6588c503",
-  measurementId: "G-KQXMBG1EXG"
- };
- firebase.initializeApp(firebaseConfig);
+    <div class="container">
+        <div id="scanner-content">
+            <h2>Leitor de QR Code</h2>
+            <div id="key" class="resultado"></div>
+            <hr> <!-- Linha divisória -->
+            <div id="data" class="resultado"></div>
+        </div>
+        <div id="create-key-content" style="display: none;">
+            <h2>Criar Chave</h2>
+            <input type="text" id="key-value" class="form-control" placeholder="Insira um valor para a chave">
+            <label for="textbox-value">Texto</label>
+            <textarea id="textbox-value" class="form-control" rows="4" placeholder="Insira um valor para o campo de texto" onkeyup="updatePreview()"></textarea>
+            <button onclick="createKeyAndReload()" class="btn btn-success">Criar Chave</button>
+        </div>
+        <div id="auth-content" style="display: none;">
+            <h2>Autenticação</h2>
+            <button onclick="signInWithGoogle()" class="btn btn-primary">Entrar com o Google</button>
+        </div>
+    </div>
 
- function login() {
-  var email = document.getElementById('email').value;
-  var password = document.getElementById('password').value;
+    <script>
+        // Configuração do Firebase com suas credenciais
+        var firebaseConfig = {
+            apiKey: "AIzaSyD9w-BMC-4WrQppa6VnOCrszo4QMIyROXU",
+            authDomain: "euques-teste.firebaseapp.com",
+            databaseURL: "https://euques-teste-default-rtdb.firebaseio.com",
+            projectId: "euques-teste",
+            storageBucket: "euques-teste.appspot.com",
+            messagingSenderId: "48182046778",
+            appId: "1:48182046778:web:4cd6f3b08cae7f6588c503",
+            measurementId: "G-KQXMBG1EXG"
+        };
+        firebase.initializeApp(firebaseConfig);
 
-  firebase.auth().signInWithEmailAndPassword(email, password).then(() => {
-   window.location.href = '/';
-  }, (error) => {
-   alert(error.message);
-  });
- }
+        // Função para autenticar com o Google
+        function signInWithGoogle() {
+            var provider = new firebase.auth.GoogleAuthProvider();
+            firebase.auth().signInWithPopup(provider).then(function(result) {
+                var user = result.user;
+                // Mostrar conteúdo autenticado
+                showAuthenticatedContent();
+            }).catch(function(error) {
+                console.error(error);
+            });
+        }
 
- function getParameterValue() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get('c');
-}
+        // Função para mostrar conteúdo autenticado
+        function showAuthenticatedContent() {
+            document.getElementById('scanner-content').style.display = 'block';
+            document.getElementById('auth-content').style.display = 'none';
+        }
 
- const content = getParameterValue();
- if (content) {
-  document.getElementById('scanner-content').style.display = 'block';
-  document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5><p id="code">' + content + '</p>';
-  var keyRef = firebase.database().ref('codeqr/' + content);
-  keyRef.child('valor').once('value', function (snapshot) {
-   var value = snapshot.val();
-   if (value !== null) {
-    document.getElementById('data').innerHTML += '<h5>Valor:</h5><p id="value">' + value + '</p>';
-    if (firebase.auth().currentUser) {
-      document.getElementById('data').innerHTML += '<input type="text" id="edit-value" class="form-control" placeholder="Insira o novo valor">';
-      document.getElementById('data').innerHTML += '<button onclick="edit()" class="btn btn-success">Salvar</button>';
-    } else {
-      document.getElementById('data').innerHTML += '<p>Apenas usuários autenticados podem editar o valor.</p>';
-    }
-   } else {
-    alert('Este código QR não possui um valor associado. Você pode criar um novo valor a seguir.');
-    document.getElementById('scanner-content').style.display = 'none';
-    document.getElementById('create-key-content').style.display = 'block';
-    document.getElementById('key-value').value = content;
-   }
-  });
- } else {
-  alert('Nenhum código QR detectado na URL.');
- }
+        function createKeyAndReload() {
+            var keyValue = document.getElementById('key-value').value;
+            var keyRef = firebase.database().ref('eqr/' + keyValue);
+            var value = document.getElementById('textbox-value').value;
+            
+            // Codificar o valor antes de salvá-lo
+            var encodedValue = encodeURIComponent(value);
+            
+            keyRef.child('valor').set(encodedValue).then(() => {
+                alert('Chave criada com sucesso com o valor: ' + keyValue);
+                window.location.reload();
+            });
+        }
 
- function createKeyAndReload() {
-  var keyValue = document.getElementById('key-value').value;
-  var keyRef = firebase.database().ref('codeqr/' + keyValue);
-  var value = document.getElementById('textbox-value').value;
-  keyRef.child('valor').set(value).then(() => {
-   alert('Chave criada com sucesso com o valor: ' + keyValue);
-   window.location.reload();
-  }, (error) => {
-   alert(error.message);
-  });
- }
+        function getParameterValue() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('c');
+        }
 
-function edit() {
-  var code = document.getElementById('code').textContent;
-  var value = document.getElementById('edit-value').value;
+        function updatePreview() {
+            var textareaValue = document.getElementById('textbox-value').value;
+            document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5>' + processText(textareaValue);
+        }
 
-  if (!firebase.auth().currentUser) {
-    alert('Você precisa estar autenticado para editar informações.');
-    return;
-  }
+        function processText(text) {
+            // Substituir quebras de linha por <br>
+            text = text.replace(/\n/g, '<br>');
+            
+            // Detectar URLs e torná-las clicáveis
+            text = text.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank">$1</a>');
+            
+            // Detectar números de telefone com vários formatos e torná-los clicáveis
+            text = text.replace(/(\(?\d{2,3}\)?[-\s]?\d{4,5}[-\s]?\d{4})/g, '<a href="tel:$1">$1</a>');
+            
+            // Detectar endereços de e-mail e torná-los clicáveis
+            text = text.replace(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4})/g, '<a href="mailto:$1">$1</a>');
 
-  if (!value) {
-    alert('O valor não pode ser vazio.');
-    return;
-  }
+            // Detectar domínios começando com www. e torná-los clicáveis
+            text = text.replace(/(www\.[^\s<]+)/g, '<a href="http://$1" target="_blank">$1</a>');
+            
+            return '<p>' + text + '</p>';
+        }
 
-  firebase.database().ref('codeqr/' + code).child('valor').set(value).then(() => {
-    alert('Valor editado com sucesso.');
-    window.location.reload();
-  }, (error) => {
-    alert(error.message);
-  });
-}
-
- </script>
+        const content = getParameterValue();
+        if (content) {
+            document.getElementById('key').innerHTML = '<h5>Chave do QR Code:</h5><p>' + content + '</p>';
+            var keyRef = firebase.database().ref('eqr/' + content);
+            keyRef.child('valor').on('value', function (snapshot) {
+                var encodedValue = snapshot.val();
+                if (encodedValue !== null) {
+                    // Decodificar o valor antes de exibi-lo
+                    var decodedValue = decodeURIComponent(encodedValue);
+                    document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5>' + processText(decodedValue);
+                } else {
+                    document.getElementById('scanner-content').style.display = 'none';
+                    document.getElementById('create-key-content').style.display = 'block';
+                    document.getElementById('key-value').value = content;
+                }
+            });
+        } else {
+            // Mostrar tela de autenticação se nenhum código QR for detectado
+            document.getElementById('auth-content').style.display = 'block';
+        }
+    </script>
 </body>
 </html>
