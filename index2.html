@@ -145,8 +145,11 @@
         }
 
         // Função para mostrar informações do usuário no rodapé
-        function showUserInfo() {
-            var user = firebase.auth().currentUser;
+        async function showUserInfo() {
+            var user = await new Promise(resolve => {
+                firebase.auth().onAuthStateChanged(user => resolve(user));
+            });
+
             if (user) {
                 document.getElementById('user-info').innerHTML = 'Email: ' + user.email + ' | User ID: ' + user.uid;
                 // Exibe o botão de editar se o usuário estiver autenticado
@@ -156,23 +159,15 @@
                 const content = getParameterValue();
                 if (content) {
                     var keyRef = firebase.database().ref('eqr/' + content);
-                    keyRef.child('user').once('value', function (snapshot) {
-                        var keyUserId = snapshot.val();
-                        if (keyUserId === user.uid) {
-                            // Se o ID do usuário na chave 'c' coincidir com o ID do usuário autenticado
-                            keyRef.child('valor').once('value', function (snapshot) {
-                                var encodedValue = snapshot.val();
-                                if (encodedValue !== null) {
-                                    // Decodificar o valor antes de exibi-lo
-                                    var decodedValue = decodeURIComponent(encodedValue);
-                                    document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5>' + processText(decodedValue);
-                                }
-                            });
-                        } else {
-                            // Se o ID do usuário não coincidir, mostra uma mensagem ou faz o que for necessário
-                            document.getElementById('data').innerHTML = '<p>Você não tem permissão para visualizar este conteúdo.</p>';
-                        }
-                    });
+                    var keySnapshot = await keyRef.once('value');
+                    var keyData = keySnapshot.val();
+                    if (keyData && keyData.user === user.uid) {
+                        // Se o ID do usuário na chave 'c' coincidir com o ID do usuário autenticado
+                        document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5>' + processText(decodeURIComponent(keyData.valor));
+                    } else {
+                        // Se o ID do usuário não coincidir, mostra uma mensagem ou faz o que for necessário
+                        document.getElementById('data').innerHTML = '<p>Você não tem permissão para visualizar este conteúdo.</p>';
+                    }
                 }
             } else {
                 // Se não estiver autenticado, redirecione para a página de login
@@ -215,6 +210,9 @@
             var textareaValue = document.getElementById('edit-textbox-value').value;
             document.getElementById('data').innerHTML = '<h5>Código QR Editado:</h5>' + processText(textareaValue);
         }
+
+        // Verificar a autenticação do usuário e mostrar conteúdo correspondente
+        showUserInfo();
     </script>
 </body>
 </html>
