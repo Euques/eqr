@@ -12,12 +12,7 @@
         body {
             background-color: #343a40; /* Cor de fundo escura */
             color: #ffffff; /* Cor do texto */
-            padding-top: 40px;
-            margin-bottom: 20px; /* Adiciona espaçamento inferior */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            margin: 20px; /* Adiciona margem ao redor do corpo */
         }
 
         .container {
@@ -27,6 +22,7 @@
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
             margin-bottom: 20px; /* Adiciona margem na parte inferior */
+            position: relative; /* Para que a posição do alerta seja relativa a este contêiner */
         }
 
         .form-group {
@@ -54,9 +50,9 @@
             padding: 10px;
             border-radius: 5px;
             position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
+            bottom: 0; /* Aparência na parte inferior */
+            left: 0;
+            width: 100%; /* Ocupa toda a largura do contêiner */
             display: none; /* Inicia invisível por padrão */
         }
 
