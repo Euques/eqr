@@ -63,10 +63,6 @@
             <textarea id="edit-textbox-value" class="form-control" rows="4" placeholder="Editar o valor da chave" onkeyup="updateEditPreview()"></textarea>
             <button onclick="updateKey()" class="btn btn-primary">Salvar Edições</button>
         </div>
-        <div id="auth-content" style="display: none;">
-            <h2>Autenticação</h2>
-            <button onclick="signInWithGoogle()" class="btn btn-primary">Entrar com o Google</button>
-        </div>
     </div>
 
     <footer class="footer">
@@ -116,13 +112,23 @@
             const content = getParameterValue();
             if (content) {
                 var keyRef = firebase.database().ref('eqr/' + content);
-                var keySnapshot = await keyRef.once('value');
-                var keyData = keySnapshot.val();
-                if (keyData) {
-                    // Decodificar o valor antes de exibi-lo
-                    var decodedValue = decodeURIComponent(keyData.valor);
-                    document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5>' + processText(decodedValue);
-                }
+                keyRef.child('user').once('value', function(snapshot) {
+                    var keyUserId = snapshot.val();
+                    if (user && keyUserId === user.uid) {
+                        // Se o ID do usuário na chave 'c' coincidir com o ID do usuário autenticado
+                        keyRef.child('valor').once('value', function (snapshot) {
+                            var encodedValue = snapshot.val();
+                            if (encodedValue !== null) {
+                                // Decodificar o valor antes de exibi-lo
+                                var decodedValue = decodeURIComponent(encodedValue);
+                                document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5>' + processText(decodedValue);
+                            }
+                        });
+                    } else {
+                        // Se o ID do usuário não coincidir, mostra uma mensagem ou faz o que for necessário
+                        document.getElementById('data').innerHTML = '<p>Você não tem permissão para visualizar este conteúdo.</p>';
+                    }
+                });
             }
         }
 
@@ -140,12 +146,14 @@
             // Se o usuário estiver autenticado, adicionar o ID do usuário à chave
             if (user) {
                 keyRef.child('user').set(user.uid);
+                keyRef.child('valor').set(encodedValue).then(() => {
+                    alert('Chave criada com sucesso com o valor: ' + keyValue);
+                    window.location.reload();
+                });
+            } else {
+                // Se o usuário não estiver autenticado, redirecione para a página de login
+                window.location.href = 'login.html';
             }
-
-            keyRef.child('valor').set(encodedValue).then(() => {
-                alert('Chave criada com sucesso com o valor: ' + keyValue);
-                window.location.reload();
-            });
         }
 
         // Função para obter o valor de um parâmetro na URL
