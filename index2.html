@@ -50,6 +50,11 @@
             <textarea id="textbox-value" class="form-control" rows="4" placeholder="Insira um valor para o campo de texto" onkeyup="updatePreview()"></textarea>
             <button onclick="createKeyAndReload()" class="btn btn-success">Criar Chave</button>
         </div>
+        <div id="edit-key-content" style="display: none;">
+            <h2>Editar Chave</h2>
+            <textarea id="edit-textbox-value" class="form-control" rows="4" placeholder="Editar o valor da chave" onkeyup="updateEditPreview()"></textarea>
+            <button onclick="updateKey()" class="btn btn-primary">Salvar Edições</button>
+        </div>
         <div id="auth-content" style="display: none;">
             <h2>Autenticação</h2>
             <button onclick="signInWithGoogle()" class="btn btn-primary">Entrar com o Google</button>
@@ -70,19 +75,16 @@
         };
         firebase.initializeApp(firebaseConfig);
 
-        // Função para autenticar com o Google
         function signInWithGoogle() {
             var provider = new firebase.auth.GoogleAuthProvider();
             firebase.auth().signInWithPopup(provider).then(function(result) {
                 var user = result.user;
-                // Mostrar conteúdo autenticado
                 showAuthenticatedContent();
             }).catch(function(error) {
                 console.error(error);
             });
         }
 
-        // Função para mostrar conteúdo autenticado
         function showAuthenticatedContent() {
             document.getElementById('scanner-content').style.display = 'block';
             document.getElementById('auth-content').style.display = 'none';
@@ -93,7 +95,6 @@
             var keyRef = firebase.database().ref('eqr/' + keyValue);
             var value = document.getElementById('textbox-value').value;
             
-            // Codificar o valor antes de salvá-lo
             var encodedValue = encodeURIComponent(value);
             
             keyRef.child('valor').set(encodedValue).then(() => {
@@ -113,22 +114,37 @@
         }
 
         function processText(text) {
-            // Substituir quebras de linha por <br>
             text = text.replace(/\n/g, '<br>');
-            
-            // Detectar URLs e torná-las clicáveis
             text = text.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank">$1</a>');
-            
-            // Detectar números de telefone com vários formatos e torná-los clicáveis
             text = text.replace(/(\(?\d{2,3}\)?[-\s]?\d{4,5}[-\s]?\d{4})/g, '<a href="tel:$1">$1</a>');
-            
-            // Detectar endereços de e-mail e torná-los clicáveis
             text = text.replace(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4})/g, '<a href="mailto:$1">$1</a>');
-
-            // Detectar domínios começando com www. e torná-los clicáveis
             text = text.replace(/(www\.[^\s<]+)/g, '<a href="http://$1" target="_blank">$1</a>');
-            
             return '<p>' + text + '</p>';
+        }
+
+        function showEditableContent(decodedValue) {
+            document.getElementById('scanner-content').style.display = 'none';
+            document.getElementById('create-key-content').style.display = 'none';
+            document.getElementById('edit-key-content').style.display = 'block';
+            document.getElementById('edit-textbox-value').value = decodedValue;
+        }
+
+        function updateKey() {
+            var keyValue = document.getElementById('key-value').value;
+            var keyRef = firebase.database().ref('eqr/' + keyValue);
+            var value = document.getElementById('edit-textbox-value').value;
+            
+            var encodedValue = encodeURIComponent(value);
+            
+            keyRef.child('valor').set(encodedValue).then(() => {
+                alert('Chave atualizada com sucesso.');
+                window.location.reload();
+            });
+        }
+
+        function updateEditPreview() {
+            var textareaValue = document.getElementById('edit-textbox-value').value;
+            document.getElementById('data').innerHTML = '<h5>Código QR Editado:</h5>' + processText(textareaValue);
         }
 
         const content = getParameterValue();
@@ -138,9 +154,13 @@
             keyRef.child('valor').on('value', function (snapshot) {
                 var encodedValue = snapshot.val();
                 if (encodedValue !== null) {
-                    // Decodificar o valor antes de exibi-lo
                     var decodedValue = decodeURIComponent(encodedValue);
                     document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5>' + processText(decodedValue);
+
+                    var user = firebase.auth().currentUser;
+                    if (user) {
+                        showEditableContent(decodedValue);
+                    }
                 } else {
                     document.getElementById('scanner-content').style.display = 'none';
                     document.getElementById('create-key-content').style.display = 'block';
@@ -148,7 +168,6 @@
                 }
             });
         } else {
-            // Mostrar tela de autenticação se nenhum código QR for detectado
             document.getElementById('auth-content').style.display = 'block';
         }
     </script>
