@@ -49,6 +49,7 @@
             <div id="key" class="resultado"></div>
             <hr> <!-- Linha divisória -->
             <div id="data" class="resultado"></div>
+            <button id="edit-button" class="btn btn-primary" style="display: none;" onclick="showEditableContent()">Editar</button>
         </div>
         <div id="create-key-content" style="display: none;">
             <h2>Criar Chave</h2>
@@ -99,11 +100,20 @@
             });
         }
 
-        // Função para mostrar conteúdo autenticado
-        function showAuthenticatedContent() {
-            document.getElementById('scanner-content').style.display = 'block';
-            document.getElementById('auth-content').style.display = 'none';
-            showUserInfo(); // Adicionado para mostrar informações do usuário no rodapé
+        // Se o usuário estiver autenticado, exibe o botão de editar
+        function showEditableContent() {
+            document.getElementById('create-key-content').style.display = 'none';
+            document.getElementById('edit-key-content').style.display = 'block';
+            var content = getParameterValue();
+            var keyRef = firebase.database().ref('eqr/' + content);
+            keyRef.child('valor').once('value', function (snapshot) {
+                var encodedValue = snapshot.val();
+                if (encodedValue !== null) {
+                    // Decodificar o valor antes de exibi-lo
+                    var decodedValue = decodeURIComponent(encodedValue);
+                    document.getElementById('edit-textbox-value').value = decodedValue;
+                }
+            });
         }
 
         // Função para criar uma chave
@@ -111,17 +121,17 @@
             var keyValue = document.getElementById('key-value').value;
             var keyRef = firebase.database().ref('eqr/' + keyValue);
             var value = document.getElementById('textbox-value').value;
-            
+
             var encodedValue = encodeURIComponent(value);
-            
+
             // Obter o usuário autenticado
             var user = firebase.auth().currentUser;
-            
+
             // Se o usuário estiver autenticado, adicionar o ID do usuário à chave
             if (user) {
                 keyRef.child('user').set(user.uid);
             }
-            
+
             keyRef.child('valor').set(encodedValue).then(() => {
                 alert('Chave criada com sucesso com o valor: ' + keyValue);
                 window.location.reload();
@@ -134,55 +144,13 @@
             return params.get('c');
         }
 
-        // Função para atualizar a prévia do texto
-        function updatePreview() {
-            var textareaValue = document.getElementById('textbox-value').value;
-            document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5>' + processText(textareaValue);
-        }
-
-        // Função para processar o texto (adapte conforme necessário)
-        function processText(text) {
-            text = text.replace(/\n/g, '<br>');
-            text = text.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank">$1</a>');
-            text = text.replace(/(\(?\d{2,3}\)?[-\s]?\d{4,5}[-\s]?\d{4})/g, '<a href="tel:$1">$1</a>');
-            text = text.replace(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4})/g, '<a href="mailto:$1">$1</a>');
-            text = text.replace(/(www\.[^\s<]+)/g, '<a href="http://$1" target="_blank">$1</a>');
-            return '<p>' + text + '</p>';
-        }
-
-        // Função para mostrar conteúdo editável
-        function showEditableContent(decodedValue) {
-            document.getElementById('scanner-content').style.display = 'none';
-            document.getElementById('create-key-content').style.display = 'none';
-            document.getElementById('edit-key-content').style.display = 'block';
-            document.getElementById('edit-textbox-value').value = decodedValue;
-        }
-
-        // Função para atualizar a chave
-        function updateKey() {
-            var keyValue = document.getElementById('key-value').value;
-            var keyRef = firebase.database().ref('eqr/' + keyValue);
-            var value = document.getElementById('edit-textbox-value').value;
-            
-            var encodedValue = encodeURIComponent(value);
-            
-            keyRef.child('valor').set(encodedValue).then(() => {
-                alert('Chave atualizada com sucesso.');
-                window.location.reload();
-            });
-        }
-
-        // Função para atualizar a prévia da edição
-        function updateEditPreview() {
-            var textareaValue = document.getElementById('edit-textbox-value').value;
-            document.getElementById('data').innerHTML = '<h5>Código QR Editado:</h5>' + processText(textareaValue);
-        }
-
         // Função para mostrar informações do usuário no rodapé
         function showUserInfo() {
             var user = firebase.auth().currentUser;
             if (user) {
                 document.getElementById('user-info').innerHTML = 'Email: ' + user.email + ' | User ID: ' + user.uid;
+                // Exibe o botão de editar se o usuário estiver autenticado
+                document.getElementById('edit-button').style.display = 'block';
             } else {
                 // Se não estiver autenticado, redirecione para a página de login
                 window.location.href = 'login.html';
@@ -207,6 +175,42 @@
             });
         } else {
             showUserInfo(); // Adicionado para mostrar informações do usuário no rodapé
+        }
+
+        // Função para processar o texto (adapte conforme necessário)
+        function processText(text) {
+            text = text.replace(/\n/g, '<br>');
+            text = text.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank">$1</a>');
+            text = text.replace(/(\(?\d{2,3}\)?[-\s]?\d{4,5}[-\s]?\d{4})/g, '<a href="tel:$1">$1</a>');
+            text = text.replace(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4})/g, '<a href="mailto:$1">$1</a>');
+            text = text.replace(/(www\.[^\s<]+)/g, '<a href="http://$1" target="_blank">$1</a>');
+            return '<p>' + text + '</p>';
+        }
+
+        // Função para atualizar a prévia do texto
+        function updatePreview() {
+            var textareaValue = document.getElementById('textbox-value').value;
+            document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5>' + processText(textareaValue);
+        }
+
+        // Função para atualizar a chave
+        function updateKey() {
+            var keyValue = document.getElementById('key-value').value;
+            var keyRef = firebase.database().ref('eqr/' + keyValue);
+            var value = document.getElementById('edit-textbox-value').value;
+
+            var encodedValue = encodeURIComponent(value);
+
+            keyRef.child('valor').set(encodedValue).then(() => {
+                alert('Chave atualizada com sucesso.');
+                window.location.reload();
+            });
+        }
+
+        // Função para atualizar a prévia da edição
+        function updateEditPreview() {
+            var textareaValue = document.getElementById('edit-textbox-value').value;
+            document.getElementById('data').innerHTML = '<h5>Código QR Editado:</h5>' + processText(textareaValue);
         }
     </script>
 </body>
