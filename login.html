@@ -13,6 +13,7 @@
             background-color: #343a40; /* Cor de fundo escura */
             color: #ffffff; /* Cor do texto */
             margin: 20px; /* Adiciona margem ao redor do corpo */
+            position: relative; /* Para que a posição do alerta seja relativa a este corpo */
         }
 
         .container {
@@ -21,7 +22,6 @@
             padding: 20px;
             border-radius: 10px;
             margin-bottom: 20px; /* Adiciona margem na parte inferior */
-            position: relative; /* Para que a posição do alerta seja relativa a este contêiner */
         }
 
         .form-group {
@@ -49,9 +49,9 @@
             padding: 10px;
             border-radius: 5px;
             position: absolute;
-            bottom: 20px; /* Aparência 20px abaixo do contêiner */
-            left: 0;
-            width: 100%; /* Ocupa toda a largura do contêiner */
+            bottom: -20px; /* Aparência 20px abaixo do contêiner */
+            left: 20px; /* Margem à esquerda igual à margem do corpo */
+            width: calc(100% - 40px); /* Largura exata do contêiner */
             display: none; /* Inicia invisível por padrão */
         }
 
