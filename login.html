@@ -13,21 +13,20 @@
             background-color: #343a40; /* Cor de fundo escura */
             color: #ffffff; /* Cor do texto */
             padding-top: 40px;
+            margin-bottom: 20px; /* Adiciona espaçamento inferior */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
 
         .container {
             max-width: 400px;
-            margin: auto;
             background-color: #495057; /* Cor de fundo do contêiner */
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
             margin-bottom: 20px; /* Adiciona margem na parte inferior */
-            min-height: 300px; /* Altura mínima */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
         }
 
         .form-group {
@@ -54,7 +53,10 @@
             color: #ffffff; /* Cor do texto branco */
             padding: 10px;
             border-radius: 5px;
-            margin-bottom: 20px; /* Adiciona espaçamento inferior */
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
             display: none; /* Inicia invisível por padrão */
         }
 
@@ -77,10 +79,11 @@
             </div>
             <button type="button" class="btn btn-primary btn-block" onclick="signIn()">Entrar</button>
         </form>
-        <div id="errorMessage" class="error-message">
-            <span class="error-icon"><i class="fas fa-exclamation-circle"></i></span>
-            <span id="errorText"></span>
-        </div>
+    </div>
+
+    <div id="errorMessage" class="error-message">
+        <span class="error-icon"><i class="fas fa-exclamation-circle"></i></span>
+        <span id="errorText"></span>
     </div>
 
     <!-- Firebase App (the core Firebase SDK) -->
