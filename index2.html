@@ -89,8 +89,6 @@
 
         // Se o usuário estiver autenticado, exibe o botão de editar
         function showAuthenticatedContent(user) {
-            document.getElementById('edit-button').style.display = 'none';
-
             if (user) {
                 document.getElementById('edit-button').style.display = 'block';
                 document.getElementById('user-info').innerHTML = 'Email: ' + user.email + ' | User ID: ' + user.uid;
@@ -105,20 +103,12 @@
                     document.getElementById('key-name').innerText = content;
                     document.getElementById('key-value').innerText = keyData.valor;
 
-                    if (user && keyData.user === user.uid) {
-                        // Se o ID do usuário na chave 'c' coincidir com o ID do usuário autenticado
-                        document.getElementById('edit-button').style.display = 'block';
-
-                        // Exibe o valor da chave 'c' na área de dados
-                        var encodedValue = keyData.valor;
-                        if (encodedValue !== null) {
-                            // Decodificar o valor antes de exibi-lo
-                            var decodedValue = decodeURIComponent(encodedValue);
-                            document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5>' + processText(decodedValue);
-                        }
-                    } else {
-                        // Se o ID do usuário não coincidir, mostra uma mensagem ou faz o que for necessário
-                        document.getElementById('data').innerHTML = '<p>Você não tem permissão para visualizar/editar este conteúdo.</p>';
+                    // Exibe o valor da chave 'c' na área de dados
+                    var encodedValue = keyData.valor;
+                    if (encodedValue !== null) {
+                        // Decodificar o valor antes de exibi-lo
+                        var decodedValue = decodeURIComponent(encodedValue);
+                        document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5>' + processText(decodedValue);
                     }
                 });
             }
