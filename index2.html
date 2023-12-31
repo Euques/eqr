@@ -53,6 +53,11 @@
             </div>
             <hr> <!-- Linha divisória -->
             <div id="data" class="resultado"></div>
+            <div id="insert-info" style="display: none;">
+                <h5>Insira a informação:</h5>
+                <textarea id="insert-textbox-value" class="form-control" rows="4" placeholder="Insira um valor para o campo de texto"></textarea>
+                <button onclick="createKeyAndReload()" class="btn btn-success">Salvar</button>
+            </div>
         </div>
     </div>
 
@@ -87,6 +92,31 @@
             });
         }
 
+        // Função para exibir campo de inserção de informação
+        function showInsertInfo() {
+            document.getElementById('scanner-content').style.display = 'none';
+            document.getElementById('insert-info').style.display = 'block';
+            document.getElementById('edit-button').style.display = 'none';
+        }
+
+        // Função para criar uma chave se não existir
+        function createKeyIfNotExists() {
+            const content = getParameterValue();
+            if (content) {
+                var keyRef = firebase.database().ref('eqr/' + content);
+                keyRef.once('value', function(snapshot) {
+                    var keyData = snapshot.val();
+                    if (!keyData) {
+                        // Se a chave não existir, exibe campo de inserção
+                        showInsertInfo();
+                    } else {
+                        // Se a chave existir, exibe informações
+                        showAuthenticatedContent();
+                    }
+                });
+            }
+        }
+
         // Se o usuário estiver autenticado, exibe o botão de editar
         function showAuthenticatedContent(user) {
             if (user) {
@@ -101,10 +131,10 @@
                 keyRef.once('value', function(snapshot) {
                     var keyData = snapshot.val();
                     document.getElementById('key-name').innerText = content;
-                    document.getElementById('key-value').innerText = keyData.valor;
+                    document.getElementById('key-value').innerText = keyData ? keyData.valor : '';
 
                     // Exibe o valor da chave 'c' na área de dados
-                    var encodedValue = keyData.valor;
+                    var encodedValue = keyData ? keyData.valor : '';
                     if (encodedValue !== null) {
                         // Decodificar o valor antes de exibi-lo
                         var decodedValue = decodeURIComponent(encodedValue);
@@ -132,8 +162,16 @@
 
         // Inicializa o Firebase
         firebase.auth().onAuthStateChanged(function(user) {
-            showAuthenticatedContent(user);
+            if (user) {
+                showAuthenticatedContent(user);
+            } else {
+                // Se não estiver autenticado, redirecione para a página de login
+                window.location.href = 'login.html';
+            }
         });
+
+        // Ao carregar a página, verifica se a chave existe e exibe o conteúdo apropriado
+        createKeyIfNotExists();
     </script>
 </body>
 </html>
