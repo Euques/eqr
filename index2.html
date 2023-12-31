@@ -46,22 +46,13 @@
     <div class="container">
         <div id="scanner-content">
             <h2>Leitor de QR Code</h2>
-            <div id="key" class="resultado"></div>
+            <div id="key-info" class="resultado">
+                <h5>Nome da Chave (c): <span id="key-name"></span></h5>
+                <p>Valor da Chave: <span id="key-value"></span></p>
+                <button id="edit-button" class="btn btn-primary" style="display: none;" onclick="showEditableContent()">Editar</button>
+            </div>
             <hr> <!-- Linha divisória -->
             <div id="data" class="resultado"></div>
-            <button id="edit-button" class="btn btn-primary" style="display: none;" onclick="showEditableContent()">Editar</button>
-        </div>
-        <div id="create-key-content" style="display: none;">
-            <h2>Criar Chave</h2>
-            <input type="text" id="key-value" class="form-control" placeholder="Insira um valor para a chave">
-            <label for="textbox-value">Texto</label>
-            <textarea id="textbox-value" class="form-control" rows="4" placeholder="Insira um valor para o campo de texto" onkeyup="updatePreview()"></textarea>
-            <button onclick="createKeyAndReload()" class="btn btn-success">Criar Chave</button>
-        </div>
-        <div id="edit-key-content" style="display: none;">
-            <h2>Editar Chave</h2>
-            <textarea id="edit-textbox-value" class="form-control" rows="4" placeholder="Editar o valor da chave" onkeyup="updateEditPreview()"></textarea>
-            <button onclick="updateKey()" class="btn btn-primary">Salvar Edições</button>
         </div>
     </div>
 
@@ -98,8 +89,7 @@
 
         // Se o usuário estiver autenticado, exibe o botão de editar
         function showAuthenticatedContent(user) {
-            document.getElementById('create-key-content').style.display = 'none';
-            document.getElementById('edit-key-content').style.display = 'block';
+            document.getElementById('edit-button').style.display = 'none';
 
             if (user) {
                 document.getElementById('edit-button').style.display = 'block';
@@ -110,47 +100,27 @@
             const content = getParameterValue();
             if (content) {
                 var keyRef = firebase.database().ref('eqr/' + content);
-                keyRef.child('user').once('value', function(snapshot) {
-                    var keyUserId = snapshot.val();
-                    if (user && keyUserId === user.uid) {
+                keyRef.once('value', function(snapshot) {
+                    var keyData = snapshot.val();
+                    document.getElementById('key-name').innerText = content;
+                    document.getElementById('key-value').innerText = keyData.valor;
+
+                    if (user && keyData.user === user.uid) {
                         // Se o ID do usuário na chave 'c' coincidir com o ID do usuário autenticado
-                        keyRef.child('valor').once('value', function (snapshot) {
-                            var encodedValue = snapshot.val();
-                            if (encodedValue !== null) {
-                                // Decodificar o valor antes de exibi-lo
-                                var decodedValue = decodeURIComponent(encodedValue);
-                                document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5>' + processText(decodedValue);
-                            }
-                        });
+                        document.getElementById('edit-button').style.display = 'block';
+
+                        // Exibe o valor da chave 'c' na área de dados
+                        var encodedValue = keyData.valor;
+                        if (encodedValue !== null) {
+                            // Decodificar o valor antes de exibi-lo
+                            var decodedValue = decodeURIComponent(encodedValue);
+                            document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5>' + processText(decodedValue);
+                        }
                     } else {
                         // Se o ID do usuário não coincidir, mostra uma mensagem ou faz o que for necessário
-                        document.getElementById('data').innerHTML = '<p>Você não tem permissão para visualizar este conteúdo.</p>';
+                        document.getElementById('data').innerHTML = '<p>Você não tem permissão para visualizar/editar este conteúdo.</p>';
                     }
                 });
-            }
-        }
-
-        // Função para criar uma chave
-        function createKeyAndReload() {
-            var keyValue = document.getElementById('key-value').value;
-            var keyRef = firebase.database().ref('eqr/' + keyValue);
-            var value = document.getElementById('textbox-value').value;
-
-            var encodedValue = encodeURIComponent(value);
-
-            // Obter o usuário autenticado
-            var user = firebase.auth().currentUser;
-
-            // Se o usuário estiver autenticado, adicionar o ID do usuário à chave
-            if (user) {
-                keyRef.child('user').set(user.uid);
-                keyRef.child('valor').set(encodedValue).then(() => {
-                    alert('Chave criada com sucesso com o valor: ' + keyValue);
-                    window.location.reload();
-                });
-            } else {
-                // Se o usuário não estiver autenticado, redirecione para a página de login
-                window.location.href = 'login.html';
             }
         }
 
@@ -170,33 +140,7 @@
             return '<p>' + text + '</p>';
         }
 
-        // Função para atualizar a prévia do texto
-        function updatePreview() {
-            var textareaValue = document.getElementById('textbox-value').value;
-            document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5>' + processText(textareaValue);
-        }
-
-        // Função para atualizar a chave
-        function updateKey() {
-            var keyValue = document.getElementById('key-value').value;
-            var keyRef = firebase.database().ref('eqr/' + keyValue);
-            var value = document.getElementById('edit-textbox-value').value;
-
-            var encodedValue = encodeURIComponent(value);
-
-            keyRef.child('valor').set(encodedValue).then(() => {
-                alert('Chave atualizada com sucesso.');
-                window.location.reload();
-            });
-        }
-
-        // Função para atualizar a prévia da edição
-        function updateEditPreview() {
-            var textareaValue = document.getElementById('edit-textbox-value').value;
-            document.getElementById('data').innerHTML = '<h5>Código QR Editado:</h5>' + processText(textareaValue);
-        }
-
-        // Verificar a autenticação do usuário e mostrar conteúdo correspondente
+        // Inicializa o Firebase
         firebase.auth().onAuthStateChanged(function(user) {
             showAuthenticatedContent(user);
         });
