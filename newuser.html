@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            background-color: #343a40; /* Cor de fundo escura */
+            color: #ffffff; /* Cor do texto */
+            margin: 20px; /* Adiciona margem ao redor do corpo */
+            position: relative; /* Para que a posição do alerta seja relativa a este corpo */
+        }
+
+        .container {
+            max-width: 400px;
+            background-color: #495057; /* Cor de fundo do contêiner */
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px; /* Adiciona margem na parte inferior */
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-control {
+            background-color: #ffffff; /* Cor de fundo dos campos de entrada */
+            color: #495057; /* Cor do texto nos campos de entrada */
+        }
+
+        .btn-primary {
+            background-color: #007bff; /* Cor do botão */
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3; /* Cor do botão ao passar o mouse */
+            border-color: #0056b3;
+        }
+
+        .success-message {
+            background-color: #28a745; /* Cor de fundo verde para mensagens de sucesso */
+            color: #ffffff; /* Cor do texto branco */
+            padding: 10px;
+            border-radius: 5px;
+            position: absolute;
+            top: calc(100% + 20px); /* Aparência 20px abaixo do formulário */
+            left: 20px; /* Margem à esquerda igual à margem do corpo */
+            width: calc(100% - 40px); /* Largura exata do contêiner */
+            display: none; /* Inicia invisível por padrão */
+        }
+
+        .error-message {
+            background-color: #dc3545; /* Cor de fundo vermelha para mensagens de erro */
+            color: #ffffff; /* Cor do texto branco */
+            padding: 10px;
+            border-radius: 5px;
+            position: absolute;
+            top: calc(100% + 20px); /* Aparência 20px abaixo do formulário */
+            left: 20px; /* Margem à esquerda igual à margem do corpo */
+            width: calc(100% - 40px); /* Largura exata do contêiner */
+            display: none; /* Inicia invisível por padrão */
+        }
+
+        .message-icon {
+            margin-right: 5px; /* Espaçamento à direita do ícone */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="text-center mb-4">Cadastro</h2>
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" class="form-control" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Senha:</label>
+                <input type="password" class="form-control" id="password" required>
+            </div>
+            <button type="button" class="btn btn-primary btn-block" onclick="registerUser()">Cadastrar</button>
+        </form>
+    </div>
+
+    <div id="successMessage" class="success-message">
+        <span class="message-icon"><i class="fas fa-check-circle"></i></span>
+        <span id="successText">Usuário cadastrado com sucesso!</span>
+    </div>
+
+    <div id="errorMessage" class="error-message">
+        <span class="message-icon"><i class="fas fa-exclamation-circle"></i></span>
+        <span id="errorText"></span>
+    </div>
+
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-app.js"></script>
+    <!-- Firebase Authentication -->
+    <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-auth.js"></script>
+    <!-- Font Awesome -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
+
+    <script>
+        var firebaseConfig = {
+            apiKey: "AIzaSyD9w-BMC-4WrQppa6VnOCrszo4QMIyROXU",
+            authDomain: "euques-teste.firebaseapp.com",
+            databaseURL: "https://euques-teste-default-rtdb.firebaseio.com",
+            projectId: "euques-teste",
+            storageBucket: "euques-teste.appspot.com",
+            messagingSenderId: "48182046778",
+            appId: "1:48182046778:web:4cd6f3b08cae7f6588c503",
+            measurementId: "G-KQXMBG1EXG"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        function registerUser() {
+            var email = document.getElementById('email').value;
+            var password = document.getElementById('password').value;
+
+            firebase.auth().createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Cadastro bem-sucedido, exibir mensagem de sucesso
+                    var successMessageElement = document.getElementById('successMessage');
+                    successMessageElement.style.display = 'block';
+
+                    // Redirecionar para a página de login após alguns segundos
+                    setTimeout(function() {
+                        window.location.href = 'login.html';
+                    }, 3000);
+                })
+                .catch((error) => {
+                    // Exibir mensagem de erro ao usuário
+                    var errorMessageElement = document.getElementById('errorMessage');
+                    errorMessageElement.style.display = 'block';
+                    document.getElementById('errorText').innerText = "Não foi possível cadastrar o usuário. Por favor, tente novamente.";
+
+                    // Limpar mensagens após alguns segundos
+                    setTimeout(function() {
+                        errorMessageElement.style.display = 'none';
+                    }, 5000);
+                });
+        }
+    </script>
+</body>
+</html>
