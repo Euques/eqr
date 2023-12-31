@@ -6,6 +6,8 @@
     <title>Login</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
         body {
             background-color: #343a40; /* Cor de fundo escura */
@@ -18,8 +20,9 @@
             margin: auto;
             background-color: #495057; /* Cor de fundo do contêiner */
             padding: 20px;
-            border-radius: 5px;
+            border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px; /* Adiciona margem na parte inferior */
         }
 
         .form-group {
@@ -40,6 +43,17 @@
             background-color: #0056b3; /* Cor do botão ao passar o mouse */
             border-color: #0056b3;
         }
+
+        .error-message {
+            color: #dc3545; /* Cor vermelha para mensagens de erro */
+            margin-bottom: 10px; /* Adiciona espaçamento inferior */
+            display: flex;
+            align-items: center;
+        }
+
+        .error-icon {
+            margin-right: 5px; /* Espaçamento à direita do ícone */
+        }
     </style>
 </head>
 <body>
@@ -56,12 +70,18 @@
             </div>
             <button type="button" class="btn btn-primary btn-block" onclick="signIn()">Entrar</button>
         </form>
+        <div id="errorMessage" class="error-message" style="display: none;">
+            <span class="error-icon"><i class="fas fa-exclamation-circle"></i></span>
+            <span id="errorText"></span>
+        </div>
     </div>
 
     <!-- Firebase App (the core Firebase SDK) -->
     <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-app.js"></script>
     <!-- Firebase Authentication -->
     <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-auth.js"></script>
+    <!-- Font Awesome -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
 
     <script>
         var firebaseConfig = {
@@ -87,7 +107,8 @@
                 })
                 .catch((error) => {
                     // Exibir mensagem de erro ao usuário
-                    alert("Erro de login: " + error.message);
+                    document.getElementById('errorMessage').style.display = 'flex';
+                    document.getElementById('errorText').innerText = "Credenciais inválidas. Por favor, tente novamente.";
                 });
         }
     </script>
