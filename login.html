@@ -45,10 +45,12 @@
         }
 
         .error-message {
-            color: #dc3545; /* Cor vermelha para mensagens de erro */
-            margin-bottom: 10px; /* Adiciona espaçamento inferior */
-            display: flex;
-            align-items: center;
+            background-color: #dc3545; /* Cor de fundo vermelha para mensagens de erro */
+            color: #ffffff; /* Cor do texto branco */
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px; /* Adiciona espaçamento inferior */
+            display: none; /* Inicia invisível por padrão */
         }
 
         .error-icon {
@@ -70,7 +72,7 @@
             </div>
             <button type="button" class="btn btn-primary btn-block" onclick="signIn()">Entrar</button>
         </form>
-        <div id="errorMessage" class="error-message" style="display: none;">
+        <div id="errorMessage" class="error-message">
             <span class="error-icon"><i class="fas fa-exclamation-circle"></i></span>
             <span id="errorText"></span>
         </div>
@@ -107,8 +109,14 @@
                 })
                 .catch((error) => {
                     // Exibir mensagem de erro ao usuário
-                    document.getElementById('errorMessage').style.display = 'flex';
+                    var errorMessageElement = document.getElementById('errorMessage');
+                    errorMessageElement.style.display = 'block';
                     document.getElementById('errorText').innerText = "Credenciais inválidas. Por favor, tente novamente.";
+
+                    // Limpar mensagem após alguns segundos
+                    setTimeout(function() {
+                        errorMessageElement.style.display = 'none';
+                    }, 5000);
                 });
         }
     </script>
