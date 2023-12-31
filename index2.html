@@ -75,6 +75,7 @@
         };
         firebase.initializeApp(firebaseConfig);
 
+        // Função para autenticar com o Google
         function signInWithGoogle() {
             var provider = new firebase.auth.GoogleAuthProvider();
             firebase.auth().signInWithPopup(provider).then(function(result) {
@@ -85,11 +86,13 @@
             });
         }
 
+        // Função para mostrar conteúdo autenticado
         function showAuthenticatedContent() {
             document.getElementById('scanner-content').style.display = 'block';
             document.getElementById('auth-content').style.display = 'none';
         }
 
+        // Função para criar uma chave
         function createKeyAndReload() {
             var keyValue = document.getElementById('key-value').value;
             var keyRef = firebase.database().ref('eqr/' + keyValue);
@@ -97,22 +100,33 @@
             
             var encodedValue = encodeURIComponent(value);
             
+            // Obter o usuário autenticado
+            var user = firebase.auth().currentUser;
+            
+            // Se o usuário estiver autenticado, adicionar o ID do usuário à chave
+            if (user) {
+                keyRef.child('user').set(user.uid);
+            }
+            
             keyRef.child('valor').set(encodedValue).then(() => {
                 alert('Chave criada com sucesso com o valor: ' + keyValue);
                 window.location.reload();
             });
         }
 
+        // Função para obter o valor de um parâmetro na URL
         function getParameterValue() {
             const params = new URLSearchParams(window.location.search);
             return params.get('c');
         }
 
+        // Função para atualizar a prévia do texto
         function updatePreview() {
             var textareaValue = document.getElementById('textbox-value').value;
             document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5>' + processText(textareaValue);
         }
 
+        // Função para processar o texto (adapte conforme necessário)
         function processText(text) {
             text = text.replace(/\n/g, '<br>');
             text = text.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank">$1</a>');
@@ -122,6 +136,7 @@
             return '<p>' + text + '</p>';
         }
 
+        // Função para mostrar conteúdo editável
         function showEditableContent(decodedValue) {
             document.getElementById('scanner-content').style.display = 'none';
             document.getElementById('create-key-content').style.display = 'none';
@@ -129,6 +144,7 @@
             document.getElementById('edit-textbox-value').value = decodedValue;
         }
 
+        // Função para atualizar a chave
         function updateKey() {
             var keyValue = document.getElementById('key-value').value;
             var keyRef = firebase.database().ref('eqr/' + keyValue);
@@ -142,11 +158,13 @@
             });
         }
 
+        // Função para atualizar a prévia da edição
         function updateEditPreview() {
             var textareaValue = document.getElementById('edit-textbox-value').value;
             document.getElementById('data').innerHTML = '<h5>Código QR Editado:</h5>' + processText(textareaValue);
         }
 
+        // Função para verificar a autenticação do usuário e mostrar conteúdo correspondente
         const content = getParameterValue();
         if (content) {
             document.getElementById('key').innerHTML = '<h5>Chave do QR Code:</h5><p>' + content + '</p>';
