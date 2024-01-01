@@ -74,21 +74,6 @@
     var userEmailSpan = document.getElementById('userEmail');
     var userIdSpan = document.getElementById('userId');
 
-    // Verificar usuário autenticado
-    firebase.auth().onAuthStateChanged(function(user) {
-        if (user) {
-            // Usuário autenticado, mostrar botão e informações do usuário
-            salvarEditarBtn.style.display = 'block';
-            userInfoDiv.style.display = 'block';
-            userEmailSpan.textContent = user.email;
-            userIdSpan.textContent = user.uid;
-        } else {
-            // Nenhum usuário autenticado, ocultar botão
-            salvarEditarBtn.style.display = 'none';
-            userInfoDiv.style.display = 'none';
-        }
-    });
-
     // Carregar valor existente, se houver
     carregarValorExistente();
 
@@ -101,6 +86,21 @@
             valorInput.value = valor || '';
         });
     }
+
+    // Verificar usuário autenticado
+    firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+            // Usuário autenticado, mostrar informações do usuário e habilitar o botão
+            userInfoDiv.style.display = 'block';
+            userEmailSpan.textContent = user.email;
+            userIdSpan.textContent = user.uid;
+            salvarEditarBtn.style.display = 'block';
+        } else {
+            // Nenhum usuário autenticado, ocultar informações do usuário e desabilitar o botão
+            userInfoDiv.style.display = 'none';
+            salvarEditarBtn.style.display = 'none';
+        }
+    });
 
     function salvarNoFirebase() {
         var valor = valorInput.value;
