@@ -77,16 +77,6 @@
     // Carregar valor existente, se houver
     carregarValorExistente();
 
-    function carregarValorExistente() {
-        var referencia = database.ref(`eqr/${chave}/data`);
-
-        referencia.once('value').then((snapshot) => {
-            var valor = snapshot.val();
-            chaveDiv.textContent = `Chave: ${chave}`;
-            valorInput.value = valor || '';
-        });
-    }
-
     // Verificar usuário autenticado
     firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
@@ -101,6 +91,16 @@
             salvarEditarBtn.style.display = 'none';
         }
     });
+
+    function carregarValorExistente() {
+        var referencia = database.ref(`eqr/${chave}/data`);
+
+        referencia.once('value').then((snapshot) => {
+            var valor = snapshot.val();
+            chaveDiv.textContent = `Chave: ${chave}`;
+            valorInput.value = valor || '';
+        });
+    }
 
     function salvarNoFirebase() {
         var valor = valorInput.value;
