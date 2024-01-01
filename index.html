@@ -59,9 +59,12 @@
 </div>
 
 <div class="login-section">
+    <label for="email">Email:</label>
+    <input type="email" id="email" placeholder="Seu email">
+    <label for="senha">Senha:</label>
+    <input type="password" id="senha" placeholder="Sua senha">
     <button id="loginBtn" class="login-btn" onclick="realizarLogin()">Login</button>
     <button id="logoutBtn" class="logout-btn" style="display: none;" onclick="realizarLogout()">Logout</button>
-    <button id="editBtn" class="edit-btn" style="display: none;" onclick="editarConteudo()">Editar</button>
 </div>
 
 <script>
@@ -86,13 +89,14 @@
     var valorInput = document.getElementById('value');
     var chaveDiv = document.getElementById('key');
     var salvarEditarBtn = document.getElementById('salvarEditarBtn');
-    var editBtn = document.getElementById('editBtn');
     var userStatus = document.getElementById('userStatus');
     var userEmailSpan = document.getElementById('userEmail');
     var userIdSpan = document.getElementById('userId');
     var userInfoDiv = document.getElementById('userInfo');
     var loginBtn = document.getElementById('loginBtn');
     var logoutBtn = document.getElementById('logoutBtn');
+    var emailInput = document.getElementById('email');
+    var senhaInput = document.getElementById('senha');
 
     // Carregar valor existente, se houver
     carregarValorExistente();
@@ -112,7 +116,6 @@
             // Nenhum usuário autenticado, ocultar informações do usuário
             userStatus.textContent = 'Nenhum usuário autenticado.';
             salvarEditarBtn.style.display = 'none';
-            editBtn.style.display = 'none';
             loginBtn.style.display = 'block';
             logoutBtn.style.display = 'none';
             // Ocultar div userInfo
@@ -149,11 +152,12 @@
     }
 
     function realizarLogin() {
-        var provider = new firebase.auth.GoogleAuthProvider();
+        var email = emailInput.value;
+        var senha = senhaInput.value;
 
-        firebase.auth().signInWithPopup(provider)
-            .then((result) => {
-                var user = result.user;
+        firebase.auth().signInWithEmailAndPassword(email, senha)
+            .then((userCredential) => {
+                var user = userCredential.user;
                 // Atualizar informações do usuário após o login
                 userStatus.textContent = 'Usuário autenticado.';
                 userEmailSpan.textContent = user.email;
@@ -179,7 +183,6 @@
                 userEmailSpan.textContent = '';
                 userIdSpan.textContent = '';
                 salvarEditarBtn.style.display = 'none';
-                editBtn.style.display = 'none';
                 loginBtn.style.display = 'block';
                 logoutBtn.style.display = 'none';
                 // Limpar User ID na chave "user_id"
@@ -200,21 +203,14 @@
             var user_id = snapshot.val();
             if (user_id && user_id === firebase.auth().currentUser.uid) {
                 salvarEditarBtn.style.display = 'block';
-                editBtn.style.display = 'block';
                 logoutBtn.style.display = 'block';
                 loginBtn.style.display = 'none';
             } else {
                 salvarEditarBtn.style.display = 'none';
-                editBtn.style.display = 'none';
                 logoutBtn.style.display = 'none';
                 loginBtn.style.display = 'block';
             }
         });
-    }
-
-    function editarConteudo() {
-        // Adicione aqui a lógica para a edição do conteúdo
-        alert('Adicione aqui a lógica para a edição do conteúdo.');
     }
 </script>
 
