@@ -137,7 +137,7 @@
             // Ocultar div userInfo
             userInfoDiv.style.display = 'none';
             // Exibir botão "Entrar"
-            entrarBtn.style.display = 'block';
+            entrarBtn.style.display = chave ? 'none' : 'block'; // Mostrar apenas se a chave estiver vazia
             // Ocultar botão de logout
             logoutBtn.style.display = 'none';
             user_id = null; // Limpar user_id
@@ -153,7 +153,7 @@
             valorInput.value = valor || '';
 
             // Verificar se o valor é vazio e mostrar a seção de login
-            if (!valor && !user_id) {
+            if (!valor && !user_id && !chave) {
                 exibirFormularioLogin();
             }
         });
@@ -250,7 +250,7 @@
 
     function exibirFormularioLogin() {
         // Exibir o formulário de login quando clicar em "Entrar"
-        loginSection.style.display = chave ? 'none' : 'block'; // Mostrar apenas se a chave estiver vazia
+        loginSection.style.display = 'block';
         // Ocultar o botão "Entrar"
         entrarBtn.style.display = 'none';
         // Ocultar o botão "Sair"
