@@ -40,7 +40,12 @@
         <textarea id="value" placeholder="Digite o valor..."></textarea>
     </div>
 
-    <button onclick="salvarNoFirebase()">Salvar/Editar</button>
+    <button id="salvarEditarBtn" onclick="salvarNoFirebase()">Salvar/Editar</button>
+
+    <div id="userInfo" style="display: none;">
+        <p>Email: <span id="userEmail"></span></p>
+        <p>User ID: <span id="userId"></span></p>
+    </div>
 </div>
 
 <script>
@@ -64,6 +69,25 @@
     var chave = obterParametroDaURL('c');
     var valorInput = document.getElementById('value');
     var chaveDiv = document.getElementById('key');
+    var salvarEditarBtn = document.getElementById('salvarEditarBtn');
+    var userInfoDiv = document.getElementById('userInfo');
+    var userEmailSpan = document.getElementById('userEmail');
+    var userIdSpan = document.getElementById('userId');
+
+    // Verificar usuário autenticado
+    firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+            // Usuário autenticado, mostrar botão e informações do usuário
+            salvarEditarBtn.style.display = 'block';
+            userInfoDiv.style.display = 'block';
+            userEmailSpan.textContent = user.email;
+            userIdSpan.textContent = user.uid;
+        } else {
+            // Nenhum usuário autenticado, ocultar botão
+            salvarEditarBtn.style.display = 'none';
+            userInfoDiv.style.display = 'none';
+        }
+    });
 
     // Carregar valor existente, se houver
     carregarValorExistente();
