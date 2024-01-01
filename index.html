@@ -148,11 +148,6 @@
             var valor = snapshot.val();
             chaveDiv.innerHTML = `Chave: <strong>${chave}</strong>`;
             valorInput.value = valor || '';
-
-            // Verificar se o valor é vazio e mostrar a seção de login
-            if (!valor && !user_id) {
-                exibirFormularioLogin();
-            }
         });
     }
 
