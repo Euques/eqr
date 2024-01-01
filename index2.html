@@ -50,13 +50,14 @@
                 <h5>Nome da Chave (c): <span id="key-name"></span></h5>
                 <p>Valor da Chave: <span id="key-value"></span></p>
                 <button id="edit-button" class="btn btn-primary" style="display: none;" onclick="showEditableContent()">Editar</button>
+                <button id="insert-edit-button" class="btn btn-primary" style="display: none;" onclick="showInsertEditInfo()">Inserir/Editar Valor</button>
             </div>
             <hr> <!-- Linha divisória -->
             <div id="data" class="resultado"></div>
-            <div id="insert-info" style="display: none;">
-                <h5>Insira a informação:</h5>
-                <textarea id="insert-textbox-value" class="form-control" rows="4" placeholder="Insira um valor para o campo de texto"></textarea>
-                <button onclick="createKeyAndReload()" class="btn btn-success">Salvar</button>
+            <div id="insert-edit-info" style="display: none;">
+                <h5>Inserir/Editar Informação:</h5>
+                <textarea id="insert-edit-textbox-value" class="form-control" rows="4" placeholder="Insira/edita um valor para a chave 'data'"></textarea>
+                <button onclick="insertEditData()" class="btn btn-success">Salvar</button>
             </div>
         </div>
     </div>
@@ -92,75 +93,27 @@
             });
         }
 
-        // Função para exibir campo de inserção de informação
-        function showInsertInfo() {
+        // Função para exibir campo de inserção/editar informação
+        function showInsertEditInfo() {
             document.getElementById('scanner-content').style.display = 'none';
-            document.getElementById('insert-info').style.display = 'block';
             document.getElementById('edit-button').style.display = 'none';
+            document.getElementById('insert-edit-info').style.display = 'block';
         }
 
-        // Função para criar uma chave se não existir
-        function createKeyIfNotExists() {
-            const content = getParameterValue();
-            if (content) {
-                var keyRef = firebase.database().ref('eqr/' + content);
-                keyRef.once('value', function(snapshot) {
-                    var keyData = snapshot.val();
-                    if (!keyData) {
-                        // Se a chave não existir, exibe campo de inserção
-                        showInsertInfo();
-                    } else {
-                        // Se a chave existir, exibe informações
-                        showAuthenticatedContent();
-                    }
-                });
-            }
+        // Função para inserir/editar um valor na chave 'data'
+        function insertEditData() {
+            var content = getParameterValue();
+            var value = document.getElementById('insert-edit-textbox-value').value;
+            var keyRef = firebase.database().ref('eqr/' + content + '/data');
+            keyRef.set(value).then(() => {
+                alert('Valor inserido/editado com sucesso.');
+                window.location.reload();
+            });
         }
 
-        // Se o usuário estiver autenticado, exibe o botão de editar
-        function showAuthenticatedContent(user) {
-            if (user) {
-                document.getElementById('edit-button').style.display = 'block';
-                document.getElementById('user-info').innerHTML = 'Email: ' + user.email + ' | User ID: ' + user.uid;
-            }
+        // ... (código anterior)
 
-            // Obtém o valor da chave 'c' na URL
-            const content = getParameterValue();
-            if (content) {
-                var keyRef = firebase.database().ref('eqr/' + content);
-                keyRef.once('value', function(snapshot) {
-                    var keyData = snapshot.val();
-                    document.getElementById('key-name').innerText = content;
-                    document.getElementById('key-value').innerText = keyData ? keyData.valor : '';
-
-                    // Exibe o valor da chave 'c' na área de dados
-                    var encodedValue = keyData ? keyData.valor : '';
-                    if (encodedValue !== null) {
-                        // Decodificar o valor antes de exibi-lo
-                        var decodedValue = decodeURIComponent(encodedValue);
-                        document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5>' + processText(decodedValue);
-                    }
-                });
-            }
-        }
-
-        // Função para obter o valor de um parâmetro na URL
-        function getParameterValue() {
-            const params = new URLSearchParams(window.location.search);
-            return params.get('c');
-        }
-
-        // Função para processar o texto (adapte conforme necessário)
-        function processText(text) {
-            text = text.replace(/\n/g, '<br>');
-            text = text.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank">$1</a>');
-            text = text.replace(/(\(?\d{2,3}\)?[-\s]?\d{4,5}[-\s]?\d{4})/g, '<a href="tel:$1">$1</a>');
-            text = text.replace(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4})/g, '<a href="mailto:$1">$1</a>');
-            text = text.replace(/(www\.[^\s<]+)/g, '<a href="http://$1" target="_blank">$1</a>');
-            return '<p>' + text + '</p>';
-        }
-
-        // Inicializa o Firebase
+        // Verificar a autenticação do usuário e mostrar conteúdo correspondente
         firebase.auth().onAuthStateChanged(function(user) {
             if (user) {
                 showAuthenticatedContent(user);
