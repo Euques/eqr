@@ -81,7 +81,7 @@
 <body>
 
 <div class="container">
-    <h2>Firebase Realtime Database</h2>
+    <h2>Leitor de E-QR</h2>
 
     <div class="input-container">
         <div id="key"></div>
@@ -99,6 +99,11 @@
         <p>Email: <span id="userEmail"></span></p>
         <p>User ID: <span id="userId"></span></p>
     </div>
+
+    <button id="logoutBtn" class="logout-btn btn btn-secondary" style="display: none;" onclick="realizarLogout()">Sair</button>
+
+<button id="entrarBtn" class="login-btn btn btn-secondary" onclick="exibirFormularioLogin()">Entrar</button>
+    
 </div>
 
 <div id="loginSection" class="login-section">
@@ -107,11 +112,10 @@
     <label for="senha">Senha:</label>
     <input type="password" id="senha" placeholder="Sua senha" class="form-control">
     <button id="loginBtn" class="login-btn btn btn-primary" onclick="realizarLogin()">Login</button>
+    
 </div>
 
-<button id="logoutBtn" class="logout-btn btn btn-secondary" style="display: none;" onclick="realizarLogout()">Sair</button>
 
-<button id="entrarBtn" class="login-btn btn btn-secondary" onclick="exibirFormularioLogin()">Entrar</button>
 
 <script>
     // Configuração do Firebase
