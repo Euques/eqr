@@ -134,6 +134,8 @@
             userInfoDiv.style.display = 'none';
             // Exibir botão "Entrar"
             entrarBtn.style.display = 'block';
+            // Ocultar botão de logout
+            logoutBtn.style.display = 'none';
         }
     });
 
@@ -211,6 +213,8 @@
                 userInfoDiv.style.display = 'none';
                 // Exibir botão "Entrar"
                 entrarBtn.style.display = 'block';
+                // Ocultar botão de logout
+                logoutBtn.style.display = 'none';
             })
             .catch((error) => {
                 console.error('Erro durante o logout:', error);
@@ -236,6 +240,8 @@
         loginSection.style.display = 'block';
         // Ocultar o botão "Entrar"
         entrarBtn.style.display = 'none';
+        // Ocultar o botão "Sair"
+        logoutBtn.style.display = 'none';
     }
 </script>
 
