@@ -111,7 +111,64 @@
             });
         }
 
-        // ... (código anterior)
+        // Função para mostrar conteúdo editável
+        function showEditableContent() {
+            var content = getParameterValue();
+            var keyRef = firebase.database().ref('eqr/' + content);
+            keyRef.once('value').then(function(snapshot) {
+                var data = snapshot.val();
+                document.getElementById('insert-edit-textbox-value').value = data ? data.data : '';
+                document.getElementById('scanner-content').style.display = 'none';
+                document.getElementById('key-info').style.display = 'none';
+                document.getElementById('insert-edit-info').style.display = 'block';
+            });
+        }
+
+        // Função para mostrar conteúdo autenticado
+        function showAuthenticatedContent(user) {
+            document.getElementById('scanner-content').style.display = 'block';
+            document.getElementById('auth-content').style.display = 'none';
+            showUserInfo(user); // Adicionado para mostrar informações do usuário no rodapé
+            var content = getParameterValue();
+            if (content) {
+                var keyRef = firebase.database().ref('eqr/' + content);
+                keyRef.once('value').then(function(snapshot) {
+                    var data = snapshot.val();
+                    if (data) {
+                        document.getElementById('key-name').textContent = content;
+                        document.getElementById('key-value').textContent = data.valor;
+                        document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5>' + processText(data.valor);
+                        if (data.user === user.uid) {
+                            document.getElementById('edit-button').style.display = 'block';
+                        }
+                    } else {
+                        document.getElementById('key-info').style.display = 'none';
+                        document.getElementById('insert-edit-button').style.display = 'block';
+                    }
+                });
+            }
+        }
+
+        // Função para mostrar informações do usuário no rodapé
+        function showUserInfo(user) {
+            document.getElementById('user-info').innerHTML = 'Email: ' + user.email + ' | User ID: ' + user.uid;
+        }
+
+        // Função para obter o valor de um parâmetro na URL
+        function getParameterValue() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('c');
+        }
+
+        // Função para processar o texto (adapte conforme necessário)
+        function processText(text) {
+            text = text.replace(/\n/g, '<br>');
+            text = text.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank">$1</a>');
+            text = text.replace(/(\(?\d{2,3}\)?[-\s]?\d{4,5}[-\s]?\d{4})/g, '<a href="tel:$1">$1</a>');
+            text = text.replace(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4})/g, '<a href="mailto:$1">$1</a>');
+            text = text.replace(/(www\.[^\s<]+)/g, '<a href="http://$1" target="_blank">$1</a>');
+            return '<p>' + text + '</p>';
+        }
 
         // Verificar a autenticação do usuário e mostrar conteúdo correspondente
         firebase.auth().onAuthStateChanged(function(user) {
@@ -124,7 +181,19 @@
         });
 
         // Ao carregar a página, verifica se a chave existe e exibe o conteúdo apropriado
-        createKeyIfNotExists();
+        function createKeyIfNotExists() {
+            var content = getParameterValue();
+            if (content) {
+                var keyRef = firebase.database().ref('eqr/' + content);
+                keyRef.once('value').then(function(snapshot) {
+                    var data = snapshot.val();
+                    if (!data) {
+                        // Se a chave não existir, redirecione para a página de login
+                        window.location.href = 'login.html';
+                    }
+                });
+            }
+        }
     </script>
 </body>
 </html>
