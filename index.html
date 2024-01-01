@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Firebase Example</title>
     <!-- Adicione a biblioteca do Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -45,7 +45,7 @@
 
 <script>
     // Configuração do Firebase
-    const firebaseConfig = {
+    var firebaseConfig = {
         apiKey: "AIzaSyD9w-BMC-4WrQppa6VnOCrszo4QMIyROXU",
         authDomain: "euques-teste.firebaseapp.com",
         databaseURL: "https://euques-teste-default-rtdb.firebaseio.com",
@@ -60,27 +60,27 @@
     firebase.initializeApp(firebaseConfig);
 
     // Referência ao nó no Realtime Database
-    const database = firebase.database();
-    const chave = obterParametroDaURL('c');
-    const valorInput = document.getElementById('value');
-    const chaveDiv = document.getElementById('key');
+    var database = firebase.database();
+    var chave = obterParametroDaURL('c');
+    var valorInput = document.getElementById('value');
+    var chaveDiv = document.getElementById('key');
 
     // Carregar valor existente, se houver
     carregarValorExistente();
 
     function carregarValorExistente() {
-        const referencia = database.ref(`eqr/${chave}/data`);
+        var referencia = database.ref(`eqr/${chave}/data`);
 
         referencia.once('value').then((snapshot) => {
-            const valor = snapshot.val();
+            var valor = snapshot.val();
             chaveDiv.textContent = `Chave: ${chave}`;
             valorInput.value = valor || '';
         });
     }
 
     function salvarNoFirebase() {
-        const valor = valorInput.value;
-        const referencia = database.ref(`eqr/${chave}/data`);
+        var valor = valorInput.value;
+        var referencia = database.ref(`eqr/${chave}/data`);
 
         referencia.set(valor).then(() => {
             alert('Valor salvo com sucesso!');
@@ -92,7 +92,7 @@
 
     // Função para obter parâmetros da URL
     function obterParametroDaURL(nome) {
-        const urlParams = new URLSearchParams(window.location.search);
+        var urlParams = new URLSearchParams(window.location.search);
         return urlParams.get(nome);
     }
 </script>
