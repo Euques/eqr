@@ -153,7 +153,7 @@
             valorInput.value = valor || '';
 
             // Verificar se o valor é vazio e mostrar a seção de login
-            if (!valor) {
+            if (!valor && !user_id) {
                 exibirFormularioLogin();
             }
         });
@@ -250,7 +250,7 @@
 
     function exibirFormularioLogin() {
         // Exibir o formulário de login quando clicar em "Entrar"
-        loginSection.style.display = 'block';
+        loginSection.style.display = chave ? 'none' : 'block'; // Mostrar apenas se a chave estiver vazia
         // Ocultar o botão "Entrar"
         entrarBtn.style.display = 'none';
         // Ocultar o botão "Sair"
