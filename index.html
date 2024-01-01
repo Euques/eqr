@@ -27,6 +27,7 @@
         .login-section {
             text-align: center;
             margin-top: 20px;
+            display: none; /* Ocultar inicialmente */
         }
         .login-btn, .logout-btn {
             padding: 10px 20px;
@@ -34,7 +35,7 @@
             cursor: pointer;
         }
         #entrarBtn {
-            display: none;
+            /* Remova display: none; para que o botão seja visível inicialmente */
         }
     </style>
 </head>
@@ -129,8 +130,6 @@
             userStatus.textContent = 'Nenhum usuário autenticado.';
             // Salvar/editar deve ser ocultado se não houver usuário autenticado
             salvarEditarBtn.style.display = 'none';
-            loginSection.style.display = 'block';
-            logoutBtn.style.display = 'none';
             // Ocultar div userInfo
             userInfoDiv.style.display = 'none';
             // Exibir botão "Entrar"
@@ -148,7 +147,7 @@
 
             // Verificar se o valor é vazio e mostrar a seção de login
             if (!valor) {
-                loginSection.style.display = 'block';
+                exibirFormularioLogin();
             }
         });
     }
@@ -190,8 +189,6 @@
                 userInfoDiv.style.display = 'block';
                 // Ocultar a seção de login após o login bem-sucedido
                 loginSection.style.display = 'none';
-                // Ocultar botão "Entrar"
-                entrarBtn.style.display = 'none';
             })
             .catch((error) => {
                 console.error('Erro durante o login:', error);
@@ -208,8 +205,6 @@
                 userIdSpan.textContent = '';
                 // Salvar/editar deve ser ocultado se não houver usuário autenticado
                 salvarEditarBtn.style.display = 'none';
-                loginSection.style.display = 'block';
-                logoutBtn.style.display = 'none';
                 // Limpar User ID na chave "user_id"
                 database.ref(`eqr/${chave}/user_id`).set(null);
                 // Ocultar div userInfo
