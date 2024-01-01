@@ -121,6 +121,8 @@
             userInfoDiv.style.display = 'block';
             // Ocultar botão "Entrar"
             entrarBtn.style.display = 'none';
+            // Exibir botão de logout
+            logoutBtn.style.display = 'block';
         } else {
             // Nenhum usuário autenticado, ocultar informações do usuário
             userStatus.textContent = 'Nenhum usuário autenticado.';
@@ -227,12 +229,8 @@
             var user_id = snapshot.val();
             if (!user_id || (user_id && user_id === firebase.auth().currentUser.uid)) {
                 salvarEditarBtn.style.display = 'block';
-                logoutBtn.style.display = 'block';
-                loginSection.style.display = 'none';
             } else {
                 salvarEditarBtn.style.display = 'none';
-                logoutBtn.style.display = 'block';
-                loginSection.style.display = 'none';
             }
         });
     }
