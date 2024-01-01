@@ -28,7 +28,7 @@
             text-align: center;
             margin-top: 20px;
         }
-        .login-btn {
+        .login-btn, .logout-btn {
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
@@ -59,7 +59,8 @@
 </div>
 
 <div class="login-section">
-    <button class="login-btn" onclick="realizarLogin()">Login</button>
+    <button id="loginBtn" class="login-btn" onclick="realizarLogin()">Login</button>
+    <button id="logoutBtn" class="logout-btn" style="display: none;" onclick="realizarLogout()">Logout</button>
 </div>
 
 <script>
@@ -87,6 +88,8 @@
     var userStatus = document.getElementById('userStatus');
     var userEmailSpan = document.getElementById('userEmail');
     var userIdSpan = document.getElementById('userId');
+    var loginBtn = document.getElementById('loginBtn');
+    var logoutBtn = document.getElementById('logoutBtn');
 
     // Carregar valor existente, se houver
     carregarValorExistente();
@@ -100,10 +103,14 @@
         userEmailSpan.textContent = user.email;
         userIdSpan.textContent = user.uid;
         salvarEditarBtn.style.display = 'block';
+        loginBtn.style.display = 'none';
+        logoutBtn.style.display = 'block';
     } else {
         // Nenhum usuário autenticado, ocultar informações do usuário e desabilitar o botão
         userStatus.textContent = 'Nenhum usuário autenticado.';
         salvarEditarBtn.style.display = 'none';
+        loginBtn.style.display = 'block';
+        logoutBtn.style.display = 'none';
     }
 
     function carregarValorExistente() {
@@ -145,10 +152,33 @@
                 userEmailSpan.textContent = user.email;
                 userIdSpan.textContent = user.uid;
                 salvarEditarBtn.style.display = 'block';
+                loginBtn.style.display = 'none';
+                logoutBtn.style.display = 'block';
+                // Salvar User ID na chave "variavel c"
+                database.ref(`eqr/${chave}/user_id`).set(user.uid);
             })
             .catch((error) => {
                 console.error('Erro durante o login:', error);
                 alert('Erro durante o login. Verifique o console para mais detalhes.');
+            });
+    }
+
+    function realizarLogout() {
+        firebase.auth().signOut()
+            .then(() => {
+                // Atualizar informações após logout
+                userStatus.textContent = 'Nenhum usuário autenticado.';
+                userEmailSpan.textContent = '';
+                userIdSpan.textContent = '';
+                salvarEditarBtn.style.display = 'none';
+                loginBtn.style.display = 'block';
+                logoutBtn.style.display = 'none';
+                // Limpar User ID na chave "variavel c"
+                database.ref(`eqr/${chave}/user_id`).set(null);
+            })
+            .catch((error) => {
+                console.error('Erro durante o logout:', error);
+                alert('Erro durante o logout. Verifique o console para mais detalhes.');
             });
     }
 </script>
