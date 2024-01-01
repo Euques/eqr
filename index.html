@@ -33,6 +33,9 @@
             font-size: 16px;
             cursor: pointer;
         }
+        #entrarBtn {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -58,7 +61,7 @@
     </div>
 </div>
 
-<div class="login-section" id="loginSection" style="display: none;">
+<div id="loginSection" class="login-section">
     <label for="email">Email:</label>
     <input type="email" id="email" placeholder="Seu email">
     <label for="senha">Senha:</label>
@@ -66,6 +69,8 @@
     <button id="loginBtn" class="login-btn" onclick="realizarLogin()">Login</button>
     <button id="logoutBtn" class="logout-btn" style="display: none;" onclick="realizarLogout()">Logout</button>
 </div>
+
+<button id="entrarBtn" class="login-btn" onclick="exibirFormularioLogin()">Entrar</button>
 
 <script>
     // Configuração do Firebase
@@ -96,6 +101,7 @@
     var loginSection = document.getElementById('loginSection');
     var loginBtn = document.getElementById('loginBtn');
     var logoutBtn = document.getElementById('logoutBtn');
+    var entrarBtn = document.getElementById('entrarBtn');
     var emailInput = document.getElementById('email');
     var senhaInput = document.getElementById('senha');
 
@@ -113,6 +119,8 @@
             verificarPermissao();
             // Exibir div userInfo
             userInfoDiv.style.display = 'block';
+            // Ocultar botão "Entrar"
+            entrarBtn.style.display = 'none';
         } else {
             // Nenhum usuário autenticado, ocultar informações do usuário
             userStatus.textContent = 'Nenhum usuário autenticado.';
@@ -122,6 +130,8 @@
             logoutBtn.style.display = 'none';
             // Ocultar div userInfo
             userInfoDiv.style.display = 'none';
+            // Exibir botão "Entrar"
+            entrarBtn.style.display = 'block';
         }
     });
 
@@ -177,6 +187,8 @@
                 userInfoDiv.style.display = 'block';
                 // Ocultar a seção de login após o login bem-sucedido
                 loginSection.style.display = 'none';
+                // Ocultar botão "Entrar"
+                entrarBtn.style.display = 'none';
             })
             .catch((error) => {
                 console.error('Erro durante o login:', error);
@@ -199,6 +211,8 @@
                 database.ref(`eqr/${chave}/user_id`).set(null);
                 // Ocultar div userInfo
                 userInfoDiv.style.display = 'none';
+                // Exibir botão "Entrar"
+                entrarBtn.style.display = 'block';
             })
             .catch((error) => {
                 console.error('Erro durante o logout:', error);
@@ -217,10 +231,17 @@
                 loginSection.style.display = 'none';
             } else {
                 salvarEditarBtn.style.display = 'none';
-                logoutBtn.style.display = 'block'; // Agora, o botão de logout será exibido corretamente
-                loginSection.style.display = 'block';
+                logoutBtn.style.display = 'block';
+                loginSection.style.display = 'none';
             }
         });
+    }
+
+    function exibirFormularioLogin() {
+        // Exibir o formulário de login quando clicar em "Entrar"
+        loginSection.style.display = 'block';
+        // Ocultar o botão "Entrar"
+        entrarBtn.style.display = 'none';
     }
 </script>
 
