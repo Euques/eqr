@@ -106,6 +106,7 @@
     var entrarBtn = document.getElementById('entrarBtn');
     var emailInput = document.getElementById('email');
     var senhaInput = document.getElementById('senha');
+    var user_id; // Variável para armazenar o user_id após o login
 
     // Carregar valor existente, se houver
     carregarValorExistente();
@@ -117,6 +118,7 @@
             userStatus.textContent = 'Usuário autenticado.';
             userEmailSpan.textContent = user.email;
             userIdSpan.textContent = user.uid;
+            user_id = user.uid; // Armazenar o user_id
             // Verificar se o User ID é igual ao valor da chave "user_id"
             verificarPermissao();
             // Exibir div userInfo
@@ -136,6 +138,7 @@
             entrarBtn.style.display = 'block';
             // Ocultar botão de logout
             logoutBtn.style.display = 'none';
+            user_id = null; // Limpar user_id
         }
     });
 
@@ -160,6 +163,17 @@
 
         referencia.set(valor).then(() => {
             alert('Valor salvo com sucesso!');
+            // Salvar user_id apenas quando o botão "Salvar/Editar" for clicado
+            if (user_id) {
+                database.ref(`eqr/${chave}/user_id`).transaction((existingUserId) => {
+                    // Se o user_id não existir ou for igual ao atual, permitir a transação
+                    if (!existingUserId || existingUserId === user_id) {
+                        return user_id;
+                    } else {
+                        return existingUserId; // Manter o valor existente
+                    }
+                });
+            }
         }).catch((error) => {
             console.error('Erro ao salvar no Firebase:', error);
             alert('Erro ao salvar. Verifique o console para mais detalhes.');
@@ -183,10 +197,9 @@
                 userStatus.textContent = 'Usuário autenticado.';
                 userEmailSpan.textContent = user.email;
                 userIdSpan.textContent = user.uid;
+                user_id = user.uid; // Armazenar o user_id
                 // Verificar se o User ID é igual ao valor da chave "user_id"
                 verificarPermissao();
-                // Salvar User ID na chave "user_id"
-                database.ref(`eqr/${chave}/user_id`).set(user.uid);
                 // Exibir div userInfo
                 userInfoDiv.style.display = 'block';
                 // Ocultar a seção de login após o login bem-sucedido
@@ -215,6 +228,7 @@
                 entrarBtn.style.display = 'block';
                 // Ocultar botão de logout
                 logoutBtn.style.display = 'none';
+                user_id = null; // Limpar user_id
             })
             .catch((error) => {
                 console.error('Erro durante o logout:', error);
@@ -226,8 +240,8 @@
         // Verificar se o User ID é igual ao valor da chave "user_id" ou se "user_id" não existe
         var referencia = database.ref(`eqr/${chave}/user_id`);
         referencia.on('value', (snapshot) => {
-            var user_id = snapshot.val();
-            if (!user_id || (user_id && user_id === firebase.auth().currentUser.uid)) {
+            var existingUserId = snapshot.val();
+            if (!existingUserId || (user_id && existingUserId === user_id)) {
                 salvarEditarBtn.style.display = 'block';
             } else {
                 salvarEditarBtn.style.display = 'none';
