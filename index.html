@@ -98,24 +98,27 @@
     carregarValorExistente();
 
     // Verificar usuário autenticado
-    var user = firebase.auth().currentUser;
-
-    if (user) {
-        // Usuário autenticado, mostrar informações do usuário
-        userStatus.textContent = 'Usuário autenticado.';
-        userEmailSpan.textContent = user.email;
-        userIdSpan.textContent = user.uid;
-        // Verificar se o User ID é igual ao valor da chave "user_id"
-        verificarPermissao();
-        // Exibir div userInfo
-        userInfoDiv.style.display = 'block';
-    } else {
-        // Nenhum usuário autenticado, ocultar informações do usuário
-        userStatus.textContent = 'Nenhum usuário autenticado.';
-        salvarEditarBtn.style.display = 'none';
-        loginBtn.style.display = 'block';
-        logoutBtn.style.display = 'none';
-    }
+    firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+            // Usuário autenticado, mostrar informações do usuário
+            userStatus.textContent = 'Usuário autenticado.';
+            userEmailSpan.textContent = user.email;
+            userIdSpan.textContent = user.uid;
+            // Verificar se o User ID é igual ao valor da chave "user_id"
+            verificarPermissao();
+            // Exibir div userInfo
+            userInfoDiv.style.display = 'block';
+        } else {
+            // Nenhum usuário autenticado, ocultar informações do usuário
+            userStatus.textContent = 'Nenhum usuário autenticado.';
+            salvarEditarBtn.style.display = 'none';
+            editBtn.style.display = 'none';
+            loginBtn.style.display = 'block';
+            logoutBtn.style.display = 'none';
+            // Ocultar div userInfo
+            userInfoDiv.style.display = 'none';
+        }
+    });
 
     function carregarValorExistente() {
         var referencia = database.ref(`eqr/${chave}/data`);
@@ -195,12 +198,16 @@
         var referencia = database.ref(`eqr/${chave}/user_id`);
         referencia.once('value').then((snapshot) => {
             var user_id = snapshot.val();
-            if (user_id && user_id === user.uid) {
+            if (user_id && user_id === firebase.auth().currentUser.uid) {
                 salvarEditarBtn.style.display = 'block';
                 editBtn.style.display = 'block';
+                logoutBtn.style.display = 'block';
+                loginBtn.style.display = 'none';
             } else {
                 salvarEditarBtn.style.display = 'none';
                 editBtn.style.display = 'none';
+                logoutBtn.style.display = 'none';
+                loginBtn.style.display = 'block';
             }
         });
     }
