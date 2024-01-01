@@ -34,9 +34,6 @@
             font-size: 16px;
             cursor: pointer;
         }
-        #entrarBtn {
-            /* Remova display: none; para que o botão seja visível inicialmente */
-        }
     </style>
 </head>
 <body>
@@ -252,7 +249,7 @@
         // Exibir o formulário de login quando clicar em "Entrar"
         loginSection.style.display = 'block';
         // Ocultar o botão "Entrar"
-        entrarBtn.style.display = 'none';
+        entrarBtn.style.display = 'block'; // Sempre mostrar o botão "Entrar"
         // Ocultar o botão "Sair"
         logoutBtn.style.display = 'none';
     }
