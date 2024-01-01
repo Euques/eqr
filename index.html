@@ -1,130 +1,101 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leitor de QR Code</title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <!-- Firebase App (the core Firebase SDK) -->
-    <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-app.js"></script>
-    <!-- Firebase Database -->
-    <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-database.js"></script>
+    <title>Firebase Example</title>
+    <!-- Adicione a biblioteca do Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-database.js"></script>
     <style>
-        body { padding-top: 20px; }
-        .container { max-width: 600px; margin: auto; }
-        .resultado {
-            border: 1px solid #007bff;
-            padding: 15px;
-            border-radius: 5px;
-            margin-top: 15px;
-            background-color: #f1f1f1;
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
         }
-        .resultado h5 {
-            color: #007bff;
-            margin-bottom: 0;
+        .container {
+            max-width: 600px;
+            margin: auto;
         }
-        .resultado p {
-            margin-top: 5px;
-            color: #333;
+        .input-container {
+            margin-bottom: 10px;
         }
-        .btn-success {
-            margin-top: 10px;
+        textarea {
+            width: 100%;
+            height: 100px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div id="scanner-content">
-            <h2>Leitor de QR Code</h2>
-            <div id="key" class="resultado"></div>
-            <hr> <!-- Linha divisória -->
-            <div id="data" class="resultado"></div>
-        </div>
-        <div id="create-key-content" style="display: none;">
-            <h2>Criar Chave</h2>
-            <input type="text" id="key-value" class="form-control" placeholder="Insira um valor para a chave">
-            <label for="textbox-value">Texto</label>
-            <textarea id="textbox-value" class="form-control" rows="4" placeholder="Insira um valor para o campo de texto" onkeyup="updatePreview()"></textarea>
-            <button onclick="createKeyAndReload()" class="btn btn-success">Criar Chave</button>
-        </div>
+
+<div class="container">
+    <h2>Firebase Realtime Database</h2>
+
+    <div class="input-container">
+        <label for="key">Chave:</label>
+        <div id="key"></div>
     </div>
 
-    <script>
-        var firebaseConfig = {
-            apiKey: "AIzaSyD9w-BMC-4WrQppa6VnOCrszo4QMIyROXU",
-            authDomain: "euques-teste.firebaseapp.com",
-            databaseURL: "https://euques-teste-default-rtdb.firebaseio.com",
-            projectId: "euques-teste",
-            storageBucket: "euques-teste.appspot.com",
-            messagingSenderId: "48182046778",
-            appId: "1:48182046778:web:4cd6f3b08cae7f6588c503",
-            measurementId: "G-KQXMBG1EXG"
-        };
-        firebase.initializeApp(firebaseConfig);
+    <div class="input-container">
+        <label for="value">Valor:</label>
+        <textarea id="value" placeholder="Digite o valor..."></textarea>
+    </div>
 
-        function createKeyAndReload() {
-            var keyValue = document.getElementById('key-value').value;
-            var keyRef = firebase.database().ref('eqr/' + keyValue);
-            var value = document.getElementById('textbox-value').value;
-            
-            // Codificar o valor antes de salvá-lo
-            var encodedValue = encodeURIComponent(value);
-            
-            keyRef.child('valor').set(encodedValue).then(() => {
-                alert('Chave criada com sucesso com o valor: ' + keyValue);
-                window.location.reload();
-            });
-        }
+    <button onclick="salvarNoFirebase()">Salvar/Editar</button>
+</div>
 
-        function getParameterValue() {
-            const params = new URLSearchParams(window.location.search);
-            return params.get('c');
-        }
+<script>
+    // Configuração do Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyD9w-BMC-4WrQppa6VnOCrszo4QMIyROXU",
+        authDomain: "euques-teste.firebaseapp.com",
+        databaseURL: "https://euques-teste-default-rtdb.firebaseio.com",
+        projectId: "euques-teste",
+        storageBucket: "euques-teste.appspot.com",
+        messagingSenderId: "48182046778",
+        appId: "1:48182046778:web:4cd6f3b08cae7f6588c503",
+        measurementId: "G-KQXMBG1EXG"
+    };
 
-        function updatePreview() {
-            var textareaValue = document.getElementById('textbox-value').value;
-            document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5>' + processText(textareaValue);
-        }
+    // Inicialize o Firebase
+    firebase.initializeApp(firebaseConfig);
 
-        function processText(text) {
-            // Substituir quebras de linha por <br>
-            text = text.replace(/\n/g, '<br>');
-            
-            // Detectar URLs e torná-las clicáveis
-            text = text.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank">$1</a>');
-            
-            // Detectar números de telefone com vários formatos e torná-los clicáveis
-            text = text.replace(/(\(?\d{2,3}\)?[-\s]?\d{4,5}[-\s]?\d{4})/g, '<a href="tel:$1">$1</a>');
-            
-            // Detectar endereços de e-mail e torná-los clicáveis
-            text = text.replace(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4})/g, '<a href="mailto:$1">$1</a>');
+    // Referência ao nó no Realtime Database
+    const database = firebase.database();
+    const chave = obterParametroDaURL('c');
+    const valorInput = document.getElementById('value');
+    const chaveDiv = document.getElementById('key');
 
-            // Detectar domínios começando com www. e torná-los clicáveis
-            text = text.replace(/(www\.[^\s<]+)/g, '<a href="http://$1" target="_blank">$1</a>');
-            
-            return '<p>' + text + '</p>';
-        }
+    // Carregar valor existente, se houver
+    carregarValorExistente();
 
-        const content = getParameterValue();
-        if (content) {
-            document.getElementById('key').innerHTML = '<h5>Chave do QR Code:</h5><p>' + content + '</p>';
-            var keyRef = firebase.database().ref('eqr/' + content);
-            keyRef.child('valor').on('value', function (snapshot) {
-                var encodedValue = snapshot.val();
-                if (encodedValue !== null) {
-                    // Decodificar o valor antes de exibi-lo
-                    var decodedValue = decodeURIComponent(encodedValue);
-                    document.getElementById('data').innerHTML = '<h5>Código QR Escaneado:</h5>' + processText(decodedValue);
-                } else {
-                    document.getElementById('scanner-content').style.display = 'none';
-                    document.getElementById('create-key-content').style.display = 'block';
-                    document.getElementById('key-value').value = content;
-                }
-            });
-        } else {
-            alert('Nenhum código QR detectado na URL.');
-        }
-    </script>
+    function carregarValorExistente() {
+        const referencia = database.ref(`eqr/${chave}/data`);
+
+        referencia.once('value').then((snapshot) => {
+            const valor = snapshot.val();
+            chaveDiv.textContent = `Chave: ${chave}`;
+            valorInput.value = valor || '';
+        });
+    }
+
+    function salvarNoFirebase() {
+        const valor = valorInput.value;
+        const referencia = database.ref(`eqr/${chave}/data`);
+
+        referencia.set(valor).then(() => {
+            alert('Valor salvo com sucesso!');
+        }).catch((error) => {
+            console.error('Erro ao salvar no Firebase:', error);
+            alert('Erro ao salvar. Verifique o console para mais detalhes.');
+        });
+    }
+
+    // Função para obter parâmetros da URL
+    function obterParametroDaURL(nome) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(nome);
+    }
+</script>
+
 </body>
 </html>
