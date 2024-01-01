@@ -142,6 +142,13 @@
                         if (data.user === user.uid) {
                             document.getElementById('edit-button').style.display = 'block';
                         }
+                        // Verificar se a chave 'data' existe e exibir o campo para inserir/editar
+                        if ('data' in data) {
+                            document.getElementById('insert-edit-info').style.display = 'block';
+                            document.getElementById('insert-edit-textbox-value').value = data.data;
+                        } else {
+                            document.getElementById('insert-edit-button').style.display = 'block';
+                        }
                     } else {
                         document.getElementById('key-info').style.display = 'none';
                         document.getElementById('insert-edit-button').style.display = 'block';
