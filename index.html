@@ -116,6 +116,7 @@
         } else {
             // Nenhum usuário autenticado, ocultar informações do usuário
             userStatus.textContent = 'Nenhum usuário autenticado.';
+            // Salvar/editar deve ser ocultado se não houver usuário autenticado
             salvarEditarBtn.style.display = 'none';
             loginSection.style.display = 'block';
             logoutBtn.style.display = 'none';
@@ -190,6 +191,7 @@
                 userStatus.textContent = 'Nenhum usuário autenticado.';
                 userEmailSpan.textContent = '';
                 userIdSpan.textContent = '';
+                // Salvar/editar deve ser ocultado se não houver usuário autenticado
                 salvarEditarBtn.style.display = 'none';
                 loginSection.style.display = 'block';
                 logoutBtn.style.display = 'none';
@@ -215,7 +217,7 @@
                 loginSection.style.display = 'none';
             } else {
                 salvarEditarBtn.style.display = 'none';
-                logoutBtn.style.display = 'none';
+                logoutBtn.style.display = 'block'; // Agora, o botão de logout será exibido corretamente
                 loginSection.style.display = 'block';
             }
         });
