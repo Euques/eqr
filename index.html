@@ -168,7 +168,7 @@
                 database.ref(`eqr/${chave}/user_id`).transaction((existingUserId) => {
                     // Se o user_id não existir ou for igual ao atual, permitir a transação
                     if (!existingUserId || existingUserId === user_id) {
-                        return user_id;
+                        return existingUserId || user_id;
                     } else {
                         return existingUserId; // Manter o valor existente
                     }
@@ -220,15 +220,12 @@
                 userIdSpan.textContent = '';
                 // Salvar/editar deve ser ocultado se não houver usuário autenticado
                 salvarEditarBtn.style.display = 'none';
-                // Limpar User ID na chave "user_id"
-                database.ref(`eqr/${chave}/user_id`).set(null);
                 // Ocultar div userInfo
                 userInfoDiv.style.display = 'none';
                 // Exibir botão "Entrar"
                 entrarBtn.style.display = 'block';
                 // Ocultar botão de logout
                 logoutBtn.style.display = 'none';
-                user_id = null; // Limpar user_id
             })
             .catch((error) => {
                 console.error('Erro durante o logout:', error);
