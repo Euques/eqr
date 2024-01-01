@@ -28,7 +28,7 @@
             text-align: center;
             margin-top: 20px;
         }
-        .login-btn, .logout-btn, .edit-btn {
+        .login-btn, .logout-btn {
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
@@ -126,7 +126,7 @@
     function carregarValorExistente() {
         var referencia = database.ref(`eqr/${chave}/data`);
 
-        referencia.once('value').then((snapshot) => {
+        referencia.on('value', (snapshot) => {
             var valor = snapshot.val();
             chaveDiv.innerHTML = `Chave: <strong>${chave}</strong>`;
             valorInput.value = valor || '';
@@ -199,7 +199,7 @@
     function verificarPermissao() {
         // Verificar se o User ID é igual ao valor da chave "user_id"
         var referencia = database.ref(`eqr/${chave}/user_id`);
-        referencia.once('value').then((snapshot) => {
+        referencia.on('value', (snapshot) => {
             var user_id = snapshot.val();
             if (user_id && user_id === firebase.auth().currentUser.uid) {
                 salvarEditarBtn.style.display = 'block';
