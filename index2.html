@@ -128,7 +128,8 @@
         function showAuthenticatedContent(user) {
             document.getElementById('scanner-content').style.display = 'block';
             document.getElementById('auth-content').style.display = 'none';
-            showUserInfo(user); // Adicionado para mostrar informações do usuário no rodapé
+            showUserInfo(user);
+
             var content = getParameterValue();
             if (content) {
                 var keyRef = firebase.database().ref('eqr/' + content);
@@ -194,6 +195,9 @@
                 });
             }
         }
+
+        // Chama a função ao carregar a página
+        createKeyIfNotExists();
     </script>
 </body>
 </html>
