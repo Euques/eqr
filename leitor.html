@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Leitor de E-QR Code</title>
+    <title>Leitor de QR Code</title>
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
@@ -28,7 +28,6 @@
             width: 100%;
             height: auto;
             border-radius: 15px;
-            transform: scaleX(-1); /* Inverter o espelhamento horizontal */
         }
 
         #overlay-text {
@@ -88,7 +87,6 @@
             
             if (rearCamera) {
                 scanner.addListener("scan", function (content) {
-                   
                     window.location.href = content;
                 });
 
