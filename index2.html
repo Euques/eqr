@@ -221,17 +221,8 @@ function carregarValorExistente() {
         // Processar o valor usando a função processText
         var valorProcessado = processText(valor);
 
-        // Exibir o valor processado usando innerHTML
-        valorInput.innerHTML = '';
-
-        // Criar um elemento div para inserir o HTML interpretado
-        var div = document.createElement('div');
-        div.innerHTML = valorProcessado;
-
-        // Adicionar os nós filho à textarea
-        while (div.firstChild) {
-            valorInput.appendChild(div.firstChild);
-        }
+        // Exibir o valor processado na textarea
+        valorInput.innerHTML = valorProcessado;
     });
 }
 
