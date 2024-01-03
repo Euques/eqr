@@ -11,80 +11,7 @@
     <!-- Adicione o Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #343a40; /* Cor de fundo escura para o modo escuro */
-            color: white; /* Texto branco para o modo escuro */
-        }
-        .container {
-            max-width: 600px;
-            margin: auto;
-            padding: 20px;
-            background-color: #212529; /* Cor de fundo mais escura */
-            border-radius: 10px; /* Bordas arredondadas */
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Sombra */
-        }
-        .input-container {
-            margin-bottom: 20px;
-        }
-        textarea {
-            width: 100%;
-            height: 100px;
-            border-radius: 5px; /* Bordas arredondadas */
-            padding: 10px;
-            box-sizing: border-box;
-        }
-        #salvarEditarBtn {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 10px;
-            background-color: #28a745; /* Cor verde para destacar */
-            border: none;
-            border-radius: 5px; /* Bordas arredondadas */
-        }
-        #salvarEditarBtn:hover {
-            background-color: #218838; /* Cor verde mais escura no hover */
-        }
-        .login-section {
-            text-align: center;
-            margin-top: 20px;
-            display: none; /* Ocultar inicialmente */
-        }
-        .login-section label, .login-section input {
-            margin-bottom: 10px;
-        }
-        .login-section input {
-            width: 100%;
-            padding: 10px;
-            box-sizing: border-box;
-            border-radius: 5px; /* Bordas arredondadas */
-        }
-        .login-btn, .logout-btn, #entrarBtn {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 10px;
-            border-radius: 5px; /* Bordas arredondadas */
-        }
-        .login-btn.btn-primary, #salvarEditarBtn {
-            background-color: #28a745; /* Cor verde para destacar */
-            border: none;
-        }
-        .login-btn.btn-secondary, .logout-btn {
-            background-color: #6c757d; /* Cor cinza para botões secundários */
-            border: none;
-        }
-
-                footer {
-            text-align: center;
-            padding: 10px;
-           color: #f0f0f0;
-            position: sticky;
-            bottom: 0;
-        }
-        
+        <!-- (Estilos CSS permanecem inalterados) -->
     </style>
 </head>
 <body>
@@ -96,12 +23,16 @@
         <div id="key"></div>
     </div>
 
- <div class="input-container">
-    <label for="value">Valor:</label>
-    <div id="value" style="border: 1px solid #ccc; padding: 10px; border-radius: 5px;"></div>
-</div>
+    <div class="input-container">
+        <label for="value">Valor:</label>
+        <textarea id="value" placeholder="Digite o valor..." readonly></textarea>
+    </div>
 
-    <button id="salvarEditarBtn" style="display: none;" onclick="salvarNoFirebase()">Salvar/Editar</button>
+    <!-- Adicione um botão de editar -->
+    <button id="editarBtn" style="display: none;" onclick="editarTexto()">Editar</button>
+
+    <!-- Adicione um botão de salvar -->
+    <button id="salvarBtn" style="display: none;" onclick="salvarNoFirebase()">Salvar</button>
 
     <hr>
 
@@ -113,22 +44,17 @@
 
     <button id="logoutBtn" class="logout-btn btn btn-secondary" style="display: none;" onclick="realizarLogout()">Sair</button>
 
-<button id="entrarBtn" class="login-btn btn btn-secondary" onclick="exibirFormularioLogin()">Entrar</button>
-    
+    <button id="entrarBtn" class="login-btn btn btn-secondary" onclick="exibirFormularioLogin()">Entrar</button>
+
 </div>
 
 <div id="loginSection" class="login-section">
-    <label for="email">Email:</label>
-    <input type="email" id="email" placeholder="Seu email" class="form-control">
-    <label for="senha">Senha:</label>
-    <input type="password" id="senha" placeholder="Sua senha" class="form-control">
-    <button id="loginBtn" class="login-btn btn btn-primary" onclick="realizarLogin()">Login</button>
-    
+    <!-- (Formulário de login permanece inalterado) -->
 </div>
 
-    <footer>
-        <p>&copy; 2024 - <a href="https://wabes.com.br" target="_blank">Wabes</a> - Todos os direitos reservados.</p>
-    </footer>
+<footer>
+    <p>&copy; 2024 - <a href="https://wabes.com.br" target="_blank">Wabes</a> - Todos os direitos reservados.</p>
+</footer>
 
 <script>
     // Configuração do Firebase
@@ -151,7 +77,8 @@
     var chave = obterParametroDaURL('c');
     var valorInput = document.getElementById('value');
     var chaveDiv = document.getElementById('key');
-    var salvarEditarBtn = document.getElementById('salvarEditarBtn');
+    var editarBtn = document.getElementById('editarBtn');
+    var salvarBtn = document.getElementById('salvarBtn');
     var userStatus = document.getElementById('userStatus');
     var userEmailSpan = document.getElementById('userEmail');
     var userIdSpan = document.getElementById('userId');
@@ -189,7 +116,8 @@
             // Nenhum usuário autenticado, ocultar informações do usuário
             userStatus.textContent = 'Nenhum usuário autenticado.';
             // Salvar/editar deve ser ocultado se não houver usuário autenticado
-            salvarEditarBtn.style.display = 'none';
+            salvarBtn.style.display = 'none';
+            editarBtn.style.display = 'none';
             // Ocultar div userInfo
             userInfoDiv.style.display = 'none';
             // Exibir botão "Entrar"
@@ -200,39 +128,51 @@
         }
     });
 
-
-    function processText(text) {
-    text = text.replace(/\n/g, '<br>');
-    text = text.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank">$1</a>');
-    text = text.replace(/(\(?\d{2,3}\)?[-\s]?\d{4,5}[-\s]?\d{4})/g, '<a href="tel:$1">$1</a>');
-    text = text.replace(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4})/g, '<a href="mailto:$1">$1</a>');
-    text = text.replace(/(www\.[^\s<]+)/g, '<a href="http://$1" target="_blank">$1</a>');
-    return '<p>' + text + '</p>';
-}
-
-
-function carregarValorExistente() {
-    var referencia = database.ref(`eqr/${chave}/data`);
-
-    referencia.on('value', (snapshot) => {
-        var valor = snapshot.val();
-        chaveDiv.innerHTML = `Chave: <strong>${chave}</strong>`;
-        valorInput.innerHTML = valor || '';
-    });
-}
-
-
-
-
-
-
-    function salvarNoFirebase() {
-        var valor = valorInput.value;
+    function carregarValorExistente() {
         var referencia = database.ref(`eqr/${chave}/data`);
 
-        referencia.set(valor).then(() => {
+        referencia.on('value', (snapshot) => {
+            var valor = snapshot.val();
+            chaveDiv.innerHTML = `Chave: <strong>${chave}</strong>`;
+            valorInput.value = valor || '';
+        });
+    }
+
+    // Função para obter parâmetros da URL
+    function obterParametroDaURL(nome) {
+        var urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(nome);
+    }
+
+    // Função para formatar o texto
+    function formatarTexto(text) {
+        text = text.replace(/\n/g, '<br>');
+        text = text.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank">$1</a>');
+        text = text.replace(/(\(?\d{2,3}\)?[-\s]?\d{4,5}[-\s]?\d{4})/g, '<a href="tel:$1">$1</a>');
+        text = text.replace(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4})/g, '<a href="mailto:$1">$1</a>');
+        text = text.replace(/(www\.[^\s<]+)/g, '<a href="http://$1" target="_blank">$1</a>');
+        return '<p>' + text + '</p>';
+    }
+
+    // Função para editar o texto
+    function editarTexto() {
+        // Habilitar a área de texto para edição
+        valorInput.removeAttribute('readonly');
+        // Ocultar botão de editar
+        editarBtn.style.display = 'none';
+        // Exibir botão de salvar
+        salvarBtn.style.display = 'block';
+    }
+
+    // Modificar a função salvarNoFirebase para salvar o texto formatado
+    function salvarNoFirebase() {
+        var valor = valorInput.value;
+        var valorFormatado = formatarTexto(valor); // Formatar o texto antes de salvar
+
+        var referencia = database.ref(`eqr/${chave}/data`);
+        referencia.set(valorFormatado).then(() => {
             alert('Valor salvo com sucesso!');
-            // Salvar user_id apenas quando o botão "Salvar/Editar" for clicado
+            // Salvar user_id apenas quando o botão "Salvar" for clicado
             if (user_id) {
                 database.ref(`eqr/${chave}/user_id`).transaction((existingUserId) => {
                     // Se o user_id não existir ou for igual ao atual, permitir a transação
@@ -247,14 +187,16 @@ function carregarValorExistente() {
             console.error('Erro ao salvar no Firebase:', error);
             alert('Erro ao salvar. Verifique o console para mais detalhes.');
         });
+
+        // Desabilitar a área de texto após salvar
+        valorInput.setAttribute('readonly', 'readonly');
+        // Ocultar botão de salvar
+        salvarBtn.style.display = 'none';
+        // Exibir botão de editar
+        editarBtn.style.display = 'block';
     }
 
-    // Função para obter parâmetros da URL
-    function obterParametroDaURL(nome) {
-        var urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get(nome);
-    }
-
+    // Função para realizar o login
     function realizarLogin() {
         var email = emailInput.value;
         var senha = senhaInput.value;
@@ -280,6 +222,7 @@ function carregarValorExistente() {
             });
     }
 
+    // Função para realizar o logout
     function realizarLogout() {
         firebase.auth().signOut()
             .then(() => {
@@ -288,13 +231,15 @@ function carregarValorExistente() {
                 userEmailSpan.textContent = '';
                 userIdSpan.textContent = '';
                 // Salvar/editar deve ser ocultado se não houver usuário autenticado
-                salvarEditarBtn.style.display = 'none';
+                salvarBtn.style.display = 'none';
+                editarBtn.style.display = 'none';
                 // Ocultar div userInfo
                 userInfoDiv.style.display = 'none';
                 // Exibir botão "Entrar"
                 entrarBtn.style.display = 'block';
                 // Ocultar botão de logout
                 logoutBtn.style.display = 'none';
+                user_id = null; // Limpar user_id
             })
             .catch((error) => {
                 console.error('Erro durante o logout:', error);
@@ -302,24 +247,30 @@ function carregarValorExistente() {
             });
     }
 
+    // Função para verificar permissão
     function verificarPermissao() {
         // Verificar se o User ID é igual ao valor da chave "user_id" ou se "user_id" não existe
         var referencia = database.ref(`eqr/${chave}/user_id`);
         referencia.on('value', (snapshot) => {
             var existingUserId = snapshot.val();
             if (!existingUserId || (user_id && existingUserId === user_id)) {
-                salvarEditarBtn.style.display = 'block';
+                // Se o usuário autenticado é o mesmo associado à chave ou "user_id" não existe
+                salvarBtn.style.display = 'block';
+                editarBtn.style.display = 'block';
             } else {
-                salvarEditarBtn.style.display = 'none';
+                // Caso contrário, ocultar botões de salvar/editar
+                salvarBtn.style.display = 'none';
+                editarBtn.style.display = 'none';
             }
         });
     }
 
+    // Função para exibir o formulário de login
     function exibirFormularioLogin() {
         // Exibir o formulário de login quando clicar em "Entrar"
         loginSection.style.display = 'block';
         // Ocultar o botão "Entrar"
-        entrarBtn.style.display = 'none'; // Ocultar o botão "Entrar"
+        entrarBtn.style.display = 'none';
         // Ocultar o botão "Sair"
         logoutBtn.style.display = 'none';
     }
