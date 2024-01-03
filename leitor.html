@@ -15,31 +15,24 @@
         body {
             background-color: #000;
             color: #fff;
+            padding: 20px;
+        }
+
+        #reader-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         #reader {
-            border-radius: 15px;
-            overflow: hidden;
-            position: relative;
-            margin-bottom: 15px;
-        }
-
-        #overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-weight: bold;
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 20px;
         }
 
         #btnVoltar {
-            display: block;
             width: 100%;
+            max-width: 400px;
             padding: 10px;
             text-align: center;
             background-color: #007bff;
@@ -52,11 +45,12 @@
 </head>
 <body>
 
-<div class="container mt-5">
+<div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div id="reader">
-                <div id="overlay">Ler E-QR</div>
+        <div class="col-md-12">
+            <div id="reader-container">
+                <div id="reader"></div>
+                <div class="text-center">Ler E-QR</div>
             </div>
             <a href="#" id="btnVoltar">Voltar</a>
         </div>
@@ -73,7 +67,6 @@
 
 <!-- Your custom script -->
 <script>
-    // Inicializar QuaggaJS
     Quagga.init({
         inputStream: {
             name: "Live",
@@ -90,16 +83,13 @@
         },
     });
 
-    // Adicionar listener para a detecção de QR code
     Quagga.onDetected((result) => {
         const code = result.codeResult.code;
-        window.location.href = code; // Redirecionar para a URL do QR code
+        window.location.href = code;
     });
 
-    // Iniciar o processo de leitura
     Quagga.start();
 
-    // Adicionar funcionalidade ao botão Voltar
     document.getElementById("btnVoltar").addEventListener("click", function() {
         window.history.back();
     });
