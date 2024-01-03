@@ -221,8 +221,8 @@ function carregarValorExistente() {
         // Processar o valor usando a função processText
         var valorProcessado = processText(valor);
 
-        // Exibir o valor processado na textarea
-        valorInput.innerHTML = valorProcessado;
+        // Exibir o valor processado no elemento com o ID 'value'
+        document.getElementById('value').innerHTML = valorProcessado;
     });
 }
 
