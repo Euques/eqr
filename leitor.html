@@ -8,9 +8,6 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 
-    <!-- QuaggaJS CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.css">
-
     <style>
         body {
             background-color: #000;
@@ -57,7 +54,7 @@
         <div class="col-md-12">
             <div id="reader-container">
                 <div id="overlay-text">Ler E-QR</div>
-                <div id="reader"></div>
+                <video id="reader"></video>
             </div>
             <a href="#" id="btnVoltar">Voltar</a>
         </div>
@@ -69,35 +66,43 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
-<!-- QuaggaJS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+<!-- jsQR -->
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.0.1/dist/jsQR.min.js"></script>
 
 <!-- Your custom script -->
 <script>
-    Quagga.init({
-        inputStream: {
-            name: "Live",
-            type: "LiveStream",
-            target: document.querySelector("#reader"),
-            constraints: {
-                width: 480,
-                height: 320,
-                facingMode: "environment",
-            },
-        },
-        decoder: {
-            readers: ["code_128_reader", "ean_reader", "ean_8_reader", "code_39_reader", "code_39_vin_reader", "codabar_reader", "upc_reader", "upc_e_reader", "i2of5_reader"],
-        },
+    const video = document.getElementById("reader");
+    const overlayText = document.getElementById("overlay-text");
+
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+        .then(function (stream) {
+            video.srcObject = stream;
+            video.setAttribute("playsinline", true);
+            video.play();
+        })
+        .catch(function (error) {
+            console.error("Error accessing the camera: ", error);
+        });
+
+    video.addEventListener("loadeddata", function () {
+        setInterval(() => {
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d");
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            const code = jsQR(imageData.data, canvas.width, canvas.height);
+
+            if (code) {
+                window.location.href = code.data;
+            }
+        }, 1000);
     });
 
-    Quagga.onDetected((result) => {
-        const code = result.codeResult.code;
-        window.location.href = code;
-    });
-
-    Quagga.start();
-
-    document.getElementById("btnVoltar").addEventListener("click", function() {
+    document.getElementById("btnVoltar").addEventListener("click", function () {
         window.history.back();
     });
 </script>
