@@ -116,17 +116,10 @@ footer {
 
     <div class="input-container">
         <label for="value">Valor:</label>
-        <textarea id="value" placeholder="Digite o valor..." oninput="formatarTexto()"></textarea>
+        <textarea id="value" placeholder="Digite o valor..."></textarea>
     </div>
 
-    <hr>
-
-    <!-- Botões com links -->
-    <div class="button-container">
-        <button id="linkButton" style="display: none;">Abrir Link</button>
-        <button id="callButton" style="display: none;">Ligar</button>
-        <button id="emailButton" style="display: none;">Enviar Email</button>
-    </div>
+    <button id="salvarEditarBtn" style="display: none;" onclick="salvarNoFirebase()">Salvar/Editar</button>
 
     <hr>
 
@@ -139,7 +132,7 @@ footer {
     <button id="logoutBtn" class="logout-btn btn btn-secondary" style="display: none;" onclick="realizarLogout()">Sair</button>
 
     <button id="entrarBtn" class="login-btn btn btn-secondary" onclick="exibirFormularioLogin()">Entrar</button>
-
+    
 </div>
 
 <div id="loginSection" class="login-section">
@@ -231,7 +224,28 @@ footer {
             var valor = snapshot.val();
             chaveDiv.innerHTML = `Chave: <strong>${chave}</strong>`;
             valorInput.value = valor || '';
+
+            // Após carregar o valor existente, transformar links em URLs, emails e telefones
+            transformarLinksClicaveis();
         });
+    }
+
+    function transformarLinksClicaveis() {
+        var texto = valorInput.value;
+
+        // Transformar URLs em links clicáveis
+        texto = texto.replace(/(https?:\/\/\S+)/g, '<a href="$1" target="_blank">$1</a>');
+
+        // Transformar emails em links de emails
+        texto = texto.replace(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/g, '<a href="mailto:$1">$1</a>');
+
+        // Transformar números de telefone em links de discagem
+        texto = texto.replace(/(\+\d{1,4}\s?)?(\(\d{1,}\)|\d{1,})[\s\-]?\d{1,}/g, function(match) {
+            return '<a href="tel:' + match.replace(/\D/g, '') + '">' + match + '</a>';
+        });
+
+        // Atualizar o valor no textarea
+        valorInput.innerHTML = texto;
     }
 
     function salvarNoFirebase() {
@@ -330,25 +344,6 @@ footer {
         entrarBtn.style.display = 'none'; // Ocultar o botão "Entrar"
         // Ocultar o botão "Sair"
         logoutBtn.style.display = 'none';
-    }
-
-    // Função para abrir link
-    function abrirLink(url) {
-        window.open(url, '_blank');
-    }
-
-    // Função para ligar para número
-    function ligarParaNumero(numero) {
-        // Lógica para ligar para o número
-        // (Você pode implementar a funcionalidade real aqui)
-        console.log('Ligando para:', numero);
-    }
-
-    // Função para enviar email
-    function enviarEmail(email) {
-        // Lógica para enviar email para o endereço
-        // (Você pode implementar a funcionalidade real aqui)
-        console.log('Enviando email para:', email);
     }
 </script>
 
