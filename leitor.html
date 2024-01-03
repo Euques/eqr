@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt_BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -80,7 +80,7 @@
     const video = document.getElementById("reader");
     const overlayText = document.getElementById("overlay-text");
 
-    const scanner = new Instascan.Scanner({ video: video });
+    const scanner = new Instascan.Scanner({ video: video, mirror: false });
 
     Instascan.Camera.getCameras().then(function (cameras) {
         if (cameras.length > 0) {
