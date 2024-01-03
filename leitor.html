@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt_BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -15,24 +15,35 @@
         body {
             background-color: #000;
             color: #fff;
+            text-align: center;
             padding: 20px;
         }
 
         #reader-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            position: relative;
+            margin-bottom: 20px;
         }
 
         #reader {
             width: 100%;
             max-width: 400px;
-            margin-bottom: 20px;
+            margin: 0 auto;
+        }
+
+        #overlay-text {
+            position: absolute;
+            top: 10px;
+            left: 0;
+            right: 0;
+            font-size: 24px;
+            font-weight: bold;
         }
 
         #btnVoltar {
+            display: block;
             width: 100%;
             max-width: 400px;
+            margin: 0 auto;
             padding: 10px;
             text-align: center;
             background-color: #007bff;
@@ -49,8 +60,8 @@
     <div class="row justify-content-center">
         <div class="col-md-12">
             <div id="reader-container">
+                <div id="overlay-text">Ler E-QR</div>
                 <div id="reader"></div>
-                <div class="text-center">Ler E-QR</div>
             </div>
             <a href="#" id="btnVoltar">Voltar</a>
         </div>
