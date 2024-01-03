@@ -1,15 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Leitor de QR Code</title>
-
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-
-    <!-- Instascan CSS -->
-    <link rel="stylesheet" href="https://rawgit.com/schmich/instascan-builds/master/css/instascan.min.css">
 
     <style>
         body {
@@ -17,6 +11,7 @@
             color: #fff;
             text-align: center;
             padding: 20px;
+            margin: 0;
         }
 
         #reader-container {
@@ -30,6 +25,7 @@
             width: 100%;
             height: auto;
             border-radius: 15px;
+            transform: scaleX(-1); /* Inverter o espelhamento horizontal */
         }
 
         #overlay-text {
@@ -55,22 +51,11 @@
 </head>
 <body>
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-12">
-            <div id="reader-container">
-                <div id="overlay-text">Ler E-QR</div>
-                <video id="reader"></video>
-            </div>
-            <a href="#" id="btnVoltar">Voltar</a>
-        </div>
-    </div>
+<div id="reader-container">
+    <div id="overlay-text">Ler E-QR</div>
+    <video id="reader"></video>
 </div>
-
-<!-- Bootstrap JS and Popper.js -->
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<a href="#" id="btnVoltar">Voltar</a>
 
 <!-- Instascan JS -->
 <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
@@ -80,7 +65,7 @@
     const video = document.getElementById("reader");
     const overlayText = document.getElementById("overlay-text");
 
-    const scanner = new Instascan.Scanner({ video: video });
+    const scanner = new Instascan.Scanner({ video: video, mirror: false });
 
     Instascan.Camera.getCameras().then(function (cameras) {
         if (cameras.length > 0) {
