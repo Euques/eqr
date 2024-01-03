@@ -222,9 +222,19 @@ function carregarValorExistente() {
         var valorProcessado = processText(valor);
 
         // Exibir o valor processado usando innerHTML
-        valorInput.innerHTML = valorProcessado;
+        valorInput.innerHTML = '';
+
+        // Criar um elemento div para inserir o HTML interpretado
+        var div = document.createElement('div');
+        div.innerHTML = valorProcessado;
+
+        // Adicionar os nós filho à textarea
+        while (div.firstChild) {
+            valorInput.appendChild(div.firstChild);
+        }
     });
 }
+
 
 
 
