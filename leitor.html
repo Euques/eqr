@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -84,8 +84,19 @@
 
     Instascan.Camera.getCameras().then(function (cameras) {
         if (cameras.length > 0) {
-            // Use a câmera principal
-            scanner.start(cameras[0]);
+            // Use a câmera traseira
+            const rearCamera = cameras.find(camera => camera.name.toLowerCase().includes("back"));
+            
+            if (rearCamera) {
+                scanner.addListener("scan", function (content) {
+                    alert("QR code lido com sucesso. Redirecionando para: " + content);
+                    window.location.href = content;
+                });
+
+                scanner.start(rearCamera);
+            } else {
+                console.error("No rear camera found.");
+            }
         } else {
             console.error("No cameras found.");
         }
