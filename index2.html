@@ -217,14 +217,15 @@ function carregarValorExistente() {
     referencia.on('value', (snapshot) => {
         var valor = snapshot.val();
         chaveDiv.innerHTML = `Chave: <strong>${chave}</strong>`;
-        
+
         // Processar o valor usando a função processText
         var valorProcessado = processText(valor);
-        
+
         // Exibir o valor processado usando innerHTML
         valorInput.innerHTML = valorProcessado;
     });
 }
+
 
 
 
