@@ -108,7 +108,7 @@ footer {
 <body>
 
 <div class="container">
-    <h2>Leitor de E-QR</h2>
+    <h2 class="text-center">Leitor de E-QR</h2>
 
     <div class="input-container">
         <div id="key"></div>
@@ -116,10 +116,10 @@ footer {
 
     <div class="input-container">
         <label for="value">Valor:</label>
-        <textarea id="value" placeholder="Digite o valor..."></textarea>
+        <textarea id="value" class="form-control" placeholder="Digite o valor..."></textarea>
     </div>
 
-    <button id="salvarEditarBtn" style="display: none;" onclick="salvarNoFirebase()">Salvar/Editar</button>
+    <button id="salvarEditarBtn" class="btn btn-primary" style="display: none;" onclick="salvarNoFirebase()">Salvar/Editar</button>
 
     <hr>
 
@@ -135,15 +135,22 @@ footer {
     
 </div>
 
-<div id="loginSection" class="login-section">
-    <label for="email">Email:</label>
-    <input type="email" id="email" placeholder="Seu email" class="form-control">
-    <label for="senha">Senha:</label>
-    <input type="password" id="senha" placeholder="Sua senha" class="form-control">
-    <button id="loginBtn" class="login-btn btn btn-primary" onclick="realizarLogin()">Login</button>
+<div id="loginSection" class="container" style="display: none;">
+    <h2 class="text-center">Login</h2>
+    <form>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" class="form-control" placeholder="Seu email">
+        </div>
+        <div class="form-group">
+            <label for="senha">Senha:</label>
+            <input type="password" id="senha" class="form-control" placeholder="Sua senha">
+        </div>
+        <button type="button" id="loginBtn" class="btn btn-primary" onclick="realizarLogin()">Login</button>
+    </form>
 </div>
 
-<footer>
+<footer class="text-muted">
     <p>&copy; 2024 - <a href="https://wabes.com.br" target="_blank">Wabes</a> - Todos os direitos reservados.</p>
 </footer>
 
@@ -185,38 +192,20 @@ footer {
     carregarValorExistente();
 
     // Verificar usuário autenticado
-    firebase.auth().onAuthStateChanged(handleAuthStateChange);
+    firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+            // Usuário autenticado, mostrar informações do usuário
+            handleUserAuthenticated(user);
+        } else {
+            // Nenhum usuário autenticado, ocultar informações do usuário
+            handleUserNotAuthenticated();
+        }
+    });
 
     function carregarValorExistente() {
         var referencia = database.ref(`eqr/${chave}/data`);
 
         referencia.on('value', handleValueSnapshot);
-    }
-
-    function transformarLinksClicaveis() {
-        var texto = valorInput.value;
-
-        // Transformar URLs em links clicáveis
-        texto = texto.replace(/(https?:\/\/\S+)/g, '<a href="$1" target="_blank">$1</a>');
-
-        // Transformar emails em links de emails
-        texto = texto.replace(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/g, '<a href="mailto:$1">$1</a>');
-
-        // Transformar números de telefone em links de discagem
-        texto = texto.replace(/(\+\d{1,4}\s?)?(\(\d{1,}\)|\d{1,})[\s\-]?\d{1,}/g, function(match) {
-            return '<a href="tel:' + match.replace(/\D/g, '') + '">' + match + '</a>';
-        });
-
-        // Atualizar o valor no textarea
-        valorInput.innerHTML = texto;
-    }
-
-    function handleAuthStateChange(user) {
-        if (user) {
-            handleUserAuthenticated(user);
-        } else {
-            handleUserNotAuthenticated();
-        }
     }
 
     function handleUserAuthenticated(user) {
@@ -266,16 +255,6 @@ footer {
         alert('Erro ao salvar. Verifique o console para mais detalhes.');
     }
 
-    function saveUserIdInTransaction() {
-        database.ref(`eqr/${chave}/user_id`).transaction((existingUserId) => {
-            if (!existingUserId || existingUserId === user_id) {
-                return existingUserId || user_id;
-            } else {
-                return existingUserId;
-            }
-        });
-    }
-
     function obterParametroDaURL(nome) {
         var urlParams = new URLSearchParams(window.location.search);
         return urlParams.get(nome);
@@ -293,7 +272,6 @@ footer {
     function handleLoginSuccess(userCredential) {
         var user = userCredential.user;
         handleUserAuthenticated(user);
-        loginSection.style.display = 'none';
     }
 
     function handleLoginError(error) {
@@ -330,6 +308,39 @@ footer {
         loginSection.style.display = 'block';
         entrarBtn.style.display = 'none';
         logoutBtn.style.display = 'none';
+    }
+
+    function saveUserIdInTransaction() {
+        database.ref(`eqr/${chave}/user_id`).transaction(function(existingUserId) {
+            if (!existingUserId || existingUserId === user_id) {
+                return existingUserId || user_id;
+            } else {
+                return existingUserId;
+            }
+        });
+    }
+
+    function transformarLinksClicaveis() {
+        var textarea = document.getElementById('value');
+        var texto = textarea.value;
+
+        // Transformar URLs em links clicáveis
+        texto = texto.replace(/(https?:\/\/[^\s]+)/g, function(url) {
+            return '<a href="' + url + '" target="_blank">' + url + '</a>';
+        });
+
+        // Transformar e-mails em links de e-mail
+        texto = texto.replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g, function(email) {
+            return '<a href="mailto:' + email + '">' + email + '</a>';
+        });
+
+        // Transformar números de telefone em links de chamada
+        texto = texto.replace(/\b\d{10,}\b/g, function(phone) {
+            return '<a href="tel:' + phone + '">' + phone + '</a>';
+        });
+
+        // Atualizar o conteúdo do textarea
+        textarea.innerHTML = texto;
     }
 </script>
 
