@@ -211,28 +211,19 @@
 }
 
 
-function salvarNoFirebase() {
-    var valor = valorInput.innerText; // Alteração aqui para pegar o conteúdo do elemento div
+function carregarValorExistente() {
     var referencia = database.ref(`eqr/${chave}/data`);
 
-    referencia.set(valor).then(() => {
-        alert('Valor salvo com sucesso!');
-        // Salvar user_id apenas quando o botão "Salvar/Editar" for clicado
-        if (user_id) {
-            database.ref(`eqr/${chave}/user_id`).transaction((existingUserId) => {
-                // Se o user_id não existir ou for igual ao atual, permitir a transação
-                if (!existingUserId || existingUserId === user_id) {
-                    return existingUserId || user_id;
-                } else {
-                    return existingUserId; // Manter o valor existente
-                }
-            });
-        }
-    }).catch((error) => {
-        console.error('Erro ao salvar no Firebase:', error);
-        alert('Erro ao salvar. Verifique o console para mais detalhes.');
+    referencia.on('value', (snapshot) => {
+        var valor = snapshot.val();
+        chaveDiv.innerHTML = `Chave: <strong>${chave}</strong>`;
+        valorInput.innerText = valor || '';
     });
 }
+
+// Carregar valor existente, se houver
+carregarValorExistente();
+
 
 
 
