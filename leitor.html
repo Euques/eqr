@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt_BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -19,11 +19,14 @@
         #reader-container {
             max-width: 600px;
             margin: 0 auto;
+            overflow: hidden;
+            border-radius: 15px;
         }
 
         #reader {
             width: 100%;
             height: auto;
+            border-radius: 15px;
         }
 
         #overlay-text {
@@ -54,7 +57,7 @@
         <div class="col-md-12">
             <div id="reader-container">
                 <div id="overlay-text">Ler E-QR</div>
-                <video id="reader"></video>
+                <video id="reader" playsinline></video>
             </div>
             <a href="#" id="btnVoltar">Voltar</a>
         </div>
@@ -77,7 +80,6 @@
     navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
         .then(function (stream) {
             video.srcObject = stream;
-            video.setAttribute("playsinline", true);
             video.play();
         })
         .catch(function (error) {
