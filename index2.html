@@ -116,21 +116,19 @@ footer {
 
     <div class="input-container">
         <label for="value">Valor:</label>
-        <div id="formattedValue" class="formatted-text"></div>
+        <textarea id="value" placeholder="Digite o valor..." oninput="formatarTexto()"></textarea>
     </div>
 
     <hr>
 
-    <div class="input-container">
-        <button id="editarBtn" style="display: none;" onclick="editarConteudo()">Editar</button>
-        <button id="telefoneBtn" style="display: none;" onclick="ligarParaNumero()">Ligar</button>
-        <button id="emailBtn" style="display: none;" onclick="enviarEmail()">Enviar Email</button>
-        <button id="urlBtn" style="display: none;" onclick="abrirURL()">Abrir URL</button>
+    <!-- Botões com links -->
+    <div class="button-container">
+        <button id="linkButton" style="display: none;">Abrir Link</button>
+        <button id="callButton" style="display: none;">Ligar</button>
+        <button id="emailButton" style="display: none;">Enviar Email</button>
     </div>
 
     <hr>
-
-    <button id="salvarBtn" style="display: none;" onclick="salvarNoFirebase()">Salvar</button>
 
     <div id="userInfo" style="display: none;">
         <p id="userStatus"></p>
@@ -141,6 +139,7 @@ footer {
     <button id="logoutBtn" class="logout-btn btn btn-secondary" style="display: none;" onclick="realizarLogout()">Sair</button>
 
     <button id="entrarBtn" class="login-btn btn btn-secondary" onclick="exibirFormularioLogin()">Entrar</button>
+
 </div>
 
 <div id="loginSection" class="login-section">
@@ -155,190 +154,208 @@ footer {
     <p>&copy; 2024 - <a href="https://wabes.com.br" target="_blank">Wabes</a> - Todos os direitos reservados.</p>
 </footer>
 
+<script>
+    // Configuração do Firebase
+    var firebaseConfig = {
+        apiKey: "AIzaSyD9w-BMC-4WrQppa6VnOCrszo4QMIyROXU",
+        authDomain: "euques-teste.firebaseapp.com",
+        databaseURL: "https://euques-teste-default-rtdb.firebaseio.com",
+        projectId: "euques-teste",
+        storageBucket: "euques-teste.appspot.com",
+        messagingSenderId: "48182046778",
+        appId: "1:48182046778:web:4cd6f3b08cae7f6588c503",
+        measurementId: "G-KQXMBG1EXG"
+    };
 
-    <script>
+    // Inicialize o Firebase
+    firebase.initializeApp(firebaseConfig);
 
-// Configuração do Firebase
-var firebaseConfig = {
-    apiKey: "AIzaSyD9w-BMC-4WrQppa6VnOCrszo4QMIyROXU",
-    authDomain: "euques-teste.firebaseapp.com",
-    databaseURL: "https://euques-teste-default-rtdb.firebaseio.com",
-    projectId: "euques-teste",
-    storageBucket: "euques-teste.appspot.com",
-    messagingSenderId: "48182046778",
-    appId: "1:48182046778:web:4cd6f3b08cae7f6588c503",
-    measurementId: "G-KQXMBG1EXG"
-};
+    // Referência ao nó no Realtime Database
+    var database = firebase.database();
+    var chave = obterParametroDaURL('c');
+    var valorInput = document.getElementById('value');
+    var chaveDiv = document.getElementById('key');
+    var salvarEditarBtn = document.getElementById('salvarEditarBtn');
+    var userStatus = document.getElementById('userStatus');
+    var userEmailSpan = document.getElementById('userEmail');
+    var userIdSpan = document.getElementById('userId');
+    var userInfoDiv = document.getElementById('userInfo');
+    var loginSection = document.getElementById('loginSection');
+    var loginBtn = document.getElementById('loginBtn');
+    var logoutBtn = document.getElementById('logoutBtn');
+    var entrarBtn = document.getElementById('entrarBtn');
+    var emailInput = document.getElementById('email');
+    var senhaInput = document.getElementById('senha');
+    var user_id; // Variável para armazenar o user_id após o login
 
-// Inicialize o Firebase
-firebase.initializeApp(firebaseConfig);
+    // Carregar valor existente, se houver
+    carregarValorExistente();
 
-        function obterParametroDaURL(nome) {
-    var urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get(nome);
-}
-
-
-// Referência ao nó no Realtime Database
-var database = firebase.database();
-var chave = obterParametroDaURL('c');
-var valorInput = document.getElementById('formattedValue');
-var chaveDiv = document.getElementById('key');
-var editarBtn = document.getElementById('editarBtn');
-var telefoneBtn = document.getElementById('telefoneBtn');
-var emailBtn = document.getElementById('emailBtn');
-var urlBtn = document.getElementById('urlBtn');
-var salvarBtn = document.getElementById('salvarBtn');
-var userStatus = document.getElementById('userStatus');
-var userEmailSpan = document.getElementById('userEmail');
-var userIdSpan = document.getElementById('userId');
-var userInfoDiv = document.getElementById('userInfo');
-var loginSection = document.getElementById('loginSection');
-var loginBtn = document.getElementById('loginBtn');
-var logoutBtn = document.getElementById('logoutBtn');
-var entrarBtn = document.getElementById('entrarBtn');
-var emailInput = document.getElementById('email');
-var senhaInput = document.getElementById('senha');
-var user_id; // Variável para armazenar o user_id após o login
-
-// Carregar valor existente, se houver
-carregarValorExistente();
-
-// Verificar usuário autenticado
-firebase.auth().onAuthStateChanged(function (user) {
-    if (user) {
-        // Usuário autenticado, mostrar informações do usuário
-        userStatus.textContent = 'Usuário autenticado.';
-        userEmailSpan.textContent = user.email;
-        userIdSpan.textContent = user.uid;
-        user_id = user.uid; // Armazenar o user_id
-        // Verificar se o User ID é igual ao valor da chave "user_id"
-        verificarPermissao();
-        // Exibir div userInfo
-        userInfoDiv.style.display = 'block';
-        // Ocultar botão "Entrar"
-        entrarBtn.style.display = 'none';
-        // Exibir botão de logout
-        logoutBtn.style.display = 'block';
-        // Ocultar a seção de login
-        loginSection.style.display = 'none';
-    } else {
-        // Nenhum usuário autenticado, ocultar informações do usuário
-        userStatus.textContent = 'Nenhum usuário autenticado.';
-        // Salvar/editar deve ser ocultado se não houver usuário autenticado
-        salvarBtn.style.display = 'none';
-        // Ocultar div userInfo
-        userInfoDiv.style.display = 'none';
-        // Exibir botão "Entrar"
-        entrarBtn.style.display = 'block'; // Sempre mostrar o botão "Entrar"
-        // Ocultar botão de logout
-        logoutBtn.style.display = 'none';
-        user_id = null; // Limpar user_id
-    }
-});
-
-function carregarValorExistente() {
-    var referencia = database.ref(`eqr/${chave}/data`);
-
-    referencia.on('value', (snapshot) => {
-        var valor = snapshot.val();
-        chaveDiv.innerHTML = `Chave: <strong>${chave}</strong>`;
-        valorInput.innerHTML = formatarConteudo(valor);
-        verificarConteudo();
-    });
-}
-
-function salvarNoFirebase() {
-    var valor = valorInput.innerText;
-    var referencia = database.ref(`eqr/${chave}/data`);
-
-    referencia.set(valor).then(() => {
-        alert('Valor salvo com sucesso!');
-        // Salvar user_id apenas quando o botão "Salvar" for clicado
-        if (user_id) {
-            database.ref(`eqr/${chave}/user_id`).transaction((existingUserId) => {
-                // Se o user_id não existir ou for igual ao atual, permitir a transação
-                if (!existingUserId || existingUserId === user_id) {
-                    return existingUserId || user_id;
-                } else {
-                    return existingUserId; // Manter o valor existente
-                }
-            });
-        }
-    }).catch((error) => {
-        console.error('Erro ao salvar no Firebase:', error);
-        alert('Erro ao salvar. Verifique o console para mais detalhes.');
-    });
-}
-
-function editarConteudo() {
-    // Adicione aqui a lógica para editar o conteúdo
-}
-
-function ligarParaNumero(numero) {
-    // Adicione aqui a lógica para ligar para o número
-    alert('Ligando para o número: ' + numero);
-}
-
-function enviarEmail(email) {
-    // Adicione aqui a lógica para enviar um email
-    alert('Enviando email para: ' + email);
-}
-
-function abrirURL(url) {
-    // Adicione aqui a lógica para abrir a URL
-    window.open(url, '_blank');
-}
-
-function verificarPermissao() {
-    // Verificar se o User ID é igual ao valor da chave "user_id" ou se "user_id" não existe
-    var referencia = database.ref(`eqr/${chave}/user_id`);
-    referencia.on('value', (snapshot) => {
-        var existingUserId = snapshot.val();
-        if (!existingUserId || (user_id && existingUserId === user_id)) {
-            salvarBtn.style.display = 'block';
-            editarBtn.style.display = 'block';
-            verificarConteudo();
+    // Verificar usuário autenticado
+    firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+            // Usuário autenticado, mostrar informações do usuário
+            userStatus.textContent = 'Usuário autenticado.';
+            userEmailSpan.textContent = user.email;
+            userIdSpan.textContent = user.uid;
+            user_id = user.uid; // Armazenar o user_id
+            // Verificar se o User ID é igual ao valor da chave "user_id"
+            verificarPermissao();
+            // Exibir div userInfo
+            userInfoDiv.style.display = 'block';
+            // Ocultar botão "Entrar"
+            entrarBtn.style.display = 'none';
+            // Exibir botão de logout
+            logoutBtn.style.display = 'block';
+            // Ocultar a seção de login
+            loginSection.style.display = 'none';
         } else {
-            salvarBtn.style.display = 'none';
-            editarBtn.style.display = 'none';
+            // Nenhum usuário autenticado, ocultar informações do usuário
+            userStatus.textContent = 'Nenhum usuário autenticado.';
+            // Salvar/editar deve ser ocultado se não houver usuário autenticado
+            salvarEditarBtn.style.display = 'none';
+            // Ocultar div userInfo
+            userInfoDiv.style.display = 'none';
+            // Exibir botão "Entrar"
+            entrarBtn.style.display = 'block'; // Sempre mostrar o botão "Entrar"
+            // Ocultar botão de logout
+            logoutBtn.style.display = 'none';
+            user_id = null; // Limpar user_id
         }
     });
-}
 
-function exibirFormularioLogin() {
-    // Exibir o formulário de login quando clicar em "Entrar"
-    loginSection.style.display = 'block';
-    // Ocultar o botão "Entrar"
-    entrarBtn.style.display = 'none';
-    // Ocultar o botão "Sair"
-    logoutBtn.style.display = 'none';
-}
+    function carregarValorExistente() {
+        var referencia = database.ref(`eqr/${chave}/data`);
 
-function formatarConteudo(text) {
-    text = text.replace(/\n/g, '<br>');
-    text = text.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank">$1</a>');
-    text = text.replace(/(\(?\d{2,3}\)?[-\s]?\d{4,5}[-\s]?\d{4})/g, '<button onclick="ligarParaNumero(\'$1\')">Ligar</button>');
-    text = text.replace(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4})/g, '<button onclick="enviarEmail(\'$1\')">Enviar Email</button>');
-    text = text.replace(/(www\.[^\s<]+)/g, '<button onclick="abrirURL(\'http://$1\')">Abrir URL</button>');
-    return text;
-}
+        referencia.on('value', (snapshot) => {
+            var valor = snapshot.val();
+            chaveDiv.innerHTML = `Chave: <strong>${chave}</strong>`;
+            valorInput.value = valor || '';
+        });
+    }
 
-function verificarConteudo() {
-    // Verificar a presença de números de telefone, URLs e emails
-    var conteudo = valorInput.innerHTML;
-    telefoneBtn.style.display = conteudo.includes('button onclick="ligarParaNumero"') ? 'inline-block' : 'none';
-    emailBtn.style.display = conteudo.includes('button onclick="enviarEmail"') ? 'inline-block' : 'none';
-    urlBtn.style.display = conteudo.includes('button onclick="abrirURL"') ? 'inline-block' : 'none';
-}
+    function salvarNoFirebase() {
+        var valor = valorInput.value;
+        var referencia = database.ref(`eqr/${chave}/data`);
 
+        referencia.set(valor).then(() => {
+            alert('Valor salvo com sucesso!');
+            // Salvar user_id apenas quando o botão "Salvar/Editar" for clicado
+            if (user_id) {
+                database.ref(`eqr/${chave}/user_id`).transaction((existingUserId) => {
+                    // Se o user_id não existir ou for igual ao atual, permitir a transação
+                    if (!existingUserId || existingUserId === user_id) {
+                        return existingUserId || user_id;
+                    } else {
+                        return existingUserId; // Manter o valor existente
+                    }
+                });
+            }
+        }).catch((error) => {
+            console.error('Erro ao salvar no Firebase:', error);
+            alert('Erro ao salvar. Verifique o console para mais detalhes.');
+        });
+    }
 
-    </script>
+    // Função para obter parâmetros da URL
+    function obterParametroDaURL(nome) {
+        var urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(nome);
+    }
 
+    function realizarLogin() {
+        var email = emailInput.value;
+        var senha = senhaInput.value;
+
+        firebase.auth().signInWithEmailAndPassword(email, senha)
+            .then((userCredential) => {
+                var user = userCredential.user;
+                // Atualizar informações do usuário após o login
+                userStatus.textContent = 'Usuário autenticado.';
+                userEmailSpan.textContent = user.email;
+                userIdSpan.textContent = user.uid;
+                user_id = user.uid; // Armazenar o user_id
+                // Verificar se o User ID é igual ao valor da chave "user_id"
+                verificarPermissao();
+                // Exibir div userInfo
+                userInfoDiv.style.display = 'block';
+                // Ocultar a seção de login após o login bem-sucedido
+                loginSection.style.display = 'none';
+            })
+            .catch((error) => {
+                console.error('Erro durante o login:', error);
+                alert('Erro durante o login. Verifique o console para mais detalhes.');
+            });
+    }
+
+    function realizarLogout() {
+        firebase.auth().signOut()
+            .then(() => {
+                // Atualizar informações após logout
+                userStatus.textContent = 'Nenhum usuário autenticado.';
+                userEmailSpan.textContent = '';
+                userIdSpan.textContent = '';
+                // Salvar/editar deve ser ocultado se não houver usuário autenticado
+                salvarEditarBtn.style.display = 'none';
+                // Ocultar div userInfo
+                userInfoDiv.style.display = 'none';
+                // Exibir botão "Entrar"
+                entrarBtn.style.display = 'block';
+                // Ocultar botão de logout
+                logoutBtn.style.display = 'none';
+            })
+            .catch((error) => {
+                console.error('Erro durante o logout:', error);
+                alert('Erro durante o logout. Verifique o console para mais detalhes.');
+            });
+    }
+
+    function verificarPermissao() {
+        // Verificar se o User ID é igual ao valor da chave "user_id" ou se "user_id" não existe
+        var referencia = database.ref(`eqr/${chave}/user_id`);
+        referencia.on('value', (snapshot) => {
+            var existingUserId = snapshot.val();
+            if (!existingUserId || (user_id && existingUserId === user_id)) {
+                salvarEditarBtn.style.display = 'block';
+            } else {
+                salvarEditarBtn.style.display = 'none';
+            }
+        });
+    }
+
+    function exibirFormularioLogin() {
+        // Exibir o formulário de login quando clicar em "Entrar"
+        loginSection.style.display = 'block';
+        // Ocultar o botão "Entrar"
+        entrarBtn.style.display = 'none'; // Ocultar o botão "Entrar"
+        // Ocultar o botão "Sair"
+        logoutBtn.style.display = 'none';
+    }
+
+    // Função para abrir link
+    function abrirLink(url) {
+        window.open(url, '_blank');
+    }
+
+    // Função para ligar para número
+    function ligarParaNumero(numero) {
+        // Lógica para ligar para o número
+        // (Você pode implementar a funcionalidade real aqui)
+        console.log('Ligando para:', numero);
+    }
+
+    // Função para enviar email
+    function enviarEmail(email) {
+        // Lógica para enviar email para o endereço
+        // (Você pode implementar a funcionalidade real aqui)
+        console.log('Enviando email para:', email);
+    }
+</script>
+
+<!-- Adicione o Bootstrap JS no final do corpo para otimizar o carregamento -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
 
 </body>
 </html>
