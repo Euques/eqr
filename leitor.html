@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt_BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -99,7 +99,10 @@
             const code = jsQR(imageData.data, canvas.width, canvas.height);
 
             if (code) {
+                alert("QR code lido com sucesso. Redirecionando para: " + code.data);
                 window.location.href = code.data;
+            } else {
+                alert("Não foi possível ler o QR code. Tente novamente.");
             }
         }, 1000);
     });
