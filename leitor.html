@@ -10,13 +10,55 @@
 
     <!-- QuaggaJS CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.css">
+
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+        }
+
+        #reader {
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        #overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        #btnVoltar {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            text-align: center;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 18px;
+        }
+    </style>
 </head>
 <body>
 
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div id="reader" class="text-center"></div>
+            <div id="reader">
+                <div id="overlay">Ler E-QR</div>
+            </div>
+            <a href="#" id="btnVoltar">Voltar</a>
         </div>
     </div>
 </div>
@@ -56,6 +98,11 @@
 
     // Iniciar o processo de leitura
     Quagga.start();
+
+    // Adicionar funcionalidade ao botão Voltar
+    document.getElementById("btnVoltar").addEventListener("click", function() {
+        window.history.back();
+    });
 </script>
 
 </body>
