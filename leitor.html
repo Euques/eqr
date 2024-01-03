@@ -8,6 +8,9 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 
+    <!-- Instascan CSS -->
+    <link rel="stylesheet" href="https://rawgit.com/schmich/instascan-builds/master/css/instascan.min.css">
+
     <style>
         body {
             background-color: #000;
@@ -57,7 +60,7 @@
         <div class="col-md-12">
             <div id="reader-container">
                 <div id="overlay-text">Ler E-QR</div>
-                <video id="reader" playsinline></video>
+                <video id="reader"></video>
             </div>
             <a href="#" id="btnVoltar">Voltar</a>
         </div>
@@ -69,42 +72,28 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
-<!-- jsQR -->
-<script src="https://cdn.jsdelivr.net/npm/jsqr@1.0.1/dist/jsQR.min.js"></script>
+<!-- Instascan JS -->
+<script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
 
 <!-- Your custom script -->
 <script>
     const video = document.getElementById("reader");
     const overlayText = document.getElementById("overlay-text");
 
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-        .then(function (stream) {
-            video.srcObject = stream;
-            video.play();
-        })
-        .catch(function (error) {
-            console.error("Error accessing the camera: ", error);
-        });
+    const scanner = new Instascan.Scanner({ video: video });
 
-    video.addEventListener("loadeddata", function () {
-        setInterval(() => {
-            const canvas = document.createElement("canvas");
-            const context = canvas.getContext("2d");
+    scanner.addListener("scan", function (content) {
+        window.location.href = content;
+    });
 
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-            const code = jsQR(imageData.data, canvas.width, canvas.height);
-
-            if (code) {
-                alert("QR code lido com sucesso. Redirecionando para: " + code.data);
-                window.location.href = code.data;
-            } else {
-                alert("Não foi possível ler o QR code. Tente novamente.");
-            }
-        }, 1000);
+    Instascan.Camera.getCameras().then(function (cameras) {
+        if (cameras.length > 0) {
+            scanner.start(cameras[0]);
+        } else {
+            console.error("No cameras found.");
+        }
+    }).catch(function (e) {
+        console.error(e);
     });
 
     document.getElementById("btnVoltar").addEventListener("click", function () {
