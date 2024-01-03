@@ -210,7 +210,8 @@
     return '<p>' + text + '</p>';
 }
 
-function carregarValorExistente() {
+
+    function carregarValorExistente() {
     var referencia = database.ref(`eqr/${chave}/data`);
 
     referencia.on('value', (snapshot) => {
@@ -220,14 +221,11 @@ function carregarValorExistente() {
         // Processar o valor usando a função processText
         var valorProcessado = processText(valor);
         
-        // Exibir o valor processado usando innerHTML
-        valorInput.innerHTML = valorProcessado;
+        // Exibir o valor processado em um div
+        var divExibicao = document.getElementById('divExibicao'); // crie um elemento <div id="divExibicao"></div> no HTML
+        divExibicao.innerHTML = valorProcessado;
     });
 }
-
-
-
-
 
 
     function salvarNoFirebase() {
