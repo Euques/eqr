@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -80,32 +80,12 @@
     const video = document.getElementById("reader");
     const overlayText = document.getElementById("overlay-text");
 
-    const scanner = new Instascan.Scanner({ video: video, mirror: false });
+    const scanner = new Instascan.Scanner({ video: video });
 
     Instascan.Camera.getCameras().then(function (cameras) {
         if (cameras.length > 0) {
-            // Adiciona um menu suspenso para escolher a câmera
-            const selectCamera = document.createElement("select");
-            selectCamera.id = "selectCamera";
-
-            cameras.forEach((camera, index) => {
-                const option = document.createElement("option");
-                option.value = index;
-                option.text = camera.name;
-                selectCamera.appendChild(option);
-            });
-
-            document.body.insertBefore(selectCamera, document.body.firstChild);
-
-            // Inicia o scanner com a câmera selecionada
-            const selectedCameraIndex = selectCamera.value;
-            scanner.start(cameras[selectedCameraIndex]);
-
-            // Adiciona um ouvinte de evento para mudanças na seleção da câmera
-            selectCamera.addEventListener("change", function () {
-                const newCameraIndex = selectCamera.value;
-                scanner.start(cameras[newCameraIndex]);
-            });
+            // Use a câmera principal
+            scanner.start(cameras[0]);
         } else {
             console.error("No cameras found.");
         }
