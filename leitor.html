@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Leitor de QR Code</title>
 
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
     <style>
         body {
             background-color: #000;
@@ -51,11 +54,22 @@
 </head>
 <body>
 
-<div id="reader-container">
-    <div id="overlay-text">Ler E-QR</div>
-    <video id="reader"></video>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            <div id="reader-container">
+                <div id="overlay-text">Ler E-QR</div>
+                <video id="reader"></video>
+            </div>
+            <a href="#" id="btnVoltar">Voltar</a>
+        </div>
+    </div>
 </div>
-<a href="#" id="btnVoltar">Voltar</a>
+
+<!-- Bootstrap JS and Popper.js -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
 <!-- Instascan JS -->
 <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
@@ -69,18 +83,18 @@
 
     Instascan.Camera.getCameras().then(function (cameras) {
         if (cameras.length > 0) {
-            // Use a câmera traseira
-            const rearCamera = cameras.find(camera => camera.name.toLowerCase().includes("back"));
+            // Use a câmera frontal (câmera zero)
+            const frontCamera = cameras.find(camera => camera.name.toLowerCase().includes("front"));
             
-            if (rearCamera) {
+            if (frontCamera) {
                 scanner.addListener("scan", function (content) {
                     alert("QR code lido com sucesso. Redirecionando para: " + content);
                     window.location.href = content;
                 });
 
-                scanner.start(rearCamera);
+                scanner.start(frontCamera);
             } else {
-                console.error("No rear camera found.");
+                console.error("No front camera found.");
             }
         } else {
             console.error("No cameras found.");
