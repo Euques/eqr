@@ -4,11 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Firebase Example</title>
-    <!-- Adicione a biblioteca do Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <!-- Adicione o Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -25,58 +20,24 @@
             border-radius: 10px; /* Bordas arredondadas */
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Sombra */
         }
-        .input-container {
-            margin-bottom: 20px;
-        }
         textarea {
             width: 100%;
-            height: 100px;
+            min-height: 100px;
             border-radius: 5px; /* Bordas arredondadas */
             padding: 10px;
             box-sizing: border-box;
+            overflow-y: hidden; /* Oculta barra de rolagem vertical */
+            resize: none; /* Impede o redimensionamento da caixa de texto */
         }
-        #salvarEditarBtn {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
+        .btn-container {
             margin-top: 10px;
-            background-color: #28a745; /* Cor verde para destacar */
-            border: none;
-            border-radius: 5px; /* Bordas arredondadas */
         }
-        #salvarEditarBtn:hover {
-            background-color: #218838; /* Cor verde mais escura no hover */
+        .btn-container button {
+            margin-right: 10px;
         }
-        .login-section {
-            text-align: center;
-            margin-top: 20px;
-            display: none; /* Ocultar inicialmente */
+        .btn-container button:last-child {
+            margin-right: 0;
         }
-        .login-section label, .login-section input {
-            margin-bottom: 10px;
-        }
-        .login-section input {
-            width: 100%;
-            padding: 10px;
-            box-sizing: border-box;
-            border-radius: 5px; /* Bordas arredondadas */
-        }
-        .login-btn, .logout-btn, #entrarBtn {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 10px;
-            border-radius: 5px; /* Bordas arredondadas */
-        }
-        .login-btn.btn-primary, #salvarEditarBtn {
-            background-color: #28a745; /* Cor verde para destacar */
-            border: none;
-        }
-        .login-btn.btn-secondary, .logout-btn {
-            background-color: #6c757d; /* Cor cinza para botões secundários */
-            border: none;
-        }
-
         footer {
             text-align: center;
             padding: 10px;
@@ -84,7 +45,6 @@
             position: sticky;
             bottom: 0;
         }
-        
     </style>
 </head>
 <body>
@@ -101,7 +61,11 @@
         <textarea id="value" placeholder="Digite o valor..."></textarea>
     </div>
 
-    <button id="salvarEditarBtn" style="display: none;" onclick="salvarNoFirebase()">Salvar/Editar</button>
+    <div class="btn-container">
+        <button id="linkBtn" class="btn btn-primary" onclick="handleLinks()">Links</button>
+        <button id="emailBtn" class="btn btn-primary" onclick="handleEmails()">Emails</button>
+        <button id="phoneBtn" class="btn btn-primary" onclick="handlePhoneNumbers()">Números de Telefone</button>
+    </div>
 
     <hr>
 
@@ -112,7 +76,6 @@
     </div>
 
     <button id="logoutBtn" class="logout-btn btn btn-secondary" style="display: none;" onclick="realizarLogout()">Sair</button>
-
     <button id="entrarBtn" class="login-btn btn btn-secondary" onclick="exibirFormularioLogin()">Entrar</button>
     
 </div>
@@ -123,7 +86,6 @@
     <label for="senha">Senha:</label>
     <input type="password" id="senha" placeholder="Sua senha" class="form-control">
     <button id="loginBtn" class="login-btn btn btn-primary" onclick="realizarLogin()">Login</button>
-    
 </div>
 
 <footer>
@@ -131,7 +93,6 @@
 </footer>
 
 <script>
-    // Configuração do Firebase
     var firebaseConfig = {
         apiKey: "AIzaSyD9w-BMC-4WrQppa6VnOCrszo4QMIyROXU",
         authDomain: "euques-teste.firebaseapp.com",
@@ -143,15 +104,12 @@
         measurementId: "G-KQXMBG1EXG"
     };
 
-    // Inicialize o Firebase
     firebase.initializeApp(firebaseConfig);
 
-    // Referência ao nó no Realtime Database
     var database = firebase.database();
     var chave = obterParametroDaURL('c');
     var valorInput = document.getElementById('value');
     var chaveDiv = document.getElementById('key');
-    var salvarEditarBtn = document.getElementById('salvarEditarBtn');
     var userStatus = document.getElementById('userStatus');
     var userEmailSpan = document.getElementById('userEmail');
     var userIdSpan = document.getElementById('userId');
@@ -162,41 +120,28 @@
     var entrarBtn = document.getElementById('entrarBtn');
     var emailInput = document.getElementById('email');
     var senhaInput = document.getElementById('senha');
-    var user_id; // Variável para armazenar o user_id após o login
+    var user_id;
 
-    // Carregar valor existente, se houver
     carregarValorExistente();
 
-    // Verificar usuário autenticado
     firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
-            // Usuário autenticado, mostrar informações do usuário
             userStatus.textContent = 'Usuário autenticado.';
             userEmailSpan.textContent = user.email;
             userIdSpan.textContent = user.uid;
-            user_id = user.uid; // Armazenar o user_id
-            // Verificar se o User ID é igual ao valor da chave "user_id"
+            user_id = user.uid;
             verificarPermissao();
-            // Exibir div userInfo
             userInfoDiv.style.display = 'block';
-            // Ocultar botão "Entrar"
             entrarBtn.style.display = 'none';
-            // Exibir botão de logout
             logoutBtn.style.display = 'block';
-            // Ocultar a seção de login
             loginSection.style.display = 'none';
         } else {
-            // Nenhum usuário autenticado, ocultar informações do usuário
             userStatus.textContent = 'Nenhum usuário autenticado.';
-            // Salvar/editar deve ser ocultado se não houver usuário autenticado
             salvarEditarBtn.style.display = 'none';
-            // Ocultar div userInfo
             userInfoDiv.style.display = 'none';
-            // Exibir botão "Entrar"
-            entrarBtn.style.display = 'block'; // Sempre mostrar o botão "Entrar"
-            // Ocultar botão de logout
+            entrarBtn.style.display = 'block';
             logoutBtn.style.display = 'none';
-            user_id = null; // Limpar user_id
+            user_id = null;
         }
     });
 
@@ -216,14 +161,12 @@
 
         referencia.set(valor).then(() => {
             alert('Valor salvo com sucesso!');
-            // Salvar user_id apenas quando o botão "Salvar/Editar" for clicado
             if (user_id) {
                 database.ref(`eqr/${chave}/user_id`).transaction((existingUserId) => {
-                    // Se o user_id não existir ou for igual ao atual, permitir a transação
                     if (!existingUserId || existingUserId === user_id) {
                         return existingUserId || user_id;
                     } else {
-                        return existingUserId; // Manter o valor existente
+                        return existingUserId;
                     }
                 });
             }
@@ -233,7 +176,6 @@
         });
     }
 
-    // Função para obter parâmetros da URL
     function obterParametroDaURL(nome) {
         var urlParams = new URLSearchParams(window.location.search);
         return urlParams.get(nome);
@@ -246,16 +188,12 @@
         firebase.auth().signInWithEmailAndPassword(email, senha)
             .then((userCredential) => {
                 var user = userCredential.user;
-                // Atualizar informações do usuário após o login
                 userStatus.textContent = 'Usuário autenticado.';
                 userEmailSpan.textContent = user.email;
                 userIdSpan.textContent = user.uid;
-                user_id = user.uid; // Armazenar o user_id
-                // Verificar se o User ID é igual ao valor da chave "user_id"
+                user_id = user.uid;
                 verificarPermissao();
-                // Exibir div userInfo
                 userInfoDiv.style.display = 'block';
-                // Ocultar a seção de login após o login bem-sucedido
                 loginSection.style.display = 'none';
             })
             .catch((error) => {
@@ -267,17 +205,12 @@
     function realizarLogout() {
         firebase.auth().signOut()
             .then(() => {
-                // Atualizar informações após logout
                 userStatus.textContent = 'Nenhum usuário autenticado.';
                 userEmailSpan.textContent = '';
                 userIdSpan.textContent = '';
-                // Salvar/editar deve ser ocultado se não houver usuário autenticado
                 salvarEditarBtn.style.display = 'none';
-                // Ocultar div userInfo
                 userInfoDiv.style.display = 'none';
-                // Exibir botão "Entrar"
                 entrarBtn.style.display = 'block';
-                // Ocultar botão de logout
                 logoutBtn.style.display = 'none';
             })
             .catch((error) => {
@@ -287,7 +220,6 @@
     }
 
     function verificarPermissao() {
-        // Verificar se o User ID é igual ao valor da chave "user_id" ou se "user_id" não existe
         var referencia = database.ref(`eqr/${chave}/user_id`);
         referencia.on('value', (snapshot) => {
             var existingUserId = snapshot.val();
@@ -300,16 +232,33 @@
     }
 
     function exibirFormularioLogin() {
-        // Exibir o formulário de login quando clicar em "Entrar"
         loginSection.style.display = 'block';
-        // Ocultar o botão "Entrar"
-        entrarBtn.style.display = 'none'; // Ocultar o botão "Entrar"
-        // Ocultar o botão "Sair"
+        entrarBtn.style.display = 'none';
         logoutBtn.style.display = 'none';
+    }
+
+    function handleLinks() {
+        text = valorInput.value;
+        text = text.replace(/\n/g, '<br>');
+        text = text.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank">$1</a>');
+        valorInput.innerHTML = text;
+    }
+
+    function handleEmails() {
+        text = valorInput.value;
+        text = text.replace(/\n/g, '<br>');
+        text = text.replace(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4})/g, '<a href="mailto:$1">$1</a>');
+        valorInput.innerHTML = text;
+    }
+
+    function handlePhoneNumbers() {
+        text = valorInput.value;
+        text = text.replace(/\n/g, '<br>');
+        text = text.replace(/(\(?\d{2,3}\)?[-\s]?\d{4,5}[-\s]?\d{4})/g, '<a href="tel:$1">$1</a>');
+        valorInput.innerHTML = text;
     }
 </script>
 
-<!-- Adicione o Bootstrap JS no final do corpo para otimizar o carregamento -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
