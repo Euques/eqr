@@ -217,12 +217,9 @@ function carregarValorExistente() {
     referencia.on('value', (snapshot) => {
         var valor = snapshot.val();
         chaveDiv.innerHTML = `Chave: <strong>${chave}</strong>`;
-        valorInput.innerText = valor || '';
+        valorInput.innerHTML = valor || '';
     });
 }
-
-// Carregar valor existente, se houver
-carregarValorExistente();
 
 
 
