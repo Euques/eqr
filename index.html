@@ -231,7 +231,7 @@ function carregarValorExistente() {
     referencia.on('value', (snapshot) => {
         // Ocultar mensagem de carregamento após a conclusão da verificação
         mostraCarregando.style.display = 'none';
-    mostraCarregado.style.display = 'block';
+  
 
         var valor = snapshot.val();
         chaveDiv.innerHTML = `Chave: <strong>${chave}</strong>`;
@@ -240,7 +240,9 @@ function carregarValorExistente() {
         if (valor && valor.startsWith('http')) {
             window.location.href = valor; // Redirecionar para a URL
         } else {
+              mostraCarregado.style.display = 'block';
             valorInput.value = valor || '';
+            
         }
     });
 }
