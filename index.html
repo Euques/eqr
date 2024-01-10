@@ -200,15 +200,22 @@
         }
     });
 
-    function carregarValorExistente() {
-        var referencia = database.ref(`eqr/${chave}/data`);
+   function carregarValorExistente() {
+    var referencia = database.ref(`eqr/${chave}/data`);
 
-        referencia.on('value', (snapshot) => {
-            var valor = snapshot.val();
-            chaveDiv.innerHTML = `Chave: <strong>${chave}</strong>`;
+    referencia.on('value', (snapshot) => {
+        var valor = snapshot.val();
+        chaveDiv.innerHTML = `Chave: <strong>${chave}</strong>`;
+        
+        // Adicionando verificação e redirecionamento
+        if (valor && valor.startsWith('http')) {
+            window.location.href = valor; // Redirecionar para a URL
+        } else {
             valorInput.value = valor || '';
-        });
-    }
+        }
+    });
+}
+
 
     function salvarNoFirebase() {
         var valor = valorInput.value;
