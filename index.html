@@ -239,24 +239,30 @@ function carregarValorExistente() {
     referencia.on('value', (snapshot) => {
         // Ocultar mensagem de carregamento após a conclusão da verificação
         mostraCarregando.style.display = 'none';
-  
 
         var valor = snapshot.val();
         chaveDiv.innerHTML = `Chave: <strong>${chave}</strong>`;
 
-        // Adicionando verificação e redirecionamento
-        if (valor && valor.startsWith('http')) {
-            window.location.href = valor; // Redirecionar para a URL
-        } else {
-              mostraCarregado.style.display = 'block';
-            valorInput.value = valor || '';
-            
-        }
+        // Adicionando verificação e redirecionamento/edição
+        firebase.auth().onAuthStateChanged(function(user) {
+            if (!user) {
+                // Usuário não autenticado, redirecionar para a URL se começar com "http"
+                if (valor && valor.startsWith('http')) {
+                    window.location.href = valor;
+                } else {
+                    valorInput.value = valor || '';
+                }
+            } else {
+                // Usuário autenticado, permitir edição
+		mostraCarregado.style.display = 'block';
+                valorInput.value = valor || '';
+                salvarEditarBtn.style.display = 'block';
+            }
+        });
     });
 }
 
 // ...
-
 
 
     function salvarNoFirebase() {
