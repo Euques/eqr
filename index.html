@@ -89,6 +89,24 @@
 </head>
 <body>
 
+
+    <!-- ... -->
+
+<div class="container">
+    <h2>Leitor de E-QR</h2>
+    
+    <!-- Adicione a mensagem de carregamento -->
+    <div id="loadingMessage" style="display: none;">Carregando...</div>
+
+    <!-- ... o restante do seu código ... -->
+</div>
+
+<!-- ... -->
+
+
+
+
+    
 <div class="container">
     <h2>Leitor de E-QR</h2>
 
@@ -200,13 +218,22 @@
         }
     });
 
-   function carregarValorExistente() {
+// ...
+
+function carregarValorExistente() {
+    // Exibir mensagem de carregamento
+    var loadingMessage = document.getElementById('loadingMessage');
+    loadingMessage.style.display = 'block';
+
     var referencia = database.ref(`eqr/${chave}/data`);
 
     referencia.on('value', (snapshot) => {
+        // Ocultar mensagem de carregamento após a conclusão da verificação
+        loadingMessage.style.display = 'none';
+
         var valor = snapshot.val();
         chaveDiv.innerHTML = `Chave: <strong>${chave}</strong>`;
-        
+
         // Adicionando verificação e redirecionamento
         if (valor && valor.startsWith('http')) {
             window.location.href = valor; // Redirecionar para a URL
@@ -215,6 +242,9 @@
         }
     });
 }
+
+// ...
+
 
 
     function salvarNoFirebase() {
