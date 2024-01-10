@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus QRs</title>
+    <!-- Adicione a biblioteca do Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <!-- Adicione o Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Adicione estilos conforme necessário */
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Meus QRs</h2>
+
+    <ul id="qrsList"></ul>
+    
+    <a href="index.html">Voltar</a>
+
+</div>
+
+<script>
+    // Configuração do Firebase
+    var firebaseConfig = {
+        apiKey: "AIzaSyD9w-BMC-4WrQppa6VnOCrszo4QMIyROXU",
+        authDomain: "euques-teste.firebaseapp.com",
+        databaseURL: "https://euques-teste-default-rtdb.firebaseio.com",
+        projectId: "euques-teste",
+        storageBucket: "euques-teste.appspot.com",
+        messagingSenderId: "48182046778",
+        appId: "1:48182046778:web:4cd6f3b08cae7f6588c503",
+        measurementId: "G-KQXMBG1EXG"
+    };
+
+    // Inicialize o Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // Referência ao nó no Realtime Database
+    var database = firebase.database();
+
+    // Verificar usuário autenticado
+    firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+            // Usuário autenticado, recuperar QRs associados a este usuário
+            recuperarQrsDoUsuario(user.uid);
+        } else {
+            // Usuário não autenticado, redirecionar para a página de login
+            window.location.href = 'login.html';
+        }
+    });
+
+    function recuperarQrsDoUsuario(userId) {
+        var qrsList = document.getElementById('qrsList');
+        var referencia = database.ref('eqr').orderByChild('user_id').equalTo(userId);
+
+        referencia.on('value', (snapshot) => {
+            qrsList.innerHTML = ''; // Limpar a lista antes de adicionar os novos itens
+
+            snapshot.forEach((childSnapshot) => {
+                var chave = childSnapshot.key;
+                var valor = childSnapshot.child('data').val();
+
+                // Adicione um item à lista para cada QR
+                var listItem = document.createElement('li');
+                listItem.innerHTML = `<a href="index.html?c=${chave}">${valor}</a>`;
+                qrsList.appendChild(listItem);
+            });
+        });
+    }
+</script>
+
+<!-- Adicione o Bootstrap JS no final do corpo para otimizar o carregamento -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>
