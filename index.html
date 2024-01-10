@@ -224,14 +224,14 @@ function carregarValorExistente() {
     // Exibir mensagem de carregamento
     var loadingMessage = document.getElementById('loadingMessage');
     mostraCarregando.style.display = 'block';
-    mostraCaarregado.style.display = 'none';
+    mostraCarregado.style.display = 'none';
 
     var referencia = database.ref(`eqr/${chave}/data`);
 
     referencia.on('value', (snapshot) => {
         // Ocultar mensagem de carregamento após a conclusão da verificação
         mostraCarregando.style.display = 'none';
-    mostraCaarregado.style.display = 'block';
+    mostraCarregado.style.display = 'block';
 
         var valor = snapshot.val();
         chaveDiv.innerHTML = `Chave: <strong>${chave}</strong>`;
