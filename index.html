@@ -228,47 +228,46 @@
 
 // ...
 
-function carregarValorExistente() {
-    // Exibir mensagem de carregamento
-    var loadingMessage = document.getElementById('loadingMessage');
-    mostraCarregando.style.display = 'block';
-    mostraCarregado.style.display = 'none';
+  function carregarValorExistente() {
+        // Exibir mensagem de carregamento
+        var mostraCarregando = document.getElementById('mostraCarregando');
+        mostraCarregando.style.display = 'block';
 
-    var referencia = database.ref(`eqr/${chave}/data`);
+        var referencia = database.ref(`eqr/${chave}/data`);
 
-    referencia.on('value', (snapshot) => {
-        // Ocultar mensagem de carregamento após a conclusão da verificação
-        mostraCarregando.style.display = 'none';
+        referencia.once('value', (snapshot) => {
+            // Ocultar mensagem de carregamento após a conclusão da verificação
+            mostraCarregando.style.display = 'none';
 
-        var valor = snapshot.val();
-        chaveDiv.innerHTML = `Chave: <strong>${chave}</strong>`;
+            var valor = snapshot.val();
 
-        // Adicionando verificação e redirecionamento/edição
-        firebase.auth().onAuthStateChanged(function(user) {
-            if (!user) {
-                // Usuário não autenticado, redirecionar para a URL se começar com "http"
-                if (valor && valor.startsWith('http')) {
-                    window.location.href = valor;
+            // Adicionando verificação e redirecionamento/edição
+            firebase.auth().onAuthStateChanged(function(user) {
+                var mostraCarregado = document.getElementById('mostraCarregado');
+
+                if (!user) {
+                    // Usuário não autenticado, redirecionar para a URL se começar com "http"
+                    if (valor && valor.startsWith('http')) {
+                        window.location.href = valor;
+                    } else {
+                        valorInput.value = valor || '';
+                    }
                 } else {
+                    // Usuário autenticado, permitir edição
+                    valorInput.value = valor || '';
+                    salvarEditarBtn.style.display = 'block';
+                }
+
+                if (valor !== null) {
+                    // A chave existe, exibir o contêiner
+                    mostraCarregado.style.display = 'block';
+
+                    chaveDiv.innerHTML = `Chave: <strong>${chave}</strong>`;
                     valorInput.value = valor || '';
                 }
-            } else {
-                // Usuário autenticado, permitir edição
-		mostraCarregado.style.display = 'block';
-                valorInput.value = valor || '';
-                salvarEditarBtn.style.display = 'block';
-            }
-
-		 if (valor !== null) {
-            // A chave existe, exibir o contêiner
-            mostraCarregado.style.display = 'block';
-
-            chaveDiv.innerHTML = `Chave: <strong>${chave}</strong>`;
-            valorInput.value = valor || '';
-        
+            });
         });
-    });
-}
+    }
 
 // ...
 
