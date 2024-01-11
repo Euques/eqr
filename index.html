@@ -228,7 +228,7 @@
 
 // ...
 
-  function carregarValorExistente() {
+   function carregarValorExistente() {
         // Exibir mensagem de carregamento
         var mostraCarregando = document.getElementById('mostraCarregando');
         mostraCarregando.style.display = 'block';
@@ -240,10 +240,14 @@
             mostraCarregando.style.display = 'none';
 
             var valor = snapshot.val();
+            var mostraCarregado = document.getElementById('mostraCarregado');
 
             // Adicionando verificação e redirecionamento/edição
             firebase.auth().onAuthStateChanged(function(user) {
-                var mostraCarregado = document.getElementById('mostraCarregado');
+                if (!user || valor === null) {
+                    // Se não houver usuário autenticado ou a chave não existir, exibir o campo de inserir valor
+                    mostraCarregado.style.display = 'block';
+                }
 
                 if (!user) {
                     // Usuário não autenticado, redirecionar para a URL se começar com "http"
