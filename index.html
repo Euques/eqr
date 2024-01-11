@@ -258,6 +258,14 @@ function carregarValorExistente() {
                 valorInput.value = valor || '';
                 salvarEditarBtn.style.display = 'block';
             }
+
+		 if (valor !== null) {
+            // A chave existe, exibir o contêiner
+            mostraCarregado.style.display = 'block';
+
+            chaveDiv.innerHTML = `Chave: <strong>${chave}</strong>`;
+            valorInput.value = valor || '';
+        
         });
     });
 }
