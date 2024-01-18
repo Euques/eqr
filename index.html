@@ -378,6 +378,8 @@
                 cadastraBtn.style.display = 'block';
                 // Ocultar botão de logout
                 logoutBtn.style.display = 'none';
+                // Recarrega a pagina
+                window.location.reload();
             })
             .catch((error) => {
                 console.error('Erro durante o logout:', error);
