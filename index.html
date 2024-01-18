@@ -246,6 +246,12 @@
 
         var referencia = database.ref(`eqr/${chave}/data`);
 
+        referencia.on('value', function(snapshot) {
+        var novoValor = snapshot.val();
+        valorInput.value = novoValor || '';
+        // Adicione aqui qualquer outra ação que você deseja realizar quando os dados são atualizados.
+    });
+
         referencia.once('value', (snapshot) => {
             // Ocultar mensagem de carregamento após a conclusão da verificação
             mostraCarregando.style.display = 'none';
