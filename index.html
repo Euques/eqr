@@ -142,7 +142,8 @@
 
     <button id="logoutBtn" class="logout-btn btn btn-secondary" style="display: none;" onclick="realizarLogout()">Sair</button>
 
-<button id="entrarBtn" class="login-btn btn btn-secondary" onclick="exibirFormularioLogin()">Entrar</button>
+<button id="entrarBtn" class="login-btn btn btn-secondary" onclick="exibirFormularioLogin()">Entrar</button> ou 
+    <a href="/newuser.html" id="cadastraBtn" class="login-btn btn btn-secondary" onclick="exibirFormularioLogin()">Cadastrar</a> 
 
     <hr>
 
@@ -197,6 +198,7 @@
     var loginBtn = document.getElementById('loginBtn');
     var logoutBtn = document.getElementById('logoutBtn');
     var entrarBtn = document.getElementById('entrarBtn');
+    var cadastraBtn = document.getElementById('cadastraBtn');
     var emailInput = document.getElementById('email');
     var senhaInput = document.getElementById('senha');
     var user_id; // Variável para armazenar o user_id após o login
@@ -218,6 +220,8 @@
             userInfoDiv.style.display = 'block';
             // Ocultar botão "Entrar"
             entrarBtn.style.display = 'none';
+             // Ocultar botão "Cadastrar"
+           cadastraBtn.style.display = 'none';
             // Exibir botão de logout
             logoutBtn.style.display = 'block';
             // Ocultar a seção de login
@@ -231,6 +235,8 @@
             userInfoDiv.style.display = 'none';
             // Exibir botão "Entrar"
             entrarBtn.style.display = 'block'; // Sempre mostrar o botão "Entrar"
+             // Exibir botão "Entrar"
+            cadastraBtn.style.display = 'block'; // Sempre mostrar o botão "Cadastrar"
             // Ocultar botão de logout
             logoutBtn.style.display = 'none';
             user_id = null; // Limpar user_id
@@ -360,6 +366,8 @@
                 userInfoDiv.style.display = 'none';
                 // Exibir botão "Entrar"
                 entrarBtn.style.display = 'block';
+                // Exibir botão "Cadastrar"
+                cadastraBtn.style.display = 'block';
                 // Ocultar botão de logout
                 logoutBtn.style.display = 'none';
             })
@@ -387,6 +395,8 @@
         loginSection.style.display = 'block';
         // Ocultar o botão "Entrar"
         entrarBtn.style.display = 'none'; // Ocultar o botão "Entrar"
+         // Ocultar o botão "Cadastrar"
+        cadastraBtn.style.display = 'none'; // Ocultar o botão "Cadastrar"
         // Ocultar o botão "Sair"
         logoutBtn.style.display = 'none';
     }
