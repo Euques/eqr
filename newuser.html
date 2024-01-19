@@ -130,7 +130,11 @@
 
                     // Redirecionar para a página de login após alguns segundos
                     setTimeout(function() {
-                        window.location.href = 'login.html';
+                        // Armazenar a URL anterior (página atual)
+            var previousUrl = document.referrer;
+
+            // Redirecionar para a URL anterior
+            window.location.href = previousUrl;
                     }, 3000);
                 })
                 .catch((error) => {
