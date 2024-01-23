@@ -27,6 +27,8 @@
 
 
 
+<!-- ... (código anterior) ... -->
+
 <script>
     // Configuração do Firebase
     var firebaseConfig = {
@@ -69,19 +71,27 @@
                 var valor = childSnapshot.child('data').val();
 
                 // Adicione um item à lista para cada QR
-                var listItem = document.createElement('button');
-                listItem.className = 'btn btn-primary mt-2 mr-2';
-                listItem.innerHTML = `<a href="index.html?c=${chave}" class="btn btn-primary">${valor}</a>`;
+                var listItem = document.createElement('div');
+                listItem.className = 'rounded p-3 mb-3 border';
                 
                 var title = document.createElement('h5');
                 title.innerText = chave;
+
+                var linkButton = document.createElement('a');
+                linkButton.href = `index.html?c=${chave}`;
+                linkButton.className = 'btn btn-primary';
+                linkButton.innerText = valor;
+
+                listItem.appendChild(title);
+                listItem.appendChild(linkButton);
                 
-                qrsList.appendChild(title);
                 qrsList.appendChild(listItem);
             });
         });
     }
 </script>
+
+<!-- ... (restante do código) ... -->
 
 
 
