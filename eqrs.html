@@ -27,6 +27,8 @@
 
 
 
+
+
 <!-- ... (código anterior) ... -->
 
 <script>
@@ -77,13 +79,13 @@
                 var title = document.createElement('h5');
                 title.innerText = chave;
 
-                var linkButton = document.createElement('a');
-                linkButton.href = `index.html?c=${chave}`;
-                linkButton.className = 'btn btn-primary';
-                linkButton.innerText = valor;
+                var editButton = document.createElement('a');
+                editButton.href = `editar.html?c=${chave}`;
+                editButton.className = 'btn btn-warning mr-2';
+                editButton.innerText = 'Editar';
 
                 listItem.appendChild(title);
-                listItem.appendChild(linkButton);
+                listItem.appendChild(editButton);
                 
                 qrsList.appendChild(listItem);
             });
@@ -92,6 +94,7 @@
 </script>
 
 <!-- ... (restante do código) ... -->
+
 
 
 
