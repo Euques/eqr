@@ -78,7 +78,7 @@
                 listItem.className = 'rounded p-3 mb-3 border';
                 
                 var title = document.createElement('h5');
-                title.innerText = `e-QR: ${chave}`;
+                title.innerText = `e-qr: ${chave}`;
 
                 var valueText = document.createElement('p');
                 valueText.innerText = `Valor: ${valor}`;
@@ -93,7 +93,7 @@
                 abdicateButton.className = 'btn btn-outline-danger';
                 abdicateButton.innerText = 'Abdicar e-QR';
                 abdicateButton.onclick = function() {
-                    var confirmAbdication = confirm("Atenção: Ao abdicar desse e-QR, ele ficará livre para outra pessoa escrever nele. Tem certeza de que deseja abdicar?");
+                    var confirmAbdication = confirm("Atenção: Ao abdicar desse e-qr, ele ficará livre para outra pessoa escrever nele. Tem certeza de que deseja abdicar?");
                     if (confirmAbdication) {
                         // Remover a chave do banco de dados
                         database.ref('eqr').child(chave).remove();
