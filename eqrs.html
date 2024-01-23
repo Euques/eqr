@@ -30,6 +30,8 @@
 
 
 
+<!-- ... (código anterior) ... -->
+
 <script>
     // Configuração do Firebase
     var firebaseConfig = {
@@ -76,19 +78,35 @@
                 listItem.className = 'rounded p-3 mb-3 border';
                 
                 var title = document.createElement('h5');
-                title.innerText = `e-qr: ${chave}`;
+                title.innerText = chave;
 
                 var valueText = document.createElement('p');
                 valueText.innerText = `Valor: ${valor}`;
 
                 var editButton = document.createElement('a');
-                editButton.href = `index.html?c=${chave}`;
+                editButton.href = `editar.html?c=${chave}`;
                 editButton.className = 'btn btn-warning mr-2';
                 editButton.innerText = 'Editar';
+
+                var abdicateButton = document.createElement('button');
+                abdicateButton.type = 'button';
+                abdicateButton.className = 'btn btn-outline-danger';
+                abdicateButton.innerText = 'Abdicar e-QR';
+                abdicateButton.onclick = function() {
+                    var confirmAbdication = confirm("Atenção: Ao abdicar desse e-QR, ele ficará livre para outra pessoa escrever nele. Tem certeza de que deseja abdicar?");
+                    if (confirmAbdication) {
+                        // Remover a chave do banco de dados
+                        database.ref('eqr').child(chave).remove();
+                        
+                        // Atualizar a lista após a abdicação
+                        recuperarQrsDoUsuario(userId);
+                    }
+                };
 
                 listItem.appendChild(title);
                 listItem.appendChild(valueText);
                 listItem.appendChild(editButton);
+                listItem.appendChild(abdicateButton);
                 
                 qrsList.appendChild(listItem);
             });
@@ -96,6 +114,7 @@
     }
 </script>
 
+<!-- ... (restante do código) ... -->
 
 
 
