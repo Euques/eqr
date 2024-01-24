@@ -291,7 +291,7 @@
         });
     }
 
-  function apresentarCodigo() {
+function apresentarCodigo() {
     var contagemRef = database.ref(`eqr/${chave}/contagem`);
     contagemRef.transaction(function (currentCount) {
         return (currentCount || 0) + 1;
@@ -304,7 +304,8 @@
             var beneficio = beneficioInput.value;
 
             // Salvar o benefício no banco de dados
-            database.ref(`eqr/${chave}/data`).set(beneficio, function (error) {
+            var dataRef = database.ref(`eqr/${chave}/data`);
+            dataRef.set(beneficio, function (error) {
                 if (error) {
                     console.error('Erro ao salvar o benefício:', error);
                     alert('Erro ao salvar o benefício. Verifique o console para mais detalhes.');
@@ -317,6 +318,7 @@
         }
     });
 }
+
 
 
     function realizarLogin() {
