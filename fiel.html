@@ -283,7 +283,9 @@ function apresentarCodigo() {
     });
 }
 
-function carregarValorExistente() {
+
+
+    function carregarValorExistente() {
     var mostraCarregando = document.getElementById('mostraCarregado');
 
     if (mostraCarregando) {
@@ -298,7 +300,7 @@ function carregarValorExistente() {
 
             var data = snapshot.val();
             if (data) {
-                beneficioInput.value = data.data || '';
+                beneficioInput.value = data.beneficio || '';  // Corrigi aqui
                 contagemInput.value = data.contagem || '0';
             }
         }, function (error) {
@@ -306,6 +308,7 @@ function carregarValorExistente() {
         });
     }
 }
+   
 
 
        
