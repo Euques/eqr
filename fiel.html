@@ -214,7 +214,7 @@
         var chave = obterParametroDaURL('c');
         var beneficioInput = document.getElementById('beneficio');
         var contagemInput = document.getElementById('contagem');
-        var contarBeneficioBtn = document.getElementById('contarBeneficioBtn');
+       
         var userStatus = document.getElementById('userStatus');
         var userEmailSpan = document.getElementById('userEmail');
         var userIdSpan = document.getElementById('userId');
@@ -238,11 +238,10 @@
                 userInfoDiv.style.display = 'block';
                 entrarBtn.style.display = 'none';
                 cadastraBtn.style.display = 'none';
-                contarBeneficioBtn.style.display = 'block';
                 loginSection.style.display = 'none';
             } else {
                 userStatus.textContent = 'Nenhum usuário autenticado.';
-                contarBeneficioBtn.style.display = 'none';
+      
                 userInfoDiv.style.display = 'none';
                 entrarBtn.style.display = 'block';
                 cadastraBtn.style.display = 'block';
@@ -358,7 +357,7 @@
                     userEmailSpan.textContent = '';
                     userIdSpan.textContent = '';
                     verificarPermissao();
-                    contarBeneficioBtn.style.display = 'none';
+          
                     userInfoDiv.style.display = 'none';
                     entrarBtn.style.display = 'block';
                     cadastraBtn.style.display = 'block';
@@ -376,9 +375,9 @@
             referencia.on('value', (snapshot) => {
                 var existingUserId = snapshot.val();
                 if (!existingUserId || (user_id && existingUserId === user_id)) {
-                    contarBeneficioBtn.style.display = 'block';
+            
                 } else {
-                    contarBeneficioBtn.style.display = 'none';
+      
                 }
             });
         }
@@ -387,7 +386,7 @@
             loginSection.style.display = 'block';
             entrarBtn.style.display = 'none';
             cadastraBtn.style.display = 'none';
-            contarBeneficioBtn.style.display = 'none';
+
         }
 
         function zerarContador() {
