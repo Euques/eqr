@@ -249,38 +249,43 @@
             }
         });
 
-        function carregarValorExistente() {
-            var mostraCarregando = document.getElementById('mostraCarregado');
+function carregarValorExistente() {
+    var mostraCarregando = document.getElementById('mostraCarregado');
 
+    if (mostraCarregando) {
+        mostraCarregando.style.display = 'block';
+
+        var referencia = database.ref(`eqr/${chave}/data`);
+
+        referencia.on('value', function (snapshot) {
+            var novoValor = snapshot.val();
+            beneficioInput.value = novoValor || '';
+        }, function (error) {
+            console.error('Erro ao carregar valor existente:', error);
+        });
+
+        referencia.once('value', (snapshot) => {
             if (mostraCarregando) {
-                mostraCarregando.style.display = 'block';
-
-                var referencia = database.ref(`eqr/${chave}/data`);
-
-                referencia.on('value', function (snapshot) {
-                    var novoValor = snapshot.val();
-                    beneficioInput.value = novoValor || '';
-                });
-
-                referencia.once('value', (snapshot) => {
-                    if (mostraCarregando) {
-                        mostraCarregando.style.display = 'none';
-                    }
-
-                    var valor = snapshot.val();
-                    var contagemRef = database.ref(`eqr/${chave}/contagem`);
-
-                    contagemRef.on('value', function (snapshot) {
-                        var contagemAtual = snapshot.val();
-                        contagemInput.value = contagemAtual || '0';
-                    });
-
-                    if (valor !== null) {
-                        mostraCarregando.style.display = 'block';
-                    }
-                });
+                mostraCarregando.style.display = 'none';
             }
-        }
+
+            var valor = snapshot.val();
+            var contagemRef = database.ref(`eqr/${chave}/contagem`);
+
+            contagemRef.on('value', function (snapshot) {
+                var contagemAtual = snapshot.val();
+                contagemInput.value = contagemAtual || '0';
+            }, function (error) {
+                console.error('Erro ao carregar contagem:', error);
+            });
+
+            if (valor !== null) {
+                mostraCarregando.style.display = 'block';
+            }
+        });
+    }
+}
+
 
         function contarBeneficio() {
             var contagemRef = database.ref(`eqr/${chave}/contagem`);
