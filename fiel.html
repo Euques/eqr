@@ -1,3 +1,7 @@
+
+
+
+    
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -11,7 +15,6 @@
     <!-- Adicione o Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
-
    <style>
         body {
             font-family: Arial, sans-serif;
@@ -127,10 +130,9 @@
             bottom: 0;
         }
     </style>
+
     
 <body>
-
-
 <div id="mostraCarregado" class="container" style="display: none;">
     <h2>Cartão de Fidelidade</h2>
 
@@ -150,6 +152,8 @@
     <hr>
 
     <div id="userInfo" style="display: none;">
+        <button id="apresentarCodigoBtn" class="btn btn-primary btn-lg" onclick="apresentarCodigo()">Apresentar Código</button>
+        <button id="zerarContadorBtn" class="btn btn-secondary btn-lg" onclick="zerarContador()">Zerar Contador</button>
         <button id="sairBtn" class="btn btn-danger" onclick="realizarLogout()">Sair</button>
         <p id="userStatus"></p>
         <p>Email: <span id="userEmail"></span></p>
@@ -202,7 +206,6 @@
     var userIdSpan = document.getElementById('userId');
     var userInfoDiv = document.getElementById('userInfo');
     var loginSection = document.getElementById('loginSection');
-    var logoutBtn = document.getElementById('logoutBtn');
     var entrarBtn = document.getElementById('entrarBtn');
     var cadastraBtn = document.getElementById('cadastraBtn');
     var emailInput = document.getElementById('email');
@@ -362,7 +365,6 @@
         entrarBtn.style.display = 'none';
         cadastraBtn.style.display = 'none';
         contarBeneficioBtn.style.display = 'none';
-        logoutBtn.style.display = 'none';
     }
 
     function zerarContador() {
@@ -382,6 +384,7 @@
         });
     }
 </script>
+
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
