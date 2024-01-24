@@ -299,21 +299,14 @@ function carregarValorExistente() {
             var data = snapshot.val();
             if (data) {
                 beneficioInput.value = data.data || '';
-                // Você pode acessar data.contagem e data.user_id para obter a contagem e o userId
+                contagemInput.value = data.contagem || '0';
             }
         }, function (error) {
             console.error('Erro ao carregar valor existente:', error);
         });
-
-        var contagemRef = database.ref(`eqr/${chave}/contagem`);
-        contagemRef.on('value', function (snapshot) {
-            var contagemAtual = snapshot.val();
-            contagemInput.value = contagemAtual || '0';
-        }, function (error) {
-            console.error('Erro ao carregar contagem:', error);
-        });
     }
 }
+
 
        
 
