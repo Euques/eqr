@@ -291,24 +291,33 @@
         });
     }
 
-    function apresentarCodigo() {
-        var contagemRef = database.ref(`eqr/${chave}/contagem`);
-        contagemRef.transaction(function (currentCount) {
-            return (currentCount || 0) + 1;
-        }, function (error, committed, snapshot) {
-            if (error) {
-                console.error('Erro ao atualizar a contagem:', error);
-                alert('Erro ao atualizar a contagem. Verifique o console para mais detalhes.');
-            } else if (committed) {
-                alert('Benefício apresentado com sucesso!');
-                contagemInput.value = snapshot.val();
-                var beneficio = beneficioInput.value;
+  function apresentarCodigo() {
+    var contagemRef = database.ref(`eqr/${chave}/contagem`);
+    contagemRef.transaction(function (currentCount) {
+        return (currentCount || 0) + 1;
+    }, function (error, committed, snapshot) {
+        if (error) {
+            console.error('Erro ao atualizar a contagem:', error);
+            alert('Erro ao atualizar a contagem. Verifique o console para mais detalhes.');
+        } else if (committed) {
+            contagemInput.value = snapshot.val();
+            var beneficio = beneficioInput.value;
 
-            } else {
-                alert('Falha ao apresentar o código. Tente novamente.');
-            }
-        });
-    }
+            // Salvar o benefício no banco de dados
+            database.ref(`eqr/${chave}/data`).set(beneficio, function (error) {
+                if (error) {
+                    console.error('Erro ao salvar o benefício:', error);
+                    alert('Erro ao salvar o benefício. Verifique o console para mais detalhes.');
+                } else {
+                    alert('Benefício apresentado com sucesso!');
+                }
+            });
+        } else {
+            alert('Falha ao apresentar o código. Tente novamente.');
+        }
+    });
+}
+
 
     function realizarLogin() {
         var email = emailInput.value;
