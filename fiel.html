@@ -285,35 +285,39 @@ function apresentarCodigo() {
 
 
 
-function carregarValorExistente() {
-    var mostraCarregando = document.getElementById('mostraCarregado');
 
-    if (mostraCarregando) {
-        mostraCarregando.style.display = 'block';
+        function carregarValorExistente() {
+            var mostraCarregando = document.getElementById('mostraCarregado');
 
-        var referencia = database.ref(`eqr/${chave}/data`);
+            if (mostraCarregando) {
+                mostraCarregando.style.display = 'block';
 
-        referencia.once('value')
-            .then(function (snapshot) {
-                if (mostraCarregando) {
-                    mostraCarregando.style.display = 'none';
-                }
+                var referencia = database.ref(`eqr/${chave}/data`);
 
-                var valorData = snapshot.val();
+                referencia.on('value', function (snapshot) {
+                    var novoValor = snapshot.val();
+                    beneficioInput.value = novoValor || '';
+                });
 
-                if (valorData) {
-                    beneficioInput.value = valorData;
-                } else {
-                    console.log('O campo "data" está vazio ou não existe na chave específica.');
-                }
-            })
-            .catch(function (error) {
-                console.error('Erro ao carregar valor existente:', error);
-            });
-    }
-}
+                referencia.once('value', (snapshot) => {
+                    if (mostraCarregando) {
+                        mostraCarregando.style.display = 'none';
+                    }
 
+                    var valor = snapshot.val();
+                    var contagemRef = database.ref(`eqr/${chave}/contagem`);
 
+                    contagemRef.on('value', function (snapshot) {
+                        var contagemAtual = snapshot.val();
+                        contagemInput.value = contagemAtual || '0';
+                    });
+
+                    if (valor !== null) {
+                        mostraCarregando.style.display = 'block';
+                    }
+                });
+            }
+        }
 
 
 
