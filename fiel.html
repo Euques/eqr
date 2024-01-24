@@ -141,6 +141,13 @@
 </div>
 
 <script>
+   // Função para obter parâmetros da URL
+    function obterParametroDaURL(nome) {
+        var urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(nome);
+    }
+
+    
     // Configuração do Firebase
     var firebaseConfig = {
         apiKey: "AIzaSyD9w-BMC-4WrQppa6VnOCrszo4QMIyROXU",
