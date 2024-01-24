@@ -39,6 +39,37 @@
             box-sizing: border-box;
         }
 
+
+
+        #apresentarCodigoBtn, #zerarContadorBtn {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+
+        #apresentarCodigoBtn {
+            background-color: #007bff;
+            border: none;
+        }
+
+        #apresentarCodigoBtn:hover {
+            background-color: #0056b3;
+        }
+
+        #zerarContadorBtn {
+            background-color: #6c757d; /* Cor cinza para o botão de zerar contador */
+            border: none;
+            color: white;
+        }
+
+        #zerarContadorBtn:hover {
+            background-color: #5a6268;
+        }
+
+        
+
         #contarBeneficioBtn {
             padding: 10px 20px;
             font-size: 16px;
@@ -114,7 +145,7 @@
         <input type="text" id="contagem" readonly>
     </div>
 
-    <button id="contarBeneficioBtn" class="btn btn-success btn-lg" onclick="contarBeneficio()">Contar Benefício</button>
+    <button id="apresentarCodigoBtn" class="btn btn-primary btn-lg" onclick="apresentarCodigo()">Apresentar Código</button>
 
     <hr>
 
@@ -137,7 +168,10 @@
 
     <hr>
 
-    <a class=" btn btn-link text-secondary" href="https://wabes.com.br" target="_blank" >&copy; 2024 - Wabes - Todos os direitos reservados.</a>
+    <!-- Adicionando o botão para zerar o contador -->
+    <button id="zerarContadorBtn" class="btn btn-secondary btn-lg" onclick="zerarContador()">Zerar Contador</button>
+
+    <a class="btn btn-link text-secondary" href="https://wabes.com.br" target="_blank">&copy; 2024 - Wabes - Todos os direitos reservados.</a>
 </div>
 
 <script>
@@ -333,6 +367,23 @@
         cadastraBtn.style.display = 'none';
         contarBeneficioBtn.style.display = 'none';
         logoutBtn.style.display = 'none';
+    }
+
+     function zerarContador() {
+        var contagemRef = database.ref(`eqr/${chave}/contagem`);
+        contagemRef.transaction(function () {
+            return 0;
+        }, function (error, committed, snapshot) {
+            if (error) {
+                console.error('Erro ao zerar a contagem:', error);
+                alert('Erro ao zerar a contagem. Verifique o console para mais detalhes.');
+            } else if (committed) {
+                alert('Contador zerado com sucesso!');
+                contagemInput.value = 0;
+            } else {
+                alert('Falha ao zerar o contador. Tente novamente.');
+            }
+        });
     }
 </script>
 
