@@ -285,7 +285,7 @@ function apresentarCodigo() {
 
 
 
-    function carregarValorExistente() {
+ function carregarValorExistente() {
     var mostraCarregando = document.getElementById('mostraCarregado');
 
     if (mostraCarregando) {
@@ -293,22 +293,27 @@ function apresentarCodigo() {
 
         var referencia = database.ref(`eqr/${chave}`);
 
-        referencia.on('value', function (snapshot) {
-            if (mostraCarregando) {
-                mostraCarregando.style.display = 'none';
-            }
+        referencia.once('value')
+            .then(function (snapshot) {
+                if (mostraCarregando) {
+                    mostraCarregando.style.display = 'none';
+                }
 
-            var data = snapshot.val();
-            if (data) {
-                beneficioInput.value = data.beneficio || '';  // Corrigi aqui
-                contagemInput.value = data.contagem || '0';
-            }
-        }, function (error) {
-            console.error('Erro ao carregar valor existente:', error);
-        });
+                var data = snapshot.val();
+
+                if (data) {
+                    beneficioInput.value = data.beneficio || '';
+                    contagemInput.value = data.contagem || '0';
+                } else {
+                    console.log('Chave vazia ou não existe.');
+                }
+            })
+            .catch(function (error) {
+                console.error('Erro ao carregar valor existente:', error);
+            });
     }
 }
-   
+
 
 
        
