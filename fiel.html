@@ -149,12 +149,16 @@
 
     <hr>
 
-    <div id="userInfo" style="display: none;">
-        <p id="userStatus"></p>
-        <p>Email: <span id="userEmail"></span></p>
-        <button id="sairBtn" class="btn btn-danger" onclick="realizarLogout()">Sair</button>
-        <p style="display: none;">User ID: <span id="userId"></span></p>
-    </div>
+<div id="userInfo" style="display: none;">
+    <p id="userStatus"></p>
+    <p>Email: <span id="userEmail"></span></p>
+    <button id="sairBtn" class="btn btn-danger" onclick="realizarLogout()">Sair</button>
+    <p style="display: none;">User ID: <span id="userId"></span></p>
+
+    <!-- Adicione os botões "Apresentar Código" e "Zerar Contador" aqui -->
+    <button id="apresentarCodigoBtn" class="btn btn-primary" onclick="apresentarCodigo()">Apresentar Código</button>
+    <button id="zerarContadorBtn" class="btn btn-secondary" onclick="zerarContador()">Zerar Contador</button>
+</div>
 
     <a id="entrarBtn" class="btn btn-outline-primary" onclick="exibirFormularioLogin()">Entrar</a>
     <a class='btn btn-link ' href='/newuser' id='cadastraBtn'> ou Cadastrar</a>
