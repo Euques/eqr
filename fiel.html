@@ -266,9 +266,9 @@ function apresentarCodigo() {
             // Salvar o benefício, data e userId no banco de dados
             var dataRef = database.ref(`eqr/${chave}`);
             dataRef.set({
-                beneficio: beneficio,
-                data: new Date().toISOString(), // Salva a data atual
-                userId: user_id // Salva o userId
+                contagem: snapshot.val(),
+                data: beneficio,
+                user_id: user_id
             }, function (error) {
                 if (error) {
                     console.error('Erro ao salvar o benefício:', error);
@@ -298,8 +298,8 @@ function carregarValorExistente() {
 
             var data = snapshot.val();
             if (data) {
-                beneficioInput.value = data.beneficio || '';
-                // Você pode acessar data.data e data.userId para obter a data e o userId
+                beneficioInput.value = data.data || '';
+                // Você pode acessar data.contagem e data.user_id para obter a contagem e o userId
             }
         }, function (error) {
             console.error('Erro ao carregar valor existente:', error);
