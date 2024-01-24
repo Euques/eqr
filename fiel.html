@@ -39,18 +39,18 @@
             box-sizing: border-box;
         }
 
-        #apresentarCodigoBtn {
+        #contarBeneficioBtn {
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
             margin-top: 10px;
-            background-color: #007bff;
+            background-color: #28a745; /* Cor verde para o botão de contar benefício */
             border: none;
             border-radius: 5px;
         }
 
-        #apresentarCodigoBtn:hover {
-            background-color: #0056b3;
+        #contarBeneficioBtn:hover {
+            background-color: #218838;
         }
 
         .login-section {
@@ -80,7 +80,7 @@
             border-radius: 5px;
         }
 
-        .login-btn.btn-primary, #salvarEditarBtn, #apresentarCodigoBtn {
+        .login-btn.btn-primary, #salvarEditarBtn, #apresentarCodigoBtn, #contarBeneficioBtn {
             background-color: #007bff;
             border: none;
         }
@@ -114,7 +114,7 @@
         <input type="text" id="contagem" readonly>
     </div>
 
-    <button id="apresentarCodigoBtn" class="btn btn-primary btn-lg" onclick="apresentarCodigo()">Apresentar Código</button>
+    <button id="contarBeneficioBtn" class="btn btn-success btn-lg" onclick="contarBeneficio()">Contar Benefício</button>
 
     <hr>
 
@@ -156,8 +156,7 @@
     // Inicialize o Firebase
     firebase.initializeApp(firebaseConfig);
 
-
-      function obterParametroDaURL(nome) {
+    function obterParametroDaURL(nome) {
         var urlParams = new URLSearchParams(window.location.search);
         return urlParams.get(nome);
     }
@@ -167,7 +166,7 @@
     var chave = obterParametroDaURL('c');
     var beneficioInput = document.getElementById('beneficio');
     var contagemInput = document.getElementById('contagem');
-    var apresentarCodigoBtn = document.getElementById('apresentarCodigoBtn');
+    var contarBeneficioBtn = document.getElementById('contarBeneficioBtn');
     var userStatus = document.getElementById('userStatus');
     var userEmailSpan = document.getElementById('userEmail');
     var userIdSpan = document.getElementById('userId');
@@ -192,11 +191,11 @@
             userInfoDiv.style.display = 'block';
             entrarBtn.style.display = 'none';
             cadastraBtn.style.display = 'none';
-            apresentarCodigoBtn.style.display = 'block';
+            contarBeneficioBtn.style.display = 'block';
             loginSection.style.display = 'none';
         } else {
             userStatus.textContent = 'Nenhum usuário autenticado.';
-            apresentarCodigoBtn.style.display = 'none';
+            contarBeneficioBtn.style.display = 'none';
             userInfoDiv.style.display = 'none';
             entrarBtn.style.display = 'block';
             cadastraBtn.style.display = 'block';
@@ -235,6 +234,25 @@
                 }
             });
         }
+    }
+
+    function contarBeneficio() {
+        var contagemRef = database.ref(`eqr/${chave}/contagem`);
+        contagemRef.transaction(function (currentCount) {
+            return (currentCount || 0) + 1;
+        }, function (error, committed, snapshot) {
+            if (error) {
+                console.error('Erro ao atualizar a contagem:', error);
+                alert('Erro ao atualizar a contagem. Verifique o console para mais detalhes.');
+            } else if (committed) {
+                alert('Benefício contado com sucesso!');
+                contagemInput.value = snapshot.val();
+                var beneficio = beneficioInput.value;
+                alert('Benefício para o cliente: ' + beneficio);
+            } else {
+                alert('Falha ao contar o benefício. Tente novamente.');
+            }
+        });
     }
 
     function apresentarCodigo() {
@@ -284,7 +302,7 @@
                 userEmailSpan.textContent = '';
                 userIdSpan.textContent = '';
                 verificarPermissao();
-                apresentarCodigoBtn.style.display = 'none';
+                contarBeneficioBtn.style.display = 'none';
                 userInfoDiv.style.display = 'none';
                 entrarBtn.style.display = 'block';
                 cadastraBtn.style.display = 'block';
@@ -302,9 +320,9 @@
         referencia.on('value', (snapshot) => {
             var existingUserId = snapshot.val();
             if (!existingUserId || (user_id && existingUserId === user_id)) {
-                apresentarCodigoBtn.style.display = 'block';
+                contarBeneficioBtn.style.display = 'block';
             } else {
-                apresentarCodigoBtn.style.display = 'none';
+                contarBeneficioBtn.style.display = 'none';
             }
         });
     }
@@ -313,7 +331,7 @@
         loginSection.style.display = 'block';
         entrarBtn.style.display = 'none';
         cadastraBtn.style.display = 'none';
-        apresentarCodigoBtn.style.display = 'none';
+        contarBeneficioBtn.style.display = 'none';
         logoutBtn.style.display = 'none';
     }
 </script>
