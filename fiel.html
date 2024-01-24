@@ -156,6 +156,12 @@
     // Inicialize o Firebase
     firebase.initializeApp(firebaseConfig);
 
+
+      function obterParametroDaURL(nome) {
+        var urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(nome);
+    }
+
     // Referência ao nó no Realtime Database
     var database = firebase.database();
     var chave = obterParametroDaURL('c');
