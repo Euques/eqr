@@ -258,32 +258,29 @@ function carregarValorExistente() {
         var referencia = database.ref(`eqr/${chave}/data`);
 
         referencia.on('value', function (snapshot) {
-            var novoValor = snapshot.val();
-            beneficioInput.value = novoValor || '';
-        }, function (error) {
-            console.error('Erro ao carregar valor existente:', error);
-        });
-
-        referencia.once('value', (snapshot) => {
             if (mostraCarregando) {
                 mostraCarregando.style.display = 'none';
             }
 
-            var valor = snapshot.val();
-            var contagemRef = database.ref(`eqr/${chave}/contagem`);
-
-            contagemRef.on('value', function (snapshot) {
-                var contagemAtual = snapshot.val();
-                contagemInput.value = contagemAtual || '0';
-            }, function (error) {
-                console.error('Erro ao carregar contagem:', error);
-            });
-
-            if (valor !== null) {
-                mostraCarregando.style.display = 'block';
+            var data = snapshot.val();
+            if (data) {
+                beneficioInput.value = data.beneficio || '';
+                // Você pode acessar data.data e data.userId para obter a data e o userId
             }
+        }, function (error) {
+            console.error('Erro ao carregar valor existente:', error);
+        });
+
+        var contagemRef = database.ref(`eqr/${chave}/contagem`);
+        contagemRef.on('value', function (snapshot) {
+            var contagemAtual = snapshot.val();
+            contagemInput.value = contagemAtual || '0';
+        }, function (error) {
+            console.error('Erro ao carregar contagem:', error);
         });
     }
+}
+
 }
 
 
@@ -306,33 +303,38 @@ function carregarValorExistente() {
             });
         }
 
-        function apresentarCodigo() {
-            var contagemRef = database.ref(`eqr/${chave}/contagem`);
-            contagemRef.transaction(function (currentCount) {
-                return (currentCount || 0) + 1;
-            }, function (error, committed, snapshot) {
-                if (error) {
-                    console.error('Erro ao atualizar a contagem:', error);
-                    alert('Erro ao atualizar a contagem. Verifique o console para mais detalhes.');
-                } else if (committed) {
-                    contagemInput.value = snapshot.val();
-                    var beneficio = beneficioInput.value;
+       function apresentarCodigo() {
+    var contagemRef = database.ref(`eqr/${chave}/contagem`);
+    contagemRef.transaction(function (currentCount) {
+        return (currentCount || 0) + 1;
+    }, function (error, committed, snapshot) {
+        if (error) {
+            console.error('Erro ao atualizar a contagem:', error);
+            alert('Erro ao atualizar a contagem. Verifique o console para mais detalhes.');
+        } else if (committed) {
+            contagemInput.value = snapshot.val();
+            var beneficio = beneficioInput.value;
 
-                    // Salvar o benefício no banco de dados
-                    var dataRef = database.ref(`eqr/${chave}/data`);
-                    dataRef.set(beneficio, function (error) {
-                        if (error) {
-                            console.error('Erro ao salvar o benefício:', error);
-                            alert('Erro ao salvar o benefício. Verifique o console para mais detalhes.');
-                        } else {
-                            alert('Benefício apresentado com sucesso!');
-                        }
-                    });
+            // Salvar o benefício, data e userId no banco de dados
+            var dataRef = database.ref(`eqr/${chave}/data`);
+            dataRef.set({
+                beneficio: beneficio,
+                data: new Date().toISOString(), // Salva a data atual
+                userId: user_id // Salva o userId
+            }, function (error) {
+                if (error) {
+                    console.error('Erro ao salvar o benefício:', error);
+                    alert('Erro ao salvar o benefício. Verifique o console para mais detalhes.');
                 } else {
-                    alert('Falha ao apresentar o código. Tente novamente.');
+                    alert('Benefício apresentado com sucesso!');
                 }
             });
+        } else {
+            alert('Falha ao apresentar o código. Tente novamente.');
         }
+    });
+}
+
 
         function realizarLogin() {
             var email = emailInput.value;
