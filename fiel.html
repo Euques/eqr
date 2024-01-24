@@ -141,13 +141,6 @@
 </div>
 
 <script>
-   // Função para obter parâmetros da URL
-    function obterParametroDaURL(nome) {
-        var urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get(nome);
-    }
-
-    
     // Configuração do Firebase
     var firebaseConfig = {
         apiKey: "AIzaSyD9w-BMC-4WrQppa6VnOCrszo4QMIyROXU",
@@ -174,16 +167,15 @@
     var userIdSpan = document.getElementById('userId');
     var userInfoDiv = document.getElementById('userInfo');
     var loginSection = document.getElementById('loginSection');
+    var logoutBtn = document.getElementById('logoutBtn');
     var entrarBtn = document.getElementById('entrarBtn');
     var cadastraBtn = document.getElementById('cadastraBtn');
     var emailInput = document.getElementById('email');
     var senhaInput = document.getElementById('senha');
     var user_id;
 
-    // Carregar valor existente, se houver
     carregarValorExistente();
 
-    // Verificar usuário autenticado
     firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
             userStatus.textContent = 'Usuário autenticado.';
@@ -207,48 +199,36 @@
     });
 
     function carregarValorExistente() {
-        var mostraCarregando = document.getElementById('mostraCarregando');
-        mostraCarregando.style.display = 'block';
+        var mostraCarregando = document.getElementById('mostraCarregado');
 
-        var referencia = database.ref(`eqr/${chave}/data`);
+        if (mostraCarregando) {
+            mostraCarregando.style.display = 'block';
 
-        referencia.on('value', function(snapshot) {
-            var novoValor = snapshot.val();
-            beneficioInput.value = novoValor || '';
-        });
+            var referencia = database.ref(`eqr/${chave}/data`);
 
-        referencia.once('value', (snapshot) => {
-            mostraCarregando.style.display = 'none';
+            referencia.on('value', function(snapshot) {
+                var novoValor = snapshot.val();
+                beneficioInput.value = novoValor || '';
+            });
 
-            var valor = snapshot.val();
-            var mostraCarregado = document.getElementById('mostraCarregado');
-
-            firebase.auth().onAuthStateChanged(function(user) {
-                if (!user || valor === null) {
-                    mostraCarregado.style.display = 'block';
+            referencia.once('value', (snapshot) => {
+                if (mostraCarregando) {
+                    mostraCarregando.style.display = 'none';
                 }
 
-                if (!user) {
-                    if (valor && valor.startsWith('http')) {
-                        window.location.href = valor;
-                    } else {
-                        beneficioInput.value = valor || '';
-                    }
-                } else {
-                    beneficioInput.value = valor || '';
-                }
+                var valor = snapshot.val();
+                var contagemRef = database.ref(`eqr/${chave}/contagem`);
+                
+                contagemRef.on('value', function(snapshot) {
+                    var contagemAtual = snapshot.val();
+                    contagemInput.value = contagemAtual || '0';
+                });
 
                 if (valor !== null) {
-                    mostraCarregado.style.display = 'block';
+                    mostraCarregando.style.display = 'block';
                 }
             });
-        });
-
-        var contagemRef = database.ref(`eqr/${chave}/contagem`);
-        contagemRef.on('value', function(snapshot) {
-            var contagemAtual = snapshot.val();
-            contagemInput.value = contagemAtual || '0';
-        });
+        }
     }
 
     function apresentarCodigo() {
@@ -270,11 +250,68 @@
         });
     }
 
-    // ...
+    function realizarLogin() {
+        var email = emailInput.value;
+        var senha = senhaInput.value;
 
+        firebase.auth().signInWithEmailAndPassword(email, senha)
+            .then((userCredential) => {
+                var user = userCredential.user;
+                userStatus.textContent = 'Usuário autenticado.';
+                userEmailSpan.textContent = user.email;
+                userIdSpan.textContent = user.uid;
+                user_id = user.uid;
+                verificarPermissao();
+                userInfoDiv.style.display = 'block';
+                loginSection.style.display = 'none';
+            })
+            .catch((error) => {
+                console.error('Erro durante o login:', error);
+                alert('Erro durante o login. Verifique o console para mais detalhes.');
+            });
+    }
+
+    function realizarLogout() {
+        firebase.auth().signOut()
+            .then(() => {
+                userStatus.textContent = 'Nenhum usuário autenticado.';
+                userEmailSpan.textContent = '';
+                userIdSpan.textContent = '';
+                verificarPermissao();
+                apresentarCodigoBtn.style.display = 'none';
+                userInfoDiv.style.display = 'none';
+                entrarBtn.style.display = 'block';
+                cadastraBtn.style.display = 'block';
+                user_id = null;
+                window.location.reload();
+            })
+            .catch((error) => {
+                console.error('Erro durante o logout:', error);
+                alert('Erro durante o logout. Verifique o console para mais detalhes.');
+            });
+    }
+
+    function verificarPermissao() {
+        var referencia = database.ref(`eqr/${chave}/user_id`);
+        referencia.on('value', (snapshot) => {
+            var existingUserId = snapshot.val();
+            if (!existingUserId || (user_id && existingUserId === user_id)) {
+                apresentarCodigoBtn.style.display = 'block';
+            } else {
+                apresentarCodigoBtn.style.display = 'none';
+            }
+        });
+    }
+
+    function exibirFormularioLogin() {
+        loginSection.style.display = 'block';
+        entrarBtn.style.display = 'none';
+        cadastraBtn.style.display = 'none';
+        apresentarCodigoBtn.style.display = 'none';
+        logoutBtn.style.display = 'none';
+    }
 </script>
 
-<!-- Adicione o Bootstrap JS no final do corpo para otimizar o carregamento -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
