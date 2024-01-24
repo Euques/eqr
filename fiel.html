@@ -177,227 +177,225 @@
     <a class="btn btn-link text-secondary" href="https://wabes.com.br" target="_blank">&copy; 2024 - Wabes - Todos os direitos reservados.</a>
 </div>
 
-<script>
-    // Configuração do Firebase
-    var firebaseConfig = {
-        apiKey: "AIzaSyD9w-BMC-4WrQppa6VnOCrszo4QMIyROXU",
-        authDomain: "euques-teste.firebaseapp.com",
-        databaseURL: "https://euques-teste-default-rtdb.firebaseio.com",
-        projectId: "euques-teste",
-        storageBucket: "euques-teste.appspot.com",
-        messagingSenderId: "48182046778",
-        appId: "1:48182046778:web:4cd6f3b08cae7f6588c503",
-        measurementId: "G-KQXMBG1EXG"
-    };
+   <script>
+        // Configuração do Firebase
+        var firebaseConfig = {
+            apiKey: "AIzaSyD9w-BMC-4WrQppa6VnOCrszo4QMIyROXU",
+            authDomain: "euques-teste.firebaseapp.com",
+            databaseURL: "https://euques-teste-default-rtdb.firebaseio.com",
+            projectId: "euques-teste",
+            storageBucket: "euques-teste.appspot.com",
+            messagingSenderId: "48182046778",
+            appId: "1:48182046778:web:4cd6f3b08cae7f6588c503",
+            measurementId: "G-KQXMBG1EXG"
+        };
 
-    // Inicialize o Firebase
-    firebase.initializeApp(firebaseConfig);
+        // Inicialize o Firebase
+        firebase.initializeApp(firebaseConfig);
 
-    function obterParametroDaURL(nome) {
-        var urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get(nome);
-    }
-
-    // Referência ao nó no Realtime Database
-    var database = firebase.database();
-    var chave = obterParametroDaURL('c');
-    var beneficioInput = document.getElementById('beneficio');
-    var contagemInput = document.getElementById('contagem');
-    var contarBeneficioBtn = document.getElementById('contarBeneficioBtn');
-    var userStatus = document.getElementById('userStatus');
-    var userEmailSpan = document.getElementById('userEmail');
-    var userIdSpan = document.getElementById('userId');
-    var userInfoDiv = document.getElementById('userInfo');
-    var loginSection = document.getElementById('loginSection');
-    var entrarBtn = document.getElementById('entrarBtn');
-    var cadastraBtn = document.getElementById('cadastraBtn');
-    var emailInput = document.getElementById('email');
-    var senhaInput = document.getElementById('senha');
-    var user_id;
-
-    carregarValorExistente();
-
-    firebase.auth().onAuthStateChanged(function(user) {
-        if (user) {
-            userStatus.textContent = 'Usuário autenticado.';
-            userEmailSpan.textContent = user.email;
-            userIdSpan.textContent = user.uid;
-            user_id = user.uid;
-            verificarPermissao();
-            userInfoDiv.style.display = 'block';
-            entrarBtn.style.display = 'none';
-            cadastraBtn.style.display = 'none';
-            contarBeneficioBtn.style.display = 'block';
-            loginSection.style.display = 'none';
-        } else {
-            userStatus.textContent = 'Nenhum usuário autenticado.';
-            contarBeneficioBtn.style.display = 'none';
-            userInfoDiv.style.display = 'none';
-            entrarBtn.style.display = 'block';
-            cadastraBtn.style.display = 'block';
-            user_id = null;
+        function obterParametroDaURL(nome) {
+            var urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(nome);
         }
-    });
 
-    function carregarValorExistente() {
-        var mostraCarregando = document.getElementById('mostraCarregado');
+        // Referência ao nó no Realtime Database
+        var database = firebase.database();
+        var chave = obterParametroDaURL('c');
+        var beneficioInput = document.getElementById('beneficio');
+        var contagemInput = document.getElementById('contagem');
+        var contarBeneficioBtn = document.getElementById('contarBeneficioBtn');
+        var userStatus = document.getElementById('userStatus');
+        var userEmailSpan = document.getElementById('userEmail');
+        var userIdSpan = document.getElementById('userId');
+        var userInfoDiv = document.getElementById('userInfo');
+        var loginSection = document.getElementById('loginSection');
+        var entrarBtn = document.getElementById('entrarBtn');
+        var cadastraBtn = document.getElementById('cadastraBtn');
+        var emailInput = document.getElementById('email');
+        var senhaInput = document.getElementById('senha');
+        var user_id;
 
-        if (mostraCarregando) {
-            mostraCarregando.style.display = 'block';
+        carregarValorExistente();
 
-            var referencia = database.ref(`eqr/${chave}/data`);
-
-            referencia.on('value', function(snapshot) {
-                var novoValor = snapshot.val();
-                beneficioInput.value = novoValor || '';
-            });
-
-            referencia.once('value', (snapshot) => {
-                if (mostraCarregando) {
-                    mostraCarregando.style.display = 'none';
-                }
-
-                var valor = snapshot.val();
-                var contagemRef = database.ref(`eqr/${chave}/contagem`);
-                
-                contagemRef.on('value', function(snapshot) {
-                    var contagemAtual = snapshot.val();
-                    contagemInput.value = contagemAtual || '0';
-                });
-
-                if (valor !== null) {
-                    mostraCarregando.style.display = 'block';
-                }
-            });
-        }
-    }
-
-    function contarBeneficio() {
-        var contagemRef = database.ref(`eqr/${chave}/contagem`);
-        contagemRef.transaction(function (currentCount) {
-            return (currentCount || 0) + 1;
-        }, function (error, committed, snapshot) {
-            if (error) {
-                console.error('Erro ao atualizar a contagem:', error);
-                alert('Erro ao atualizar a contagem. Verifique o console para mais detalhes.');
-            } else if (committed) {
-                alert('Benefício contado com sucesso!');
-                contagemInput.value = snapshot.val();
-                var beneficio = beneficioInput.value;
-                alert('Benefício para o cliente: ' + beneficio);
-            } else {
-                alert('Falha ao contar o benefício. Tente novamente.');
-            }
-        });
-    }
-
-function apresentarCodigo() {
-    var contagemRef = database.ref(`eqr/${chave}/contagem`);
-    contagemRef.transaction(function (currentCount) {
-        return (currentCount || 0) + 1;
-    }, function (error, committed, snapshot) {
-        if (error) {
-            console.error('Erro ao atualizar a contagem:', error);
-            alert('Erro ao atualizar a contagem. Verifique o console para mais detalhes.');
-        } else if (committed) {
-            contagemInput.value = snapshot.val();
-            var beneficio = beneficioInput.value;
-
-            // Salvar o benefício no banco de dados
-            var dataRef = database.ref(`eqr/${chave}/data`);
-            dataRef.set(beneficio, function (error) {
-                if (error) {
-                    console.error('Erro ao salvar o benefício:', error);
-                    alert('Erro ao salvar o benefício. Verifique o console para mais detalhes.');
-                } else {
-                    alert('Benefício apresentado com sucesso!');
-                }
-            });
-        } else {
-            alert('Falha ao apresentar o código. Tente novamente.');
-        }
-    });
-}
-
-
-
-    function realizarLogin() {
-        var email = emailInput.value;
-        var senha = senhaInput.value;
-
-        firebase.auth().signInWithEmailAndPassword(email, senha)
-            .then((userCredential) => {
-                var user = userCredential.user;
+        firebase.auth().onAuthStateChanged(function (user) {
+            if (user) {
                 userStatus.textContent = 'Usuário autenticado.';
                 userEmailSpan.textContent = user.email;
                 userIdSpan.textContent = user.uid;
                 user_id = user.uid;
                 verificarPermissao();
                 userInfoDiv.style.display = 'block';
+                entrarBtn.style.display = 'none';
+                cadastraBtn.style.display = 'none';
+                contarBeneficioBtn.style.display = 'block';
                 loginSection.style.display = 'none';
-            })
-            .catch((error) => {
-                console.error('Erro durante o login:', error);
-                alert('Erro durante o login. Verifique o console para mais detalhes.');
-            });
-    }
-
-    function realizarLogout() {
-        firebase.auth().signOut()
-            .then(() => {
+            } else {
                 userStatus.textContent = 'Nenhum usuário autenticado.';
-                userEmailSpan.textContent = '';
-                userIdSpan.textContent = '';
-                verificarPermissao();
                 contarBeneficioBtn.style.display = 'none';
                 userInfoDiv.style.display = 'none';
                 entrarBtn.style.display = 'block';
                 cadastraBtn.style.display = 'block';
                 user_id = null;
-                window.location.reload();
-            })
-            .catch((error) => {
-                console.error('Erro durante o logout:', error);
-               
+            }
+        });
+
+        function carregarValorExistente() {
+            var mostraCarregando = document.getElementById('mostraCarregado');
+
+            if (mostraCarregando) {
+                mostraCarregando.style.display = 'block';
+
+                var referencia = database.ref(`eqr/${chave}/data`);
+
+                referencia.on('value', function (snapshot) {
+                    var novoValor = snapshot.val();
+                    beneficioInput.value = novoValor || '';
+                });
+
+                referencia.once('value', (snapshot) => {
+                    if (mostraCarregando) {
+                        mostraCarregando.style.display = 'none';
+                    }
+
+                    var valor = snapshot.val();
+                    var contagemRef = database.ref(`eqr/${chave}/contagem`);
+
+                    contagemRef.on('value', function (snapshot) {
+                        var contagemAtual = snapshot.val();
+                        contagemInput.value = contagemAtual || '0';
+                    });
+
+                    if (valor !== null) {
+                        mostraCarregando.style.display = 'block';
+                    }
+                });
+            }
+        }
+
+        function contarBeneficio() {
+            var contagemRef = database.ref(`eqr/${chave}/contagem`);
+            contagemRef.transaction(function (currentCount) {
+                return (currentCount || 0) + 1;
+            }, function (error, committed, snapshot) {
+                if (error) {
+                    console.error('Erro ao atualizar a contagem:', error);
+                    alert('Erro ao atualizar a contagem. Verifique o console para mais detalhes.');
+                } else if (committed) {
+                    alert('Benefício contado com sucesso!');
+                    contagemInput.value = snapshot.val();
+                    var beneficio = beneficioInput.value;
+                    alert('Benefício para o cliente: ' + beneficio);
+                } else {
+                    alert('Falha ao contar o benefício. Tente novamente.');
+                }
             });
-    }
+        }
 
-    function verificarPermissao() {
-        var referencia = database.ref(`eqr/${chave}/user_id`);
-        referencia.on('value', (snapshot) => {
-            var existingUserId = snapshot.val();
-            if (!existingUserId || (user_id && existingUserId === user_id)) {
-                contarBeneficioBtn.style.display = 'block';
-            } else {
-                contarBeneficioBtn.style.display = 'none';
-            }
-        });
-    }
+        function apresentarCodigo() {
+            var contagemRef = database.ref(`eqr/${chave}/contagem`);
+            contagemRef.transaction(function (currentCount) {
+                return (currentCount || 0) + 1;
+            }, function (error, committed, snapshot) {
+                if (error) {
+                    console.error('Erro ao atualizar a contagem:', error);
+                    alert('Erro ao atualizar a contagem. Verifique o console para mais detalhes.');
+                } else if (committed) {
+                    contagemInput.value = snapshot.val();
+                    var beneficio = beneficioInput.value;
 
-    function exibirFormularioLogin() {
-        loginSection.style.display = 'block';
-        entrarBtn.style.display = 'none';
-        cadastraBtn.style.display = 'none';
-        contarBeneficioBtn.style.display = 'none';
-    }
+                    // Salvar o benefício no banco de dados
+                    var dataRef = database.ref(`eqr/${chave}/data`);
+                    dataRef.set(beneficio, function (error) {
+                        if (error) {
+                            console.error('Erro ao salvar o benefício:', error);
+                            alert('Erro ao salvar o benefício. Verifique o console para mais detalhes.');
+                        } else {
+                            alert('Benefício apresentado com sucesso!');
+                        }
+                    });
+                } else {
+                    alert('Falha ao apresentar o código. Tente novamente.');
+                }
+            });
+        }
 
-    function zerarContador() {
-        var contagemRef = database.ref(`eqr/${chave}/contagem`);
-        contagemRef.transaction(function () {
-            return 0;
-        }, function (error, committed, snapshot) {
-            if (error) {
-                console.error('Erro ao zerar a contagem:', error);
-                alert('Erro ao zerar a contagem. Verifique o console para mais detalhes.');
-            } else if (committed) {
-                alert('Contador zerado com sucesso!');
-                contagemInput.value = 0;
-            } else {
-                alert('Falha ao zerar o contador. Tente novamente.');
-            }
-        });
-    }
-</script>
+        function realizarLogin() {
+            var email = emailInput.value;
+            var senha = senhaInput.value;
+
+            firebase.auth().signInWithEmailAndPassword(email, senha)
+                .then((userCredential) => {
+                    var user = userCredential.user;
+                    userStatus.textContent = 'Usuário autenticado.';
+                    userEmailSpan.textContent = user.email;
+                    userIdSpan.textContent = user.uid;
+                    user_id = user.uid;
+                    verificarPermissao();
+                    userInfoDiv.style.display = 'block';
+                    loginSection.style.display = 'none';
+                })
+                .catch((error) => {
+                    console.error('Erro durante o login:', error);
+                    alert('Erro durante o login. Verifique o console para mais detalhes.');
+                });
+        }
+
+        function realizarLogout() {
+            firebase.auth().signOut()
+                .then(() => {
+                    userStatus.textContent = 'Nenhum usuário autenticado.';
+                    userEmailSpan.textContent = '';
+                    userIdSpan.textContent = '';
+                    verificarPermissao();
+                    contarBeneficioBtn.style.display = 'none';
+                    userInfoDiv.style.display = 'none';
+                    entrarBtn.style.display = 'block';
+                    cadastraBtn.style.display = 'block';
+                    user_id = null;
+                    recarregarPagina(); // Recarregar a página
+                })
+                .catch((error) => {
+                    console.error('Erro durante o logout:', error);
+                    alert('Erro durante o logout. Verifique o console para mais detalhes.');
+                });
+        }
+
+        function verificarPermissao() {
+            var referencia = database.ref(`eqr/${chave}/user_id`);
+            referencia.on('value', (snapshot) => {
+                var existingUserId = snapshot.val();
+                if (!existingUserId || (user_id && existingUserId === user_id)) {
+                    contarBeneficioBtn.style.display = 'block';
+                } else {
+                    contarBeneficioBtn.style.display = 'none';
+                }
+            });
+        }
+
+        function exibirFormularioLogin() {
+            loginSection.style.display = 'block';
+            entrarBtn.style.display = 'none';
+            cadastraBtn.style.display = 'none';
+            contarBeneficioBtn.style.display = 'none';
+        }
+
+        function zerarContador() {
+            var contagemRef = database.ref(`eqr/${chave}/contagem`);
+            contagemRef.transaction(function () {
+                return 0;
+            }, function (error, committed, snapshot) {
+                if (error) {
+                    console.error('Erro ao zerar a contagem:', error);
+                    alert('Erro ao zerar a contagem. Verifique o console para mais detalhes.');
+                } else if (committed) {
+                    alert('Contador zerado com sucesso!');
+                    contagemInput.value = 0;
+                } else {
+                    alert('Falha ao zerar o contador. Tente novamente.');
+                }
+            });
+        }
+    </script>
 
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
