@@ -10,7 +10,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <!-- Adicione o Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <style>
+
+ <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
@@ -37,21 +38,20 @@
             border-radius: 10px;
             padding: 10px;
             box-sizing: border-box;
+            resize: vertical; /* Permitir redimensionamento vertical */
         }
 
-
-
-        #apresentarCodigoBtn, #zerarContadorBtn {
+        #apresentarCodigoBtn, #zerarContadorBtn, #sairBtn {
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
-            margin-top: 10px;
             border-radius: 5px;
         }
 
         #apresentarCodigoBtn {
             background-color: #007bff;
             border: none;
+            margin-top: 10px;
         }
 
         #apresentarCodigoBtn:hover {
@@ -62,26 +62,24 @@
             background-color: #6c757d; /* Cor cinza para o botão de zerar contador */
             border: none;
             color: white;
+            margin-top: 10px;
+            margin-left: 5px; /* Adicionando margem à esquerda para espaçamento entre os botões */
         }
 
         #zerarContadorBtn:hover {
             background-color: #5a6268;
         }
 
-        
-
-        #contarBeneficioBtn {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 10px;
-            background-color: #28a745; /* Cor verde para o botão de contar benefício */
+        #sairBtn {
+            background-color: #dc3545; /* Cor vermelha para o botão de sair */
             border: none;
-            border-radius: 5px;
+            color: white;
+            margin-top: 10px;
+            margin-left: 5px; /* Adicionando margem à esquerda para espaçamento entre os botões */
         }
 
-        #contarBeneficioBtn:hover {
-            background-color: #218838;
+        #sairBtn:hover {
+            background-color: #c82333;
         }
 
         .login-section {
@@ -107,11 +105,10 @@
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
-            margin-top: 10px;
             border-radius: 5px;
         }
 
-        .login-btn.btn-primary, #salvarEditarBtn, #apresentarCodigoBtn, #contarBeneficioBtn {
+        .login-btn.btn-primary, #salvarEditarBtn, #apresentarCodigoBtn {
             background-color: #007bff;
             border: none;
         }
@@ -129,6 +126,8 @@
             bottom: 0;
         }
     </style>
+
+    
 </head>
 <body>
 
@@ -146,16 +145,16 @@
     </div>
 
     <button id="apresentarCodigoBtn" class="btn btn-primary btn-lg" onclick="apresentarCodigo()">Apresentar Código</button>
+    <button id="zerarContadorBtn" class="btn btn-secondary btn-lg" onclick="zerarContador()">Zerar Contador</button>
 
     <hr>
 
     <div id="userInfo" style="display: none;">
         <p id="userStatus"></p>
         <p>Email: <span id="userEmail"></span></p>
+        <button id="sairBtn" class="btn btn-danger" onclick="realizarLogout()">Sair</button>
         <p style="display: none;">User ID: <span id="userId"></span></p>
     </div>
-
-    <button id="logoutBtn" class="btn btn-outline-danger" style="display: none;" onclick="realizarLogout()">Sair</button>
 
     <a id="entrarBtn" class="btn btn-outline-primary" onclick="exibirFormularioLogin()">Entrar</a>
     <a class='btn btn-link ' href='/newuser' id='cadastraBtn'> ou Cadastrar</a>
@@ -167,9 +166,6 @@
     </div>
 
     <hr>
-
-    <!-- Adicionando o botão para zerar o contador -->
-    <button id="zerarContadorBtn" class="btn btn-secondary btn-lg" onclick="zerarContador()">Zerar Contador</button>
 
     <a class="btn btn-link text-secondary" href="https://wabes.com.br" target="_blank">&copy; 2024 - Wabes - Todos os direitos reservados.</a>
 </div>
