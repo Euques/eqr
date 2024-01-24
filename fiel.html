@@ -250,13 +250,46 @@
         });
 
 
+
+function apresentarCodigo() {
+    var contagemRef = database.ref(`eqr/${chave}/contagem`);
+    contagemRef.transaction(function (currentCount) {
+        return (currentCount || 0) + 1;
+    }, function (error, committed, snapshot) {
+        if (error) {
+            console.error('Erro ao atualizar a contagem:', error);
+            alert('Erro ao atualizar a contagem. Verifique o console para mais detalhes.');
+        } else if (committed) {
+            contagemInput.value = snapshot.val();
+            var beneficio = beneficioInput.value;
+
+            // Salvar o benefício, data e userId no banco de dados
+            var dataRef = database.ref(`eqr/${chave}`);
+            dataRef.set({
+                beneficio: beneficio,
+                data: new Date().toISOString(), // Salva a data atual
+                userId: user_id // Salva o userId
+            }, function (error) {
+                if (error) {
+                    console.error('Erro ao salvar o benefício:', error);
+                    alert('Erro ao salvar o benefício. Verifique o console para mais detalhes.');
+                } else {
+                    alert('Benefício apresentado com sucesso!');
+                }
+            });
+        } else {
+            alert('Falha ao apresentar o código. Tente novamente.');
+        }
+    });
+}
+
 function carregarValorExistente() {
     var mostraCarregando = document.getElementById('mostraCarregado');
 
     if (mostraCarregando) {
         mostraCarregando.style.display = 'block';
 
-        var referencia = database.ref(`eqr/${chave}/data`);
+        var referencia = database.ref(`eqr/${chave}`);
 
         referencia.on('value', function (snapshot) {
             if (mostraCarregando) {
@@ -303,37 +336,7 @@ function carregarValorExistente() {
             });
         }
 
-       function apresentarCodigo() {
-    var contagemRef = database.ref(`eqr/${chave}/contagem`);
-    contagemRef.transaction(function (currentCount) {
-        return (currentCount || 0) + 1;
-    }, function (error, committed, snapshot) {
-        if (error) {
-            console.error('Erro ao atualizar a contagem:', error);
-            alert('Erro ao atualizar a contagem. Verifique o console para mais detalhes.');
-        } else if (committed) {
-            contagemInput.value = snapshot.val();
-            var beneficio = beneficioInput.value;
 
-            // Salvar o benefício, data e userId no banco de dados
-            var dataRef = database.ref(`eqr/${chave}/data`);
-            dataRef.set({
-                beneficio: beneficio,
-                data: new Date().toISOString(), // Salva a data atual
-                userId: user_id // Salva o userId
-            }, function (error) {
-                if (error) {
-                    console.error('Erro ao salvar o benefício:', error);
-                    alert('Erro ao salvar o benefício. Verifique o console para mais detalhes.');
-                } else {
-                    alert('Benefício apresentado com sucesso!');
-                }
-            });
-        } else {
-            alert('Falha ao apresentar o código. Tente novamente.');
-        }
-    });
-}
 
 
         function realizarLogin() {
