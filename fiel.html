@@ -285,13 +285,13 @@ function apresentarCodigo() {
 
 
 
- function carregarValorExistente() {
+function carregarValorExistente() {
     var mostraCarregando = document.getElementById('mostraCarregado');
 
     if (mostraCarregando) {
         mostraCarregando.style.display = 'block';
 
-        var referencia = database.ref(`eqr/${chave}`);
+        var referencia = database.ref(`eqr/${chave}/data`);
 
         referencia.once('value')
             .then(function (snapshot) {
@@ -299,13 +299,12 @@ function apresentarCodigo() {
                     mostraCarregando.style.display = 'none';
                 }
 
-                var data = snapshot.val();
+                var valorData = snapshot.val();
 
-                if (data) {
-                    beneficioInput.value = data.beneficio || '';
-                    contagemInput.value = data.contagem || '0';
+                if (valorData) {
+                    beneficioInput.value = valorData;
                 } else {
-                    console.log('Chave vazia ou não existe.');
+                    console.log('O campo "data" está vazio ou não existe na chave específica.');
                 }
             })
             .catch(function (error) {
@@ -313,6 +312,7 @@ function apresentarCodigo() {
             });
     }
 }
+
 
 
 
