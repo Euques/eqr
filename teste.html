@@ -23,7 +23,6 @@
     
     <a href="index.html" class="btn btn-primary">Voltar</a>
 </div>
-
 <script>
     // Configuração do Firebase
     var firebaseConfig = {
@@ -56,11 +55,11 @@
 
     function recuperarQrsDoUsuario(userId) {
         var qrsList = document.getElementById('qrsList');
-        qrsList.innerHTML = ''; // Limpar a lista antes de adicionar os novos itens
-
         var referencia = database.ref('eqr').orderByChild('user_id').equalTo(userId);
 
         referencia.on('value', (snapshot) => {
+            qrsList.innerHTML = ''; // Limpar a lista antes de adicionar os novos itens
+
             snapshot.forEach((childSnapshot) => {
                 var chave = childSnapshot.key;
                 var valor = childSnapshot.child('data').val();
@@ -68,7 +67,7 @@
                 // Adicione um item à lista para cada QR
                 var listItem = document.createElement('div');
                 listItem.className = 'rounded p-3 mb-3 border';
-
+                
                 var title = document.createElement('h5');
                 title.innerText = `e-qr: ${chave}`;
 
@@ -105,6 +104,7 @@
         });
     }
 </script>
+
 
 <!-- Adicione o Bootstrap JS no final do corpo para otimizar o carregamento -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
